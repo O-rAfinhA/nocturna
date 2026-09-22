@@ -44,7 +44,7 @@ O zoom funciona pelos botões `+` e `−` ou pela roda do mouse enquanto o curso
 
 ## Próximas etapas
 
-Os textos de privacidade identificam o responsável e o e-mail público de contato. A propriedade HTTPS do Search Console é verificada por metatag na página inicial e o sitemap foi enviado; a propriedade de domínio completo exige um registro TXT na Hostinger. Google Analytics pode ser configurado quando houver um ID de medição e os controles de privacidade correspondentes. AdSense aguarda a conta e a revisão das condições dos serviços de mapa e busca. O código gera HTML de leitura e sitemap para o conteúdo publicado.
+Os textos de privacidade identificam o responsável e o e-mail público de contato. A propriedade HTTPS do Search Console é verificada por metatag na página inicial e o sitemap foi enviado; a propriedade de domínio completo exige um registro TXT na Hostinger. Google Analytics pode ser configurado quando houver um ID de medição e os controles de privacidade correspondentes. O `ads.txt` oficial do AdSense está publicado e a revisão do site foi solicitada; anúncios ainda não estão ativos. Antes de exibi-los, revise as condições dos serviços de mapa e busca e configure a gestão de consentimento aplicável. O código gera HTML de leitura e sitemap para o conteúdo publicado.
 
 Quando uma história é publicada, sua localidade aparece no diretório da página inicial; histórias da mesma cidade, região e país são reunidas. Rascunhos e casos em revisão não geram páginas públicas. Na Vercel, as mudanças no catálogo aparecem diretamente nas rotas e no sitemap, sem novo deploy.
 
