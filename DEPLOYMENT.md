@@ -15,10 +15,10 @@ Depois de confirmar o catálogo no Preview, remova do índice Git o arquivo loca
 
 ## Rotas e mídia
 
-As rotas de leitura usam uma página genérica que busca a história publicada na API. Por isso, uma história recém-publicada no painel fica acessível sem esperar outra geração completa. Depois da migração, o deploy não inclui os textos editoriais nem páginas de histórias no repositório.
+As rotas de leitura e de localidades geram HTML completo na Function a partir das histórias publicadas no banco. Uma história recém-publicada fica acessível sem esperar outra geração completa. `/sitemap.xml` é atualizado a partir do mesmo catálogo. O deploy não inclui os textos editoriais nem páginas de histórias no repositório.
 
 Guarde imagens, áudios e vídeos em Vercel Blob, S3 ou serviço equivalente. Não envie mídia pesada para o repositório nem para a resposta de uma Function.
 
 ## Limites e privacidade
 
-Conclua a página de privacidade, substitua os elementos de demonstração e revise os conteúdos `noindex` antes da abertura pública. A pasta `data/`, os arquivos `.env` e as credenciais administrativas permanecem privados e nunca devem ser enviados ao repositório.
+O domínio canônico é `portalnocturna.com.br`. Na zona DNS da Hostinger, configure os registros A do domínio raiz e o CNAME de `www` conforme a verificação atual da Vercel; os valores podem mudar e devem ser conferidos antes de editar o DNS. Conclua a página de privacidade e informe o contato público antes de ativar medição ou anúncios. Analytics e AdSense dependem de configuração própria; não inclua IDs de exemplo. A pasta `data/`, os arquivos `.env` e as credenciais administrativas permanecem privados e nunca devem ser enviados ao repositório.

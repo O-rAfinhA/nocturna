@@ -1,12 +1,12 @@
-# Nocturna — primeira versão
+# Nocturna
 
-Página inicial estática do atlas interativo, em português, inglês e espanhol. Esta versão contém apenas histórias fictícias de demonstração. Nenhuma conta, anúncio ou serviço de análise está integrado.
+Atlas interativo de histórias incomuns, em português, inglês e espanhol. O catálogo publicado fica no PostgreSQL da versão online; a cópia editorial local em `content/stories.json` e os dados em `data/` permanecem fora do GitHub. Anúncios e serviços de análise ainda não estão ativos.
 
 Se você abrir este projeto com outro Codex, leia `AGENTS.md` e `CONTEXTO-PARA-CODEX.md` para conhecer as decisões anteriores e preservar dados transferidos do computador antigo.
 
-Para preparar uma publicação na Vercel com banco de dados para comentários e administração, siga [DEPLOYMENT.md](DEPLOYMENT.md). O servidor local continua sendo a opção adequada para desenvolvimento sem banco remoto.
+Para configurar ou atualizar a publicação na Vercel, siga [DEPLOYMENT.md](DEPLOYMENT.md). O servidor local continua disponível para desenvolvimento sem banco remoto.
 
-As páginas locais ficam em `/pt/`, `/en/` e `/es/`, com páginas de privacidade correspondentes em `/pt/privacidade.html`, `/en/privacidade.html` e `/es/privacidade.html`. Histórias publicadas ganham páginas individuais e páginas por localidade, como `/pt/locais/curitiba-parana-brasil/`, `/en/places/curitiba-parana-brasil/` e `/es/lugares/curitiba-parana-brasil/`. Todas têm `noindex` enquanto o conteúdo e o endereço público não estiverem prontos. Não há sitemap nem URLs canônicas nesta fase.
+As páginas ficam em `/pt/`, `/en/` e `/es/`, com páginas de privacidade correspondentes. Histórias publicadas ganham páginas individuais e páginas por localidade, como `/pt/locais/curitiba-parana-brasil/`, `/en/places/curitiba-parana-brasil/` e `/es/lugares/curitiba-parana-brasil/`. Na Vercel, o HTML das histórias e localidades é gerado a partir do banco, com URLs canônicas, alternância de idiomas e `/sitemap.xml` dinâmico. A página de privacidade permanece fora dos mecanismos de busca enquanto faltam os dados públicos do responsável.
 
 Ao abrir `/`, o idioma segue o navegador: português para `pt`, espanhol para `es` e inglês para os demais. Os caminhos explícitos preservam o idioma indicado neles. A troca manual na página não salva uma preferência no dispositivo.
 
@@ -27,10 +27,10 @@ O servidor escuta apenas em `127.0.0.1`. Os comentários e sessões ficam em `da
 
 - `dist/index.html`: estrutura da página e metadados básicos.
 - `dist/styles.css`: aparência responsiva.
-- `dist/app.js`: globo, seleção, busca, relatos fictícios e traduções.
+- `dist/app.js`: globo, seleção, busca, catálogo público carregado da API e traduções.
 - `build_pages.py`: gera páginas estáticas dos três idiomas, páginas de histórias publicadas e páginas por localidade.
-- `content/story.schema.json`: campos e classificações previstos para histórias futuras.
-- `content/stories.json`: catálogo editorial, atualmente vazio. Apenas registros com `status: "published"` geram páginas; registros publicados exigem texto nos três idiomas e fontes para casos classificados como documentados.
+- `content/story.schema.json`: campos e classificações das histórias.
+- `content/stories.json`: cópia editorial local, fora do GitHub. Apenas registros com `status: "published"` são públicos; registros publicados exigem texto nos três idiomas e fontes para casos classificados como documentados.
 - `server.mjs`: servidor local, autenticação do administrador e APIs de histórias e comentários.
 - `local-store.mjs`: armazenamento local dos comentários e sessões, sem dependências externas.
 - `setup-admin.mjs`: cadastro local da senha do administrador.
@@ -44,9 +44,9 @@ O zoom funciona pelos botões `+` e `−` ou pela roda do mouse enquanto o curso
 
 ## Próximas etapas
 
-Criar o catálogo editorial de histórias reais, as páginas individuais e por localidade, o SEO internacional completo e os textos legais finais com os dados reais do responsável. A integração de AdSense fica para uma fase separada.
+Confirmar o DNS do domínio próprio, completar os textos legais com os dados públicos do responsável e configurar Analytics e AdSense quando houver os IDs e a revisão das condições dos serviços de mapa e busca. O código já gera HTML de leitura e sitemap para o conteúdo publicado.
 
-A estrutura para páginas individuais e por localidade já está preparada pelo gerador, mas nenhuma história editorial foi publicada nesta cópia do projeto. Os relatos fictícios da tela inicial ainda servem apenas para testar a interface e não entram no catálogo. Quando uma história é publicada, sua localidade aparece no diretório da página inicial; histórias da mesma cidade, região e país são reunidas. Rascunhos e casos em revisão não geram páginas públicas. Ao retirar uma história de publicação, a próxima geração remove a página antiga e atualiza o diretório.
+Quando uma história é publicada, sua localidade aparece no diretório da página inicial; histórias da mesma cidade, região e país são reunidas. Rascunhos e casos em revisão não geram páginas públicas. Na Vercel, as mudanças no catálogo aparecem diretamente nas rotas e no sitemap, sem novo deploy.
 
 Os comentários pertencem a histórias publicadas. Após aprovação, aparecem na página da história e, na página inicial, apenas para quem seleciona um ponto a até 250 km da localização aproximada da história. A posição do visitante é comparada no navegador e não é enviada ao servidor para filtrar comentários. Nenhum comentário aparece enquanto o catálogo estiver vazio.
 

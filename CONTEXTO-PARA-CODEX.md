@@ -2,7 +2,7 @@
 
 ## Visão do produto
 
-Nocturna é um portal de casos estranhos, insólitos e bizarros associados a lugares. O visitante não precisa de conta. Ele pode girar um globo, abrir um mapa detalhado, buscar cidades e códigos postais, selecionar um lugar e descobrir histórias e comentários próximos. A localização do navegador é opcional e só é pedida após clicar em “Minha localização”. A interface de visitantes funciona em português, inglês e espanhol, com idioma inicial escolhido pelo navegador; o seletor mostra PT, EN e ES. O visual é escuro, com clima de atlas misterioso. Futuramente o site poderá ter AdSense, mas ainda não há anúncios, domínio público definido ou publicação autorizada.
+Nocturna é um portal de casos estranhos, insólitos e bizarros associados a lugares. O visitante não precisa de conta. Ele pode girar um globo, abrir um mapa detalhado, buscar cidades e códigos postais, selecionar um lugar e descobrir histórias e comentários próximos. A localização do navegador é opcional e só é pedida após clicar em “Minha localização”. A interface de visitantes funciona em português, inglês e espanhol, com idioma inicial escolhido pelo navegador; o seletor mostra PT, EN e ES. O visual é escuro, com clima de atlas misterioso. A versão online está na Vercel, com histórias e comentários no PostgreSQL; o domínio escolhido é `portalnocturna.com.br` e depende dos registros DNS da Hostinger. Anúncios e Analytics ainda não estão ativos.
 
 ## Funcionalidade existente
 
@@ -14,7 +14,7 @@ Nocturna é um portal de casos estranhos, insólitos e bizarros associados a lug
 - `build_pages.py`: gera páginas iniciais e de privacidade PT/EN/ES; ao publicar histórias, gera páginas individuais e páginas por localidade, com navegação entre idiomas e diretório de lugares na página inicial. Retirar uma história de publicação remove suas páginas geradas na próxima execução.
 - `content/stories.json` guarda as histórias. O ZIP produzido nesta conversa contém `[]`, mas o computador anterior pode ter histórias próprias. `content/story.schema.json` descreve a estrutura.
 - Os marcadores das histórias publicadas aparecem no mapa com título e link para a página da história. Os comentários aprovados aparecem na história e na página inicial para visitantes que selecionam um ponto a até 250 km da localização aproximada da história. Essa filtragem regional ocorre no navegador.
-- As seis cidades e histórias fictícias na página inicial são uma demonstração, não são histórias reais publicadas. As páginas permanecem com `noindex`; sitemap, URLs canônicas, hreflang com URLs absolutas, texto legal final e integração de anúncios aguardam domínio e conteúdo reais.
+- A versão online carrega as histórias publicadas do PostgreSQL. As páginas de histórias e localidades são geradas em HTML pela API e o sitemap dinâmico inclui somente conteúdo publicado, nos três idiomas. As páginas de privacidade permanecem sem indexação enquanto faltam o contato público e os dados do responsável.
 
 ## Arquivos e dados ao mudar de computador
 
@@ -34,12 +34,12 @@ Acesse `http://localhost:8000/` e `http://localhost:8000/admin/`. Se houver um s
 
 ## Restrições e próximos passos
 
-1. Preservar o trabalho local do usuário. O projeto ainda não está sincronizado com GitHub por esta conversa; não assumir acesso a nenhum repositório.
-2. O usuário preferiu decidir as primeiras histórias reais mais tarde. Pergunte pela direção editorial quando esse trabalho se tornar necessário; mantenha nítida a distinção entre fato documentado, relato não verificado e ficção.
-3. A migração para hospedagem pública exige persistência adequada, revisão da autenticação e moderação, revisão da privacidade e escolha de serviços de mapa e busca que permitam o modelo de uso e tráfego previstos. Não tratar este servidor local como pronto para deploy na Vercel.
-4. Antes da indexação, remover `noindex` somente de páginas revisadas e com conteúdo real, configurar domínio, sitemap, canônicas e equivalentes PT/EN/ES. Nunca prometer posicionamento nos mecanismos de busca nem aprovação no AdSense.
-5. Melhorias possíveis: backup/restauração do painel, filtros de histórias por tipo e distância, primeiras histórias reais com fontes verificadas.
+1. Preservar o trabalho local do usuário. O código está sincronizado com `https://github.com/O-rAfinhA/nocturna`; histórias, senhas, sessões e comentários não devem entrar no GitHub.
+2. O catálogo online contém histórias reais e relatos classificados; manter a distinção entre fato documentado, relato não verificado e ficção.
+3. A versão pública usa Functions da Vercel e PostgreSQL do Neon. O `server.mjs` continua exclusivo para uso local. Antes de monetizar, concluir privacidade e substituir os serviços gratuitos de busca/mapa conforme os termos de uso.
+4. O domínio, sitemap, canônicas e equivalentes PT/EN/ES estão configurados no código. Confirmar DNS e páginas online antes de enviar sitemap ao Search Console. Nunca prometer posicionamento nos mecanismos de busca nem aprovação no AdSense.
+5. Google Analytics e AdSense aguardam os IDs do usuário; contato público e identificação do responsável também ficaram pendentes por escolha dele. Não inventar dados nem ativar anúncios antes dessas decisões.
 
 ## Mensagem inicial sugerida para o novo Codex
 
-> Este é o projeto Nocturna que trouxe de outro computador. Leia `AGENTS.md`, `CONTEXTO-PARA-CODEX.md` e `README.md`. Inspecione os arquivos locais antes de editar. Confirme quais histórias e comentários existem neste computador e preserve `content/stories.json` e `data/`. Verifique a execução local com Node 20+ e Python 3, examine o estado atual e proponha o próximo passo mais útil. Não publique nem ative anúncios nesta etapa.
+> Este é o projeto Nocturna. Leia `AGENTS.md`, `CONTEXTO-PARA-CODEX.md` e `README.md`. Inspecione os arquivos locais antes de editar. Preserve `content/stories.json` e `data/`; não envie dados editoriais ou privados ao GitHub. Verifique o estado da Vercel, Neon e DNS antes de mudanças públicas. Não ative anúncios sem os dados e a autorização necessários.

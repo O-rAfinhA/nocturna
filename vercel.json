@@ -2,11 +2,18 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
+  "redirects": [
+    { "source": "/:path*", "has": [{ "type": "host", "value": "www.portalnocturna.com.br" }], "destination": "https://portalnocturna.com.br/:path*", "permanent": true }
+  ],
   "rewrites": [
     { "source": "/api/admin/comments/:id", "destination": "/api/admin/comment?id=:id" },
     { "source": "/api/stories/:slug", "destination": "/api/story?slug=:slug" },
-    { "source": "/pt/historias/:slug/", "destination": "/story.html?lang=pt&slug=:slug" },
-    { "source": "/en/stories/:slug/", "destination": "/story.html?lang=en&slug=:slug" },
-    { "source": "/es/historias/:slug/", "destination": "/story.html?lang=es&slug=:slug" }
+    { "source": "/pt/historias/:slug/", "destination": "/api/page?lang=pt&slug=:slug" },
+    { "source": "/en/stories/:slug/", "destination": "/api/page?lang=en&slug=:slug" },
+    { "source": "/es/historias/:slug/", "destination": "/api/page?lang=es&slug=:slug" },
+    { "source": "/pt/locais/:slug/", "destination": "/api/place?lang=pt&slug=:slug" },
+    { "source": "/en/places/:slug/", "destination": "/api/place?lang=en&slug=:slug" },
+    { "source": "/es/lugares/:slug/", "destination": "/api/place?lang=es&slug=:slug" },
+    { "source": "/sitemap.xml", "destination": "/api/page?type=sitemap" }
   ]
 }

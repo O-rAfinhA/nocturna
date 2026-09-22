@@ -11,6 +11,13 @@ import shutil
 
 ROOT = Path(__file__).parent / "dist"
 HOME = (ROOT / "index.html").read_text(encoding="utf-8")
+STATIC_CATALOG = os.environ.get("NOCTURNA_STATIC_CATALOG", "1") != "0"
+SITE_URL = "https://portalnocturna.com.br"
+HOME_META = {
+    "pt": ("Nocturna — Atlas do incomum", "Explore um atlas interativo de histórias incomuns pelo mundo."),
+    "en": ("Nocturna — Atlas of the unusual", "Explore an interactive atlas of unusual stories around the world."),
+    "es": ("Nocturna — Atlas de lo insólito", "Explora un atlas interactivo de historias insólitas del mundo."),
+}
 
 HOME_TEXT = {
     "pt": {},
@@ -111,6 +118,23 @@ for lang in ("pt", "en", "es"):
     for source, target in HOME_TEXT[lang].items():
         assert source in page, (lang, source)
         page = page.replace(source, target)
+    if not STATIC_CATALOG:
+        title, description = HOME_META[lang]
+        canonical = f"{SITE_URL}/{lang}/"
+        alternates = "".join(
+            f'<link rel="alternate" hreflang="{locale}" href="{SITE_URL}/{code}/">'
+            for code, locale in (("pt", "pt-BR"), ("en", "en"), ("es", "es"))
+        ) + f'<link rel="alternate" hreflang="x-default" href="{SITE_URL}/pt/">'
+        structured = json.dumps({"@context": "https://schema.org", "@type": "WebSite", "name": "Nocturna", "url": canonical, "inLanguage": {"pt": "pt-BR", "en": "en", "es": "es"}[lang]}, ensure_ascii=False).replace("<", "\\u003c")
+        seo = (f'<meta name="robots" content="index,follow,max-image-preview:large">'
+               f'<link rel="canonical" href="{canonical}">{alternates}'
+               f'<meta property="og:type" content="website"><meta property="og:site_name" content="Nocturna">'
+               f'<meta property="og:title" content="{escape(title, quote=True)}">'
+               f'<meta property="og:description" content="{escape(description, quote=True)}">'
+               f'<meta property="og:url" content="{canonical}">'
+               f'<meta name="twitter:card" content="summary">'
+               f'<script type="application/ld+json">{structured}</script>')
+        page = page.replace('<meta name="robots" content="noindex,follow">', seo, 1)
     (folder / "index.html").write_text(page, encoding="utf-8")
 
     copy = PRIVACY[lang]
@@ -272,8 +296,7 @@ def add_locality_directory(groups, slugs, lang):
 content_file = Path(__file__).parent / "content" / "stories.json"
 # The remote deployment reads published stories from Postgres.  Keep the local
 # catalog available for the offline Node server and editorial workflow.
-static_catalog = os.environ.get("NOCTURNA_STATIC_CATALOG", "1") != "0"
-stories = json.loads(content_file.read_text(encoding="utf-8")) if static_catalog and content_file.exists() else []
+stories = json.loads(content_file.read_text(encoding="utf-8")) if STATIC_CATALOG and content_file.exists() else []
 if not isinstance(stories, list):
     raise ValueError("stories.json must be an array")
 seen = set()
