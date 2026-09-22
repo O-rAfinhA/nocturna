@@ -1,0 +1,16 @@
+{
+  "name": "nocturna",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.1.0"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "db:import-content": "node scripts/import-content.mjs",
+    "db:migrate": "node scripts/migrate-database.mjs",
+    "setup-admin": "node setup-admin.mjs",
+    "start": "node server.mjs"
+  }
+}

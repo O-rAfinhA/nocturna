@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Nocturna story",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["slug", "status", "classification", "place", "publishedAt", "updatedAt", "translations", "sources"],
+  "properties": {
+    "slug": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"},
+    "status": {"enum": ["draft", "review", "published"]},
+    "classification": {"enum": ["documented", "unverified", "fiction"]},
+    "place": {
+      "type": "object", "additionalProperties": false,
+      "required": ["city", "region", "country", "latitude", "longitude"],
+      "properties": {
+        "city": {"type": "string", "minLength": 1},
+        "region": {"type": "string", "minLength": 1},
+        "country": {"type": "string", "minLength": 1},
+        "latitude": {"type": "number", "minimum": -90, "maximum": 90},
+        "longitude": {"type": "number", "minimum": -180, "maximum": 180}
+      }
+    },
+    "eventDate": {"type": ["string", "null"], "description": "Date or date range as published, or null when unknown."},
+    "publishedAt": {"type": "string", "format": "date"},
+    "updatedAt": {"type": "string", "format": "date"},
+    "translations": {
+      "type": "object", "additionalProperties": false, "required": ["pt", "en", "es"],
+      "properties": {
+        "pt": {"$ref": "#/$defs/copy"},
+        "en": {"$ref": "#/$defs/copy"},
+        "es": {"$ref": "#/$defs/copy"}
+      }
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["title", "url"],
+        "properties": {"title": {"type": "string"}, "url": {"type": "string", "format": "uri"}}
+      }
+    },
+    "explore": {
+      "type": "array",
+      "description": "External material for readers to explore. It is supplementary and does not by itself verify the story.",
+      "maxItems": 10,
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["kind", "url", "labels"],
+        "properties": {
+          "kind": {"enum": ["document", "image", "audio", "video", "reading"]},
+          "url": {"type": "string", "format": "uri"},
+          "labels": {
+            "type": "object", "additionalProperties": false, "required": ["pt", "en", "es"],
+            "properties": {
+              "pt": {"type": "string", "minLength": 1},
+              "en": {"type": "string", "minLength": 1},
+              "es": {"type": "string", "minLength": 1}
+            }
+          }
+        }
+      }
+    },
+    "image": {
+      "type": ["object", "null"],
+      "description": "Optional licensed image and its credit; image rendering is not implemented yet.",
+      "properties": {"url": {"type": "string"}, "credit": {"type": "string"}},
+      "required": ["url", "credit"], "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "copy": {
+      "type": "object", "additionalProperties": false, "required": ["title", "summary", "body"],
+      "properties": {
+        "title": {"type": "string", "minLength": 1},
+        "summary": {"type": "string", "minLength": 1},
+        "body": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080d14">
+  <meta name="description" content="Explore an interactive atlas of unusual stories around the world.">
+  <meta name="robots" content="noindex,follow">
+  <script>
+    if (location.pathname === '/' || location.pathname === '/index.html') {
+      const browserLanguage = (navigator.language || 'en').toLowerCase();
+      const locale = browserLanguage.startsWith('pt') ? 'pt' : browserLanguage.startsWith('es') ? 'es' : 'en';
+      location.replace('/' + locale + '/');
+    }
+  </script>
+  <title>Nocturna — Atlas of the unusual</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23080d14'/%3E%3Ccircle cx='32' cy='32' r='21' fill='none' stroke='%23bf9d65' stroke-width='3'/%3E%3Cpath d='M32 11v42M11 32h42M18 18l28 28' stroke='%23bf9d65' stroke-width='2'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="../styles.css">
+  <script type="module" src="../app.js"></script>
+</head>
+<body>
+  <div class="shell">
+    <header class="masthead">
+      <a class="brand" href="/en/" aria-label="Nocturna — início"><span class="brand-mark" aria-hidden="true">✦</span><span>NOCTURNA</span></a>
+      <div class="header-right"><span class="masthead-label" data-i18n="masthead">ATLAS OF THE UNUSUAL</span><label class="language"><span class="sr-only" data-i18n="language">Idioma</span><select id="language" aria-label="Idioma"><option value="pt">PT</option><option value="en">EN</option><option value="es">ES</option></select></label></div>
+    </header>
+    <main>
+      <div class="intro"><div class="eyebrow" data-i18n="eyebrow">EXPLORE THE UNKNOWN</div><h1 data-i18n="headline">Every place has a story.</h1><p data-i18n="intro">Pick a point on the globe or search for a city to discover nearby stories.</p></div>
+      <form id="search-form" class="search-row" role="search"><label class="search-wrap"><span class="search-icon" aria-hidden="true">⌕</span><span class="sr-only" data-i18n="searchLabel">Search for a city</span><input id="search" type="search" autocomplete="off" list="cities" aria-label="Search for a city" aria-controls="search-results" data-placeholder="searchPlaceholder" placeholder="Search for a city or postal code"><datalist id="cities"></datalist></label><button class="primary" type="submit" data-i18n="explore">Explore</button><button id="locate" class="locate" type="button"><span aria-hidden="true">◎</span><span data-i18n="myLocation">My location</span></button></form><div id="search-results" class="search-results" aria-live="polite" hidden></div>
+      <div class="layout">
+        <section class="globe-panel" aria-label="Interactive globe" id="globe-panel"><div class="panel-header"><span><span class="signal" aria-hidden="true"></span><span data-i18n="atlas">INTERACTIVE ATLAS</span></span><span class="gesture" data-i18n="gesture">DRAG TO ROTATE · CLICK TO SELECT</span></div><div class="view-switch" role="group" aria-label="View"><button type="button" id="view-globe" aria-pressed="true" data-i18n="viewGlobe">Globe</button><button type="button" id="view-map" aria-pressed="false" data-i18n="viewMap">Detailed map</button></div><div class="globe-stage"><canvas id="globe" role="img" aria-label="Interactive globe; drag to rotate and click to select"></canvas><div id="street-map" role="application" aria-label="Detailed map; drag to navigate and click to select" hidden></div><div class="globe-error" id="globe-error" hidden data-i18n="mapError">The globe is unavailable. Use search or the city list below.</div></div><div class="panel-bottom"><span id="coordinates">25,4° S · 49,3° O</span><div class="map-controls"><button type="button" id="zoom-out" aria-label="Zoom out" title="Zoom out">−</button><button type="button" id="zoom-in" aria-label="Zoom in" title="Zoom in">+</button></div></div></section>
+        <section class="results" aria-live="polite"><div class="results-kicker"><span data-i18n="selected">SELECTED LOCATION</span><span aria-hidden="true">✦</span></div><h2 id="place"></h2><p id="summary"></p><div id="stories" class="stories"></div><div class="regional"><h3 data-i18n="regionalHeading">Comments from this region</h3><div id="regional-comments"></div></div><p id="notice" class="notice"></p></section>
+      </div>
+      <section class="places" aria-labelledby="places-heading"><div class="places-heading"><h2 id="places-heading" data-i18n="chooseCity">Or choose a city</h2><span data-i18n="cityHint">Available in this demo</span></div><div id="place-buttons" class="place-buttons"></div></section>
+    <section class="locality-directory" aria-labelledby="locality-heading"><h2 id="locality-heading">Explore by place</h2><div class="locality-list"><a href="/en/places/colares-para-brasil/">Colares, Pará, Brasil <span>(1)</span></a><a href="/en/places/guaratuba-parana-brasil/">Guaratuba, Paraná, Brasil <span>(1)</span></a><a href="/en/places/sao-jose-dos-campos-sao-paulo-brasil/">São José dos Campos, São Paulo, Brasil <span>(1)</span></a><a href="/en/places/sao-paulo-sao-paulo-brasil/">São Paulo, São Paulo, Brasil <span>(1)</span></a><a href="/en/places/varginha-minas-gerais-brasil/">Varginha, Minas Gerais, Brasil <span>(1)</span></a></div></section></main>
+    <footer><span data-i18n="disclaimer">An atlas of unusual stories around the world.</span><span><span data-i18n="footerPrivacy">No account. Location is optional.</span> <a id="privacy-link" href="/en/privacidade.html" data-i18n="privacy">Privacy</a> <span class="geodata-credit"><span data-i18n="geodata">Place search:</span> <a href="https://www.geonames.org/" target="_blank" rel="noopener noreferrer">GeoNames</a> · <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo</a></span></span></footer>
+  </div>
+  <dialog id="story-dialog"><button id="close-dialog" class="close-dialog" type="button" aria-label="Close">×</button><div class="dialog-eyebrow" data-i18n="fiction">FICTION · SAMPLE</div><h2 id="dialog-title"></h2><p id="dialog-description"></p><p class="dialog-note" data-i18n="fictionNotice">This story is fictional and only demonstrates how a future story page could work.</p></dialog>
+</body>
+</html>

@@ -1,0 +1,17 @@
+data/
+node_modules/
+content/stories.json
+content/stories.pre-*.json
+dist/pt/historias/
+dist/pt/locais/
+dist/en/stories/
+dist/en/places/
+dist/es/historias/
+dist/es/lugares/
+__pycache__/
+*.pyc
+
+.vercel
+.env*
+.agents/
+skills-lock.json
