@@ -28,6 +28,8 @@ let places = [];
 const canvas = $('#globe');
 const ctx = canvas.getContext('2d');
 const stage = $('.globe-stage');
+const GLOBE_ZOOM_MIN = .8;
+const GLOBE_ZOOM_MAX = 3.5;
 const deg = Math.PI / 180;
 const state = {lang:readLang(), lon:-50, lat:-15, selected:null, zoom:1, pointer:null, moved:false, outlines:null, notice:null, published:[],catalogStatus:'loading',regionalComments:[],view:'globe',map:null,mapMarker:null,storyLayer:null,mapZoom:12};
 function readLang(){const path=location.pathname.split('/').filter(Boolean)[0];if(['pt','en','es'].includes(path))return path;const browserLanguage=(navigator.language||'en').toLowerCase();return browserLanguage.startsWith('pt')?'pt':browserLanguage.startsWith('es')?'es':'en'}
@@ -101,12 +103,12 @@ $('#language').addEventListener('change',event=>{cancelPlaceSearch();const value
 window.addEventListener('popstate',()=>localize(readLang()));
 $('#locate').addEventListener('click',()=>{if(!navigator.geolocation){setNotice(t('locateFail'));return}setNotice(t('locatePending'));navigator.geolocation.getCurrentPosition(({coords})=>select({lon:coords.longitude,lat:coords.latitude},t('locateSuccess')),()=>setNotice(t('locateFail')),{enableHighAccuracy:false,timeout:9000,maximumAge:300000})});
 $('#view-map').addEventListener('click',showMap);$('#view-globe').addEventListener('click',showGlobe);
-$('#zoom-in').addEventListener('click',()=>{if(state.view==='map'){state.map?.zoomIn();return}state.zoom=Math.min(1.65,state.zoom*1.2);draw()});$('#zoom-out').addEventListener('click',()=>{if(state.view==='map'){state.map?.zoomOut();return}state.zoom=Math.max(.8,state.zoom/1.2);draw()});
+$('#zoom-in').addEventListener('click',()=>{if(state.view==='map'){state.map?.zoomIn();return}state.zoom=Math.min(GLOBE_ZOOM_MAX,state.zoom*1.2);draw()});$('#zoom-out').addEventListener('click',()=>{if(state.view==='map'){state.map?.zoomOut();return}state.zoom=Math.max(GLOBE_ZOOM_MIN,state.zoom/1.2);draw()});
 stage.addEventListener('wheel',event=>{
   if(state.view==='map')return;
   event.preventDefault();
   const pixels=event.deltaY*(event.deltaMode===1?16:event.deltaMode===2?stage.clientHeight:1);
-  state.zoom=Math.max(.8,Math.min(1.65,state.zoom*Math.exp(-pixels*.0015)));
+  state.zoom=Math.max(GLOBE_ZOOM_MIN,Math.min(GLOBE_ZOOM_MAX,state.zoom*Math.exp(-pixels*.0015)));
   draw();
 },{passive:false});
 canvas.addEventListener('pointerdown',event=>{canvas.setPointerCapture(event.pointerId);state.pointer={x:event.clientX,y:event.clientY,startX:event.clientX,startY:event.clientY};state.moved=false});
