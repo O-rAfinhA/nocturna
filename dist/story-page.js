@@ -1,6 +1,7 @@
 const params = new URLSearchParams(location.search);
-const lang = ['pt', 'en', 'es'].includes(params.get('lang')) ? params.get('lang') : 'pt';
-const slug = params.get('slug') || '';
+const storyPath = location.pathname.match(/^\/(pt|en|es)\/(?:historias|stories)\/([a-z0-9]+(?:-[a-z0-9]+)*)\/?$/);
+const lang = storyPath?.[1] || (['pt', 'en', 'es'].includes(params.get('lang')) ? params.get('lang') : 'pt');
+const slug = storyPath?.[2] || params.get('slug') || '';
 const words = {
   pt: { back: 'Voltar ao atlas', sources: 'Fontes', classification: 'Classificação', documented: 'Documentado', unverified: 'Relato não verificado', fiction: 'Ficção', explore: 'Explore mais', note: 'Estes links externos ajudam a investigar o contexto; eles não confirmam, por si só, as alegações da história.', privacy: 'Sem cadastro. Localização opcional. Privacidade', unavailable: 'Esta história não está disponível.' },
   en: { back: 'Back to the atlas', sources: 'Sources', classification: 'Classification', documented: 'Documented', unverified: 'Unverified account', fiction: 'Fiction', explore: 'Explore further', note: 'These external links help investigate the context; they do not, by themselves, confirm the story’s claims.', privacy: 'No account. Location is optional. Privacy', unavailable: 'This story is unavailable.' },
