@@ -8,6 +8,9 @@ dist/en/stories/
 dist/en/places/
 dist/es/historias/
 dist/es/lugares/
+dist/pt/index.html
+dist/en/index.html
+dist/es/index.html
 __pycache__/
 *.pyc
 
