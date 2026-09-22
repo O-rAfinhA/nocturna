@@ -24,7 +24,8 @@ for (const lang of ['pt', 'en', 'es']) {
     assert.match(html, /hreflang="en"/);
     assert.match(html, /hreflang="es"/);
     assert.match(html, /"@type":"Article"/);
-    assert.ok(!html.includes('<script>'));
+    assert.ok(!html.includes('Segundo parágrafo com <script>.'));
+    assert.ok(html.includes('/_vercel/insights/script.js'));
   });
 }
 

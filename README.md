@@ -1,6 +1,6 @@
 # Nocturna
 
-Atlas interativo de histórias incomuns, em português, inglês e espanhol. O catálogo publicado fica no PostgreSQL da versão online; a cópia editorial local em `content/stories.json` e os dados em `data/` permanecem fora do GitHub. Anúncios e serviços de análise ainda não estão ativos.
+Atlas interativo de histórias incomuns, em português, inglês e espanhol. O catálogo publicado fica no PostgreSQL da versão online; a cópia editorial local em `content/stories.json` e os dados em `data/` permanecem fora do GitHub. A versão online usa Vercel Web Analytics sem cookies de análise; Google Analytics e anúncios não estão ativos.
 
 Se você abrir este projeto com outro Codex, leia `AGENTS.md` e `CONTEXTO-PARA-CODEX.md` para conhecer as decisões anteriores e preservar dados transferidos do computador antigo.
 
@@ -44,7 +44,7 @@ O zoom funciona pelos botões `+` e `−` ou pela roda do mouse enquanto o curso
 
 ## Próximas etapas
 
-Confirmar o DNS do domínio próprio, completar os textos legais com os dados públicos do responsável e configurar Analytics e AdSense quando houver os IDs e a revisão das condições dos serviços de mapa e busca. O código já gera HTML de leitura e sitemap para o conteúdo publicado.
+Completar os textos legais com os dados públicos do responsável. A propriedade HTTPS do Search Console é verificada por metatag na página inicial; a propriedade de domínio completo exige um registro TXT na Hostinger. Google Analytics pode ser configurado quando houver um ID de medição e os controles de privacidade correspondentes. AdSense aguarda a conta e a revisão das condições dos serviços de mapa e busca. O código gera HTML de leitura e sitemap para o conteúdo publicado.
 
 Quando uma história é publicada, sua localidade aparece no diretório da página inicial; histórias da mesma cidade, região e país são reunidas. Rascunhos e casos em revisão não geram páginas públicas. Na Vercel, as mudanças no catálogo aparecem diretamente nas rotas e no sitemap, sem novo deploy.
 

@@ -2,7 +2,7 @@
 
 ## Visão do produto
 
-Nocturna é um portal de casos estranhos, insólitos e bizarros associados a lugares. O visitante não precisa de conta. Ele pode girar um globo, abrir um mapa detalhado, buscar cidades e códigos postais, selecionar um lugar e descobrir histórias e comentários próximos. A localização do navegador é opcional e só é pedida após clicar em “Minha localização”. A interface de visitantes funciona em português, inglês e espanhol, com idioma inicial escolhido pelo navegador; o seletor mostra PT, EN e ES. O visual é escuro, com clima de atlas misterioso. A versão online está na Vercel, com histórias e comentários no PostgreSQL; o domínio escolhido é `portalnocturna.com.br` e depende dos registros DNS da Hostinger. Anúncios e Analytics ainda não estão ativos.
+Nocturna é um portal de casos estranhos, insólitos e bizarros associados a lugares. O visitante não precisa de conta. Ele pode girar um globo, abrir um mapa detalhado, buscar cidades e códigos postais, selecionar um lugar e descobrir histórias e comentários próximos. A localização do navegador é opcional e só é pedida após clicar em “Minha localização”. A interface de visitantes funciona em português, inglês e espanhol, com idioma inicial escolhido pelo navegador; o seletor mostra PT, EN e ES. O visual é escuro, com clima de atlas misterioso. A versão online está na Vercel, com histórias e comentários no PostgreSQL e domínio `portalnocturna.com.br`. Vercel Web Analytics está ativo; Google Analytics e anúncios não estão ativos.
 
 ## Funcionalidade existente
 
@@ -38,7 +38,7 @@ Acesse `http://localhost:8000/` e `http://localhost:8000/admin/`. Se houver um s
 2. O catálogo online contém histórias reais e relatos classificados; manter a distinção entre fato documentado, relato não verificado e ficção.
 3. A versão pública usa Functions da Vercel e PostgreSQL do Neon. O `server.mjs` continua exclusivo para uso local. Antes de monetizar, concluir privacidade e substituir os serviços gratuitos de busca/mapa conforme os termos de uso.
 4. O domínio, sitemap, canônicas e equivalentes PT/EN/ES estão configurados no código. Confirmar DNS e páginas online antes de enviar sitemap ao Search Console. Nunca prometer posicionamento nos mecanismos de busca nem aprovação no AdSense.
-5. Google Analytics e AdSense aguardam os IDs do usuário; contato público e identificação do responsável também ficaram pendentes por escolha dele. Não inventar dados nem ativar anúncios antes dessas decisões.
+5. Vercel Web Analytics usa medição agregada sem cookies de análise. Google Analytics e AdSense aguardam os IDs do usuário; contato público e identificação do responsável também ficaram pendentes por escolha dele. A propriedade HTTPS do Search Console usa metatag no código; a propriedade de domínio completo ainda exige TXT na Hostinger. Não inventar dados nem ativar anúncios antes dessas decisões.
 
 ## Mensagem inicial sugerida para o novo Codex
 
