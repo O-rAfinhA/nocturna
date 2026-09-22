@@ -31,7 +31,10 @@ for (const lang of ['pt', 'en', 'es']) {
 
 test('sitemap contains only supplied published stories and their translations', () => {
   const xml = sitemap([story]);
-  assert.equal((xml.match(/<url>/g) || []).length, 9);
+  assert.equal((xml.match(/<url>/g) || []).length, 12);
+  assert.ok(xml.includes('/pt/privacidade.html'));
+  assert.ok(xml.includes('/en/privacidade.html'));
+  assert.ok(xml.includes('/es/privacidade.html'));
   assert.ok(xml.includes(storyUrl('pt', story.slug)));
   assert.ok(xml.includes(storyUrl('en', story.slug)));
   assert.ok(xml.includes(storyUrl('es', story.slug)));

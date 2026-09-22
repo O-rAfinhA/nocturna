@@ -6,7 +6,7 @@ Se você abrir este projeto com outro Codex, leia `AGENTS.md` e `CONTEXTO-PARA-C
 
 Para configurar ou atualizar a publicação na Vercel, siga [DEPLOYMENT.md](DEPLOYMENT.md). O servidor local continua disponível para desenvolvimento sem banco remoto.
 
-As páginas ficam em `/pt/`, `/en/` e `/es/`, com páginas de privacidade correspondentes. Histórias publicadas ganham páginas individuais e páginas por localidade, como `/pt/locais/curitiba-parana-brasil/`, `/en/places/curitiba-parana-brasil/` e `/es/lugares/curitiba-parana-brasil/`. Na Vercel, o HTML das histórias e localidades é gerado a partir do banco, com URLs canônicas, alternância de idiomas e `/sitemap.xml` dinâmico. A página de privacidade permanece fora dos mecanismos de busca enquanto faltam os dados públicos do responsável.
+As páginas ficam em `/pt/`, `/en/` e `/es/`, com páginas de privacidade correspondentes. Histórias publicadas ganham páginas individuais e páginas por localidade, como `/pt/locais/curitiba-parana-brasil/`, `/en/places/curitiba-parana-brasil/` e `/es/lugares/curitiba-parana-brasil/`. Na Vercel, o HTML das histórias e localidades é gerado a partir do banco, com URLs canônicas, alternância de idiomas e `/sitemap.xml` dinâmico. As páginas de privacidade também têm URLs canônicas e aparecem no sitemap.
 
 Ao abrir `/`, o idioma segue o navegador: português para `pt`, espanhol para `es` e inglês para os demais. Os caminhos explícitos preservam o idioma indicado neles. A troca manual na página não salva uma preferência no dispositivo.
 
@@ -44,7 +44,7 @@ O zoom funciona pelos botões `+` e `−` ou pela roda do mouse enquanto o curso
 
 ## Próximas etapas
 
-Completar os textos legais com os dados públicos do responsável. A propriedade HTTPS do Search Console é verificada por metatag na página inicial; a propriedade de domínio completo exige um registro TXT na Hostinger. Google Analytics pode ser configurado quando houver um ID de medição e os controles de privacidade correspondentes. AdSense aguarda a conta e a revisão das condições dos serviços de mapa e busca. O código gera HTML de leitura e sitemap para o conteúdo publicado.
+Os textos de privacidade identificam o responsável e o e-mail público de contato. A propriedade HTTPS do Search Console é verificada por metatag na página inicial e o sitemap foi enviado; a propriedade de domínio completo exige um registro TXT na Hostinger. Google Analytics pode ser configurado quando houver um ID de medição e os controles de privacidade correspondentes. AdSense aguarda a conta e a revisão das condições dos serviços de mapa e busca. O código gera HTML de leitura e sitemap para o conteúdo publicado.
 
 Quando uma história é publicada, sua localidade aparece no diretório da página inicial; histórias da mesma cidade, região e país são reunidas. Rascunhos e casos em revisão não geram páginas públicas. Na Vercel, as mudanças no catálogo aparecem diretamente nas rotas e no sitemap, sem novo deploy.
 
@@ -52,4 +52,4 @@ Os comentários pertencem a histórias publicadas. Após aprovação, aparecem n
 
 Na área administrativa, ao criar ou editar uma história, clique em **Escolher no mapa** para posicionar o marcador. Um clique muda o local; também é possível arrastar o marcador ou digitar latitude e longitude. Confira se a posição deve ser mostrada publicamente: para histórias sensíveis ou sem endereço confirmado, use um ponto aproximado da região. A seleção não preenche automaticamente cidade, região ou país; esses campos continuam obrigatórios. O mapa do editor só carrega após o clique e requer internet.
 
-Após alterar a página inicial ou os textos em `build_pages.py`, execute `python3 build_pages.py` para atualizar as páginas localizadas. Antes de publicar, revise todas as traduções e substitua os campos pendentes da página de privacidade.
+Após alterar a página inicial ou os textos em `build_pages.py`, execute `python3 build_pages.py` para atualizar as páginas localizadas. Antes de publicar, revise todas as traduções e os textos da página de privacidade.

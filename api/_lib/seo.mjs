@@ -125,6 +125,8 @@ export function sitemap(stories) {
   };
   const home = Object.fromEntries(langs.map(lang => [lang, `${SITE_URL}/${lang}/`]));
   const urls = langs.map(lang => entry(home[lang], home));
+  const privacy = Object.fromEntries(langs.map(lang => [lang, `${SITE_URL}/${lang}/privacidade.html`]));
+  for (const lang of langs) urls.push(entry(privacy[lang], privacy));
   for (const story of stories) {
     const alternatives = Object.fromEntries(langs.map(lang => [lang, storyUrl(lang, story.slug)]));
     for (const lang of langs) urls.push(entry(alternatives[lang], alternatives, story.updatedAt));

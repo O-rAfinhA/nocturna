@@ -14,7 +14,7 @@ Nocturna é um portal de casos estranhos, insólitos e bizarros associados a lug
 - `build_pages.py`: gera páginas iniciais e de privacidade PT/EN/ES; ao publicar histórias, gera páginas individuais e páginas por localidade, com navegação entre idiomas e diretório de lugares na página inicial. Retirar uma história de publicação remove suas páginas geradas na próxima execução.
 - `content/stories.json` guarda as histórias. O ZIP produzido nesta conversa contém `[]`, mas o computador anterior pode ter histórias próprias. `content/story.schema.json` descreve a estrutura.
 - Os marcadores das histórias publicadas aparecem no mapa com título e link para a página da história. Os comentários aprovados aparecem na história e na página inicial para visitantes que selecionam um ponto a até 250 km da localização aproximada da história. Essa filtragem regional ocorre no navegador.
-- A versão online carrega as histórias publicadas do PostgreSQL. As páginas de histórias e localidades são geradas em HTML pela API e o sitemap dinâmico inclui somente conteúdo publicado, nos três idiomas. As páginas de privacidade permanecem sem indexação enquanto faltam o contato público e os dados do responsável.
+- A versão online carrega as histórias publicadas do PostgreSQL. As páginas de histórias e localidades são geradas em HTML pela API e o sitemap dinâmico inclui somente conteúdo publicado, além das páginas institucionais nos três idiomas. As páginas de privacidade identificam Rafael Correia e o e-mail público de contato, têm canônicas e aparecem no sitemap.
 
 ## Arquivos e dados ao mudar de computador
 
@@ -38,7 +38,7 @@ Acesse `http://localhost:8000/` e `http://localhost:8000/admin/`. Se houver um s
 2. O catálogo online contém histórias reais e relatos classificados; manter a distinção entre fato documentado, relato não verificado e ficção.
 3. A versão pública usa Functions da Vercel e PostgreSQL do Neon. O `server.mjs` continua exclusivo para uso local. Antes de monetizar, concluir privacidade e substituir os serviços gratuitos de busca/mapa conforme os termos de uso.
 4. O domínio, sitemap, canônicas e equivalentes PT/EN/ES estão configurados no código. Confirmar DNS e páginas online antes de enviar sitemap ao Search Console. Nunca prometer posicionamento nos mecanismos de busca nem aprovação no AdSense.
-5. Vercel Web Analytics usa medição agregada sem cookies de análise. Google Analytics e AdSense aguardam os IDs do usuário; contato público e identificação do responsável também ficaram pendentes por escolha dele. A propriedade HTTPS do Search Console usa metatag no código; a propriedade de domínio completo ainda exige TXT na Hostinger. Não inventar dados nem ativar anúncios antes dessas decisões.
+5. Vercel Web Analytics usa medição agregada sem cookies de análise. Google Analytics e AdSense aguardam os IDs do usuário. O responsável e o contato público já constam das páginas de privacidade. A propriedade HTTPS do Search Console usa metatag no código e recebeu o sitemap; a propriedade de domínio completo ainda exige TXT na Hostinger. Não inventar dados nem ativar anúncios antes dessas decisões.
 
 ## Mensagem inicial sugerida para o novo Codex
 
