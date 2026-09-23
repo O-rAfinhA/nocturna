@@ -31,7 +31,8 @@ const stage = $('.globe-stage');
 const GLOBE_ZOOM_MIN = .8;
 const GLOBE_ZOOM_MAX = 3.5;
 const deg = Math.PI / 180;
-const state = {lang:readLang(), lon:-50, lat:-15, selected:null, zoom:1, pointer:null, moved:false, outlines:null, notice:null, published:[],catalogStatus:'loading',regionalComments:[],view:'globe',map:null,mapMarker:null,storyLayer:null,mapZoom:12};
+const state = {lang:readLang(), lon:-50, lat:-15, selected:null, zoom:1, pointer:null, moved:false, outlines:null, countries:[], notice:null, published:[],catalogStatus:'loading',regionalComments:[],view:'globe',map:null,mapMarker:null,storyLayer:null,mapZoom:12};
+const countryNames = Object.fromEntries(['pt','en','es'].map(lang=>[lang,Intl.DisplayNames?new Intl.DisplayNames([{pt:'pt-BR',en:'en',es:'es'}[lang]],{type:'region'}):null]));
 function readLang(){const path=location.pathname.split('/').filter(Boolean)[0];if(['pt','en','es'].includes(path))return path;const browserLanguage=(navigator.language||'en').toLowerCase();return browserLanguage.startsWith('pt')?'pt':browserLanguage.startsWith('es')?'es':'en'}
 function t(key){return translations[state.lang][key]}
 function fold(value){return value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim()}
@@ -74,11 +75,70 @@ function showGlobe(){if(state.view==='globe')return;state.view='globe';$('#stree
 
 function project(lon,lat,r,cx,cy){const lambda=wrap(lon-state.lon)*deg,phi=lat*deg,phi0=state.lat*deg;const visible=Math.sin(phi0)*Math.sin(phi)+Math.cos(phi0)*Math.cos(phi)*Math.cos(lambda);return {x:cx+r*Math.cos(phi)*Math.sin(lambda),y:cy-r*(Math.cos(phi0)*Math.sin(phi)-Math.sin(phi0)*Math.cos(phi)*Math.cos(lambda)),visible:visible>=0}}
 function drawLine(points,r,cx,cy,color,width){ctx.beginPath();let previous=null;for(const [lon,lat] of points){const p=project(lon,lat,r,cx,cy);if(p.visible){if(previous&&previous.visible&&Math.abs(p.x-previous.x)<r*.5&&Math.abs(p.y-previous.y)<r*.5)ctx.lineTo(p.x,p.y);else ctx.moveTo(p.x,p.y)}previous=p}ctx.strokeStyle=color;ctx.lineWidth=width;ctx.stroke()}
-function draw(){if(!ctx){$('#globe-error').hidden=false;return}const box=stage.getBoundingClientRect(),w=box.width,h=box.height;if(!w||!h)return;const dpr=Math.min(window.devicePixelRatio||1,2);canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);const cx=w/2,cy=h/2,r=Math.min(w*.43,h*.46)*state.zoom;const glow=ctx.createRadialGradient(cx-r*.25,cy-r*.32,r*.08,cx,cy,r*1.4);glow.addColorStop(0,'#29495a');glow.addColorStop(.58,'#163043');glow.addColorStop(1,'#08121c');ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fillStyle=glow;ctx.fill();ctx.strokeStyle='#79919a';ctx.lineWidth=1.25;ctx.stroke();ctx.save();ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.clip();for(let lon=-180;lon<=180;lon+=15){const line=[];for(let lat=-90;lat<=90;lat+=2)line.push([lon,lat]);drawLine(line,r,cx,cy,'#6e8b99',.45)}for(let lat=-75;lat<=75;lat+=15){const line=[];for(let lon=-180;lon<=180;lon+=2)line.push([lon,lat]);drawLine(line,r,cx,cy,'#6e8b99',.45)}if(state.outlines)for(const line of state.outlines)drawLine(line,r,cx,cy,'#9bb0a8',.75);for(const place of places){const p=project(place.lon,place.lat,r,cx,cy);if(p.visible){ctx.beginPath();ctx.arc(p.x,p.y,place.id===state.selected?.id?4.2:2.8,0,Math.PI*2);ctx.fillStyle='#d7b77b';ctx.fill()}}if(state.selected){const marker=project(state.selected.lon,state.selected.lat,r,cx,cy);if(marker.visible){ctx.beginPath();ctx.arc(marker.x,marker.y,12,0,Math.PI*2);ctx.fillStyle='#d7b77b30';ctx.fill();ctx.beginPath();ctx.arc(marker.x,marker.y,4.3,0,Math.PI*2);ctx.fillStyle='#f5d397';ctx.fill()}}ctx.restore();$('#coordinates').textContent=coordinates(state)}
+function drawCountryLabels(r,cx,cy,w,h){
+  const names=countryNames[state.lang];
+  const occupied=[];
+  for(const place of places){const p=project(place.lon,place.lat,r,cx,cy);if(p.visible)occupied.push({left:p.x-14,right:p.x+14,top:p.y-14,bottom:p.y+14})}
+  if(state.selected){const p=project(state.selected.lon,state.selected.lat,r,cx,cy);if(p.visible)occupied.push({left:p.x-18,right:p.x+18,top:p.y-18,bottom:p.y+18})}
+  ctx.save();ctx.font=`600 ${Math.min(12,10+Math.log2(state.zoom))}px Inter, sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineJoin='round';ctx.lineWidth=3;ctx.strokeStyle='#10202bdd';ctx.fillStyle='#e5d7ba';
+  const minArea=120/Math.pow(state.zoom,3.5);
+  for(const country of state.countries){
+    if(!country.code||country.area<minArea)continue;
+    const p=project(country.lon,country.lat,r,cx,cy);if(!p.visible)continue;
+    const translated=country.code&&names?names.of(country.code):null;
+    const name=translated&&translated!==country.code?translated:country.name;
+    if(!name)continue;
+    const width=ctx.measureText(name).width,half=width/2+4;
+    const box={left:p.x-half,right:p.x+half,top:p.y-9,bottom:p.y+9};
+    if(box.left<3||box.right>w-3||box.top<3||box.bottom>h-3)continue;
+    const farX=Math.max(Math.abs(box.left-cx),Math.abs(box.right-cx));
+    const farY=Math.max(Math.abs(box.top-cy),Math.abs(box.bottom-cy));
+    if(Math.hypot(farX,farY)>r-3)continue;
+    if(occupied.some(other=>box.left<other.right&&box.right>other.left&&box.top<other.bottom&&box.bottom>other.top))continue;
+    ctx.strokeText(name,p.x,p.y);ctx.fillText(name,p.x,p.y);occupied.push(box);
+  }
+  ctx.restore();
+}
+function draw(){if(!ctx){$('#globe-error').hidden=false;return}const box=stage.getBoundingClientRect(),w=box.width,h=box.height;if(!w||!h)return;const dpr=Math.min(window.devicePixelRatio||1,2);canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);const cx=w/2,cy=h/2,r=Math.min(w*.43,h*.46)*state.zoom;const glow=ctx.createRadialGradient(cx-r*.25,cy-r*.32,r*.08,cx,cy,r*1.4);glow.addColorStop(0,'#29495a');glow.addColorStop(.58,'#163043');glow.addColorStop(1,'#08121c');ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fillStyle=glow;ctx.fill();ctx.strokeStyle='#79919a';ctx.lineWidth=1.25;ctx.stroke();ctx.save();ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.clip();for(let lon=-180;lon<=180;lon+=15){const line=[];for(let lat=-90;lat<=90;lat+=2)line.push([lon,lat]);drawLine(line,r,cx,cy,'#6e8b99',.45)}for(let lat=-75;lat<=75;lat+=15){const line=[];for(let lon=-180;lon<=180;lon+=2)line.push([lon,lat]);drawLine(line,r,cx,cy,'#6e8b99',.45)}if(state.outlines)for(const line of state.outlines)drawLine(line,r,cx,cy,'#9bb0a8',.75);drawCountryLabels(r,cx,cy,w,h);for(const place of places){const p=project(place.lon,place.lat,r,cx,cy);if(p.visible){ctx.beginPath();ctx.arc(p.x,p.y,place.id===state.selected?.id?4.2:2.8,0,Math.PI*2);ctx.fillStyle='#d7b77b';ctx.fill()}}if(state.selected){const marker=project(state.selected.lon,state.selected.lat,r,cx,cy);if(marker.visible){ctx.beginPath();ctx.arc(marker.x,marker.y,12,0,Math.PI*2);ctx.fillStyle='#d7b77b30';ctx.fill();ctx.beginPath();ctx.arc(marker.x,marker.y,4.3,0,Math.PI*2);ctx.fillStyle='#f5d397';ctx.fill()}}ctx.restore();$('#coordinates').textContent=coordinates(state)}
 
 // Decode the published Natural Earth world-atlas TopoJSON into longitude/latitude outlines.
-function topoLines(topology){const scale=topology.transform.scale,translate=topology.transform.translate,cache=new Map();function arc(index){const id=index<0?~index:index;if(!cache.has(id)){let x=0,y=0;cache.set(id,topology.arcs[id].map(([dx,dy])=>{x+=dx;y+=dy;return[x*scale[0]+translate[0],y*scale[1]+translate[1]]}))}const coords=cache.get(id);return index<0?[...coords].reverse():coords}function ring(indices){return indices.flatMap((index,i)=>{const line=arc(index);return i?line.slice(1):line})}const lines=[];function collect(geometry){if(geometry.type==='Polygon')for(const indices of geometry.arcs)lines.push(ring(indices));else if(geometry.type==='MultiPolygon')for(const polygon of geometry.arcs)for(const indices of polygon)lines.push(ring(indices));else if(geometry.type==='GeometryCollection')geometry.geometries.forEach(collect)}collect(topology.objects.countries);return lines}
-fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json').then(response=>{if(!response.ok)throw Error('map unavailable');return response.json()}).then(data=>{state.outlines=topoLines(data);draw()}).catch(()=>{draw()});
+function countryAnchor(points){
+  if(points.length<3)return null;
+  const unwrapped=[points[0].slice()];
+  for(let i=1;i<points.length;i++){let lon=points[i][0];const previous=unwrapped.at(-1)[0];while(lon-previous>180)lon-=360;while(lon-previous< -180)lon+=360;unwrapped.push([lon,points[i][1]])}
+  let signedArea=0,minLat=90,maxLat=-90;
+  for(let i=0;i<unwrapped.length;i++){const a=unwrapped[i],b=unwrapped[(i+1)%unwrapped.length];signedArea+=a[0]*b[1]-b[0]*a[1];minLat=Math.min(minLat,a[1]);maxLat=Math.max(maxLat,a[1])}
+  let widest=null;
+  for(const fraction of [.5,.38,.62,.25,.75]){
+    const lat=minLat+(maxLat-minLat)*fraction,crossings=[];
+    for(let i=0;i<unwrapped.length;i++){const a=unwrapped[i],b=unwrapped[(i+1)%unwrapped.length];if((a[1]<=lat&&b[1]>lat)||(b[1]<=lat&&a[1]>lat))crossings.push(a[0]+(lat-a[1])*(b[0]-a[0])/(b[1]-a[1]))}
+    crossings.sort((a,b)=>a-b);
+    for(let i=0;i+1<crossings.length;i+=2){const width=crossings[i+1]-crossings[i];if(!widest||width>widest.width)widest={lon:wrap((crossings[i]+crossings[i+1])/2),lat,width}}
+  }
+  return widest?{lon:widest.lon,lat:widest.lat,area:Math.abs(signedArea)/2}:null;
+}
+function topoShapes(topology,codes){
+  const scale=topology.transform.scale,translate=topology.transform.translate,cache=new Map();
+  function arc(index){const id=index<0?~index:index;if(!cache.has(id)){let x=0,y=0;cache.set(id,topology.arcs[id].map(([dx,dy])=>{x+=dx;y+=dy;return[x*scale[0]+translate[0],y*scale[1]+translate[1]]}))}const coords=cache.get(id);return index<0?[...coords].reverse():coords}
+  function ring(indices){return indices.flatMap((index,i)=>{const line=arc(index);return i?line.slice(1):line})}
+  const lines=[],countries=[];
+  for(const geometry of topology.objects.countries.geometries){
+    const polygons=geometry.type==='Polygon'?[geometry.arcs]:geometry.type==='MultiPolygon'?geometry.arcs:[];
+    let anchor=null;
+    for(const polygon of polygons){
+      for(const indices of polygon)lines.push(ring(indices));
+      const candidate=countryAnchor(ring(polygon[0]));
+      if(candidate&&(!anchor||candidate.area>anchor.area))anchor=candidate;
+    }
+    if(anchor)countries.push({...anchor,code:codes[geometry.id],name:geometry.properties?.name});
+  }
+  countries.sort((a,b)=>b.area-a.area);
+  return {lines,countries};
+}
+Promise.all([
+  fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json').then(response=>{if(!response.ok)throw Error('map unavailable');return response.json()}),
+  fetch('/country-codes.json').then(response=>response.ok?response.json():{}).catch(()=>({})),
+]).then(([topology,codes])=>{const shapes=topoShapes(topology,codes);state.outlines=shapes.lines;state.countries=shapes.countries;draw()}).catch(()=>{draw()});
 
 let searchController=null,searchSequence=0;
 function cancelPlaceSearch(){searchSequence++;searchController?.abort();searchController=null;$('#search-results').replaceChildren();$('#search-results').hidden=true}
