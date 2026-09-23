@@ -1,0 +1,13 @@
+data/
+content/stories.json
+content/stories.pre-*.json
+.env*
+.agents/
+.vercel/
+node_modules/
+dist/pt/historias/
+dist/pt/locais/
+dist/en/stories/
+dist/en/places/
+dist/es/historias/
+dist/es/lugares/
