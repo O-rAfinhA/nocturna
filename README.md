@@ -1,6 +1,6 @@
 # Nocturna
 
-Atlas interativo de histórias incomuns, em português, inglês e espanhol. O catálogo publicado fica no PostgreSQL da versão online; a cópia editorial local em `content/stories.json` e os dados em `data/` permanecem fora do GitHub. A versão online usa Vercel Web Analytics sem cookies de análise; Google Analytics e anúncios não estão ativos.
+Atlas interativo de histórias incomuns, em português, inglês e espanhol. O catálogo publicado fica no PostgreSQL da versão online; a cópia editorial local em `content/stories.json` e os dados em `data/` permanecem fora do GitHub. Na versão online, o Vercel Web Analytics só carrega após a escolha do visitante no aviso de privacidade, em PT/EN/ES. A preferência é salva no armazenamento local e pode ser alterada pelo botão no rodapé. Google Analytics e anúncios não estão ativos.
 
 Se você abrir este projeto com outro Codex, leia `AGENTS.md` e `CONTEXTO-PARA-CODEX.md` para conhecer as decisões anteriores e preservar dados transferidos do computador antigo.
 
@@ -44,7 +44,7 @@ O zoom funciona pelos botões `+` e `−` ou pela roda do mouse enquanto o curso
 
 ## Próximas etapas
 
-Os textos de privacidade identificam o responsável e o e-mail público de contato. A propriedade HTTPS do Search Console é verificada por metatag na página inicial e o sitemap foi enviado; a propriedade de domínio completo exige um registro TXT na Hostinger. Google Analytics pode ser configurado quando houver um ID de medição e os controles de privacidade correspondentes. O `ads.txt` oficial do AdSense está publicado e a revisão do site foi solicitada; anúncios ainda não estão ativos. Antes de exibi-los, revise as condições dos serviços de mapa e busca e configure a gestão de consentimento aplicável. O código gera HTML de leitura e sitemap para o conteúdo publicado.
+Os textos de privacidade identificam o responsável e o e-mail público de contato. O aviso atual controla apenas a medição da Vercel; não é uma CMP para anúncios nem controla as conexões necessárias ao globo ou os serviços abertos por ação do visitante. A propriedade HTTPS do Search Console é verificada por metatag na página inicial e o sitemap foi enviado; a propriedade de domínio completo exige um registro TXT na Hostinger. Google Analytics pode ser configurado quando houver um ID de medição e os controles de privacidade correspondentes. O `ads.txt` oficial do AdSense está publicado e a revisão do site foi solicitada; anúncios ainda não estão ativos. Antes de exibi-los, revise as condições dos serviços de mapa e busca e configure uma CMP apropriada. O código gera HTML de leitura e sitemap para o conteúdo publicado.
 
 Quando uma história é publicada, sua localidade aparece no diretório da página inicial; histórias da mesma cidade, região e país são reunidas. Rascunhos e casos em revisão não geram páginas públicas. Na Vercel, as mudanças no catálogo aparecem diretamente nas rotas e no sitemap, sem novo deploy.
 

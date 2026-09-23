@@ -14,7 +14,7 @@ const resourceType = {
   video: { pt: 'Vídeo', en: 'Video', es: 'Vídeo' },
   reading: { pt: 'Leitura', en: 'Reading', es: 'Lectura' },
 };
-const analyticsScript = '<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script><script defer src="/_vercel/insights/script.js"></script>';
+const privacyScript = '<script defer src="/privacy.js" data-analytics="vercel"></script>';
 
 export function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]);
@@ -83,7 +83,7 @@ export function storyPage(story, lang, localitySlug = groupPlaces([story])[0].sl
 <meta property="og:url" content="${canonical}"><meta property="og:locale" content="${locale[lang]}">
 <meta name="twitter:card" content="summary"><meta name="twitter:title" content="${titleEscaped}"><meta name="twitter:description" content="${description}">
 <script type="application/ld+json">${structured}</script>
-<link rel="stylesheet" href="/styles.css"><script type="module" src="/comments.js"></script>${analyticsScript}
+<link rel="stylesheet" href="/styles.css"><script type="module" src="/comments.js"></script>${privacyScript}
 </head><body><div class="shell">
 <header class="masthead"><a class="brand" href="/${lang}/"><span class="brand-mark" aria-hidden="true">✦</span><span>NOCTURNA</span></a><nav class="article-languages" aria-label="Languages">${nav}</nav></header>
 <main class="legal"><a class="back" href="/${lang}/">← ${words.back}</a>
@@ -110,7 +110,7 @@ export function placePage(group, lang) {
 <meta name="theme-color" content="#080d14"><title>${escapeHtml(title)}</title><meta name="description" content="${escapeHtml(description)}">
 <link rel="canonical" href="${canonical}">${alternates}<link rel="alternate" hreflang="x-default" href="${placeUrl('pt', group.slug)}">
 <meta property="og:type" content="website"><meta property="og:site_name" content="Nocturna"><meta property="og:title" content="${escapeHtml(title)}"><meta property="og:description" content="${escapeHtml(description)}"><meta property="og:url" content="${canonical}"><meta name="twitter:card" content="summary">
-<script type="application/ld+json">${structured}</script><link rel="stylesheet" href="/styles.css">${analyticsScript}</head>
+<script type="application/ld+json">${structured}</script><link rel="stylesheet" href="/styles.css">${privacyScript}</head>
 <body><div class="shell"><header class="masthead"><a class="brand" href="/${lang}/"><span class="brand-mark" aria-hidden="true">✦</span><span>NOCTURNA</span></a><nav class="article-languages" aria-label="Languages">${nav}</nav></header>
 <main class="legal place-page"><a class="back" href="/${lang}/">← ${labels[lang].back}</a><h1>${escapeHtml(title.replace(/ — Nocturna$/, ''))}</h1><p>${escapeHtml(description)}</p>${articles}</main>
 <footer><a class="footer-brand brand" href="/${lang}/" aria-label="Nocturna"><span class="brand-mark" aria-hidden="true">✦</span><span>NOCTURNA</span></a><span>${labels[lang].footer} <a href="/${lang}/privacidade.html">${labels[lang].privacy}</a></span></footer>
