@@ -1,3 +1,5 @@
+import { createHash } from 'node:crypto';
+
 export const SITE_URL = 'https://portalnocturna.com.br';
 
 const route = { pt: 'historias', en: 'stories', es: 'historias' };
@@ -40,7 +42,8 @@ export function groupPlaces(stories) {
   }
   const used = new Set();
   return [...groups].sort(([a], [b]) => a.localeCompare(b, 'pt-BR')).map(([key, group]) => {
-    const base = key.replace(/\|/g, '-').normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const base = key.replace(/\|/g, '-').normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+      || `lugar-${createHash('sha256').update(key).digest('hex').slice(0, 10)}`;
     let slug = base;
     for (let number = 2; used.has(slug); number++) slug = `${base}-${number}`;
     used.add(slug);
@@ -48,11 +51,15 @@ export function groupPlaces(stories) {
   });
 }
 
+export function localitySlugFor(story, stories = [story]) {
+  return groupPlaces(stories).find(group => group.stories.some(item => item.slug === story.slug))?.slug || groupPlaces([story])[0].slug;
+}
+
 export function languageLinks(slug) {
   return ['pt', 'en', 'es'].map(lang => `<link rel="alternate" hreflang="${locale[lang]}" href="${storyUrl(lang, slug)}">`).join('') + `<link rel="alternate" hreflang="x-default" href="${storyUrl('pt', slug)}">`;
 }
 
-export function storyPage(story, lang, localitySlug = groupPlaces([story])[0].slug) {
+export function storyPage(story, lang, localitySlug = localitySlugFor(story)) {
   const copy = story.translations[lang];
   const words = labels[lang];
   const canonical = storyUrl(lang, story.slug);

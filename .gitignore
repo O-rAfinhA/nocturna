@@ -18,3 +18,7 @@ __pycache__/
 .env*
 .agents/
 skills-lock.json
+# Geradas por build_pages.py (a versão local difere da versão da Vercel).
+dist/pt/privacidade.html
+dist/en/privacidade.html
+dist/es/privacidade.html

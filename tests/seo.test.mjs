@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { groupPlaces, placePage, placeUrl, sitemap, storyPage, storyUrl } from '../api/_lib/seo.mjs';
+import { groupPlaces, localitySlugFor, placePage, placeUrl, sitemap, storyPage, storyUrl } from '../api/_lib/seo.mjs';
 
 const story = {
   slug: 'historia-exemplo', status: 'published', classification: 'documented',
@@ -49,4 +49,23 @@ test('place pages list only stories from that place', () => {
   assert.ok(html.includes(`<link rel="canonical" href="${placeUrl('pt', group.slug)}">`));
   assert.ok(html.includes(storyUrl('pt', story.slug)));
   assert.match(html, /<h1>Histórias de Cidade, Região, Brasil<\/h1>/);
+});
+
+test('places without Latin letters still get a stable URL slug', () => {
+  const tokyo = { ...story, slug: 'historia-toquio', place: { city: '東京', region: '東京都', country: '日本' } };
+  const [group] = groupPlaces([tokyo]);
+  assert.match(group.slug, /^lugar-[a-f0-9]{10}$/);
+  assert.equal(groupPlaces([tokyo])[0].slug, group.slug);
+});
+
+test('story pages link to the de-duplicated slug of their own place', () => {
+  const first = { ...story, slug: 'primeira', place: { city: 'São Paulo', region: 'SP', country: 'Brasil' } };
+  const second = { ...story, slug: 'segunda', place: { city: 'Sao Paulo', region: 'SP', country: 'Brasil' } };
+  const groups = groupPlaces([first, second]);
+  assert.deepEqual(groups.map(group => group.slug).sort(), ['sao-paulo-sp-brasil', 'sao-paulo-sp-brasil-2']);
+  for (const item of [first, second]) {
+    const expected = groups.find(group => group.stories.includes(item)).slug;
+    assert.equal(localitySlugFor(item, [first, second]), expected);
+    assert.ok(storyPage(item, 'pt', localitySlugFor(item, [first, second])).includes(placeUrl('pt', expected)));
+  }
 });

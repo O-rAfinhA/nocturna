@@ -1,4 +1,4 @@
-import { json } from '../_lib/http.mjs';
+import { SHORT_PUBLIC_CACHE, json } from '../_lib/http.mjs';
 import { approvedRecent, publicStories } from '../_lib/store.mjs';
 
 export async function GET() {
@@ -6,9 +6,9 @@ export async function GET() {
     const catalogue = new Map((await publicStories()).map(story => [story.slug, story]));
     const comments = (await approvedRecent()).flatMap(comment => {
       const story = catalogue.get(comment.slug);
-      return story ? [{ ...comment, latitude: story.place.latitude, longitude: story.place.longitude, city: story.place.city, storyTitle: story.translations }] : [];
+      return story ? [{ ...comment, latitude: story.place.latitude, longitude: story.place.longitude, city: story.place.city, storyTitle: Object.fromEntries(Object.entries(story.translations).map(([lang, copy]) => [lang, copy.title])) }] : [];
     });
-    return json({ comments });
+    return json({ comments }, 200, { 'Cache-Control': SHORT_PUBLIC_CACHE });
   } catch (error) {
     console.error(error);
     return json({ error: 'Comentários temporariamente indisponíveis' }, 503);

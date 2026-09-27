@@ -1,4 +1,4 @@
-import { failure, json } from './_lib/http.mjs';
+import { PUBLIC_CACHE, failure, json } from './_lib/http.mjs';
 import { storyBySlug } from './_lib/store.mjs';
 
 export async function GET(request) {
@@ -6,7 +6,7 @@ export async function GET(request) {
     const slug = new URL(request.url).searchParams.get('slug');
     if (!slug || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) return failure('História indisponível', 404);
     const story = await storyBySlug(slug);
-    return story ? json({ story }) : failure('História indisponível', 404);
+    return story ? json({ story }, 200, { 'Cache-Control': PUBLIC_CACHE }) : failure('História indisponível', 404);
   } catch (error) {
     console.error(error);
     return json({ error: 'História temporariamente indisponível' }, 503);

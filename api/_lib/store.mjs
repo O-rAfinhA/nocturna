@@ -73,6 +73,8 @@ export async function removeSession(tokenHash) {
 }
 
 export async function takeRate(key, maximum, seconds) {
+  // Limpeza ocasional das janelas expiradas, para a tabela não crescer sem fim.
+  if (Math.random() < 0.05) await sql()`DELETE FROM request_limits WHERE reset_at < now() - interval '1 day'`;
   const rows = await sql()`INSERT INTO request_limits (key, count, reset_at) VALUES (${key}, 1, now() + ${seconds} * interval '1 second') ON CONFLICT (key) DO UPDATE SET count = CASE WHEN request_limits.reset_at < now() THEN 1 ELSE request_limits.count + 1 END, reset_at = CASE WHEN request_limits.reset_at < now() THEN now() + ${seconds} * interval '1 second' ELSE request_limits.reset_at END RETURNING count`;
   return Number(rows[0].count) <= maximum;
 }
