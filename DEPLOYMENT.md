@@ -2,6 +2,8 @@
 
 Esta configuração publica as páginas estáticas em `dist/` e adiciona Functions para catálogo, comentários e administração. O servidor `server.mjs` continua exclusivo para uso local e preserva `data/` no computador.
 
+O projeto da Vercel está conectado ao repositório `O-rAfinhA/nocturna`: cada push na branch `main` gera um deploy de produção, e as outras branches geram deploys de Preview. `vercel --prod` pela linha de comando continua possível, mas não é mais necessário.
+
 ## Antes do primeiro deploy
 
 1. Crie um banco PostgreSQL no Neon e guarde a URL de conexão em `DATABASE_URL`.
