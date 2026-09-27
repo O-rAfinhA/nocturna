@@ -5,13 +5,20 @@ export const json = (value, status = 200, headers = {}) => new Response(JSON.str
   headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', ...headers },
 });
 
+// Cache na CDN da Vercel para leituras públicas; o navegador sempre revalida.
+export const PUBLIC_CACHE = 'public, max-age=0, s-maxage=300, stale-while-revalidate=86400';
+export const SHORT_PUBLIC_CACHE = 'public, max-age=0, s-maxage=60, stale-while-revalidate=600';
+
+// 3 idiomas × (título + resumo + corpo < 15.000 caracteres), com folga para acentos (até 4 bytes) e fontes.
+export const STORY_BYTES = 800_000;
+
 export const failure = (message, status = 400) => json({ error: message }, status);
 
 export async function input(request, limit = 30_000) {
   const length = Number(request.headers.get('content-length') || 0);
   if (length > limit) throw new Error('too large');
   const text = await request.text();
-  if (text.length > limit) throw new Error('too large');
+  if (Buffer.byteLength(text) > limit) throw new Error('too large');
   try { return JSON.parse(text || '{}'); } catch { throw new Error('invalid json'); }
 }
 

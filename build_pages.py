@@ -7,11 +7,14 @@ from pathlib import Path
 import re
 import unicodedata
 from datetime import date
+import hashlib
 import shutil
 
 ROOT = Path(__file__).parent / "dist"
 HOME = (ROOT / "index.html").read_text(encoding="utf-8")
-STATIC_CATALOG = os.environ.get("NOCTURNA_STATIC_CATALOG", "1") != "0"
+# Na Vercel (VERCEL=1) o catálogo vem do banco e as páginas saem indexáveis, com Analytics.
+# Localmente, o padrão é o catálogo estático de content/stories.json. A variável explícita tem prioridade.
+STATIC_CATALOG = os.environ.get("NOCTURNA_STATIC_CATALOG", "0" if os.environ.get("VERCEL") else "1") != "0"
 SITE_URL = "https://portalnocturna.com.br"
 PRIVACY_SCRIPT = '<script defer src="/privacy.js" data-analytics="vercel"></script>'
 HOME_META = {
@@ -218,7 +221,8 @@ def place_slug(key):
     ascii_text = unicodedata.normalize("NFKD", words).encode("ascii", "ignore").decode("ascii")
     slug = re.sub(r"[^a-z0-9]+", "-", ascii_text.lower()).strip("-")
     if not slug:
-        raise ValueError("Published place has no usable URL slug")
+        # Nomes sem letras latinas (ex.: japonês) recebem um identificador estável, igual ao da API.
+        slug = "lugar-" + hashlib.sha256("|".join(key).encode("utf-8")).hexdigest()[:10]
     return slug
 
 

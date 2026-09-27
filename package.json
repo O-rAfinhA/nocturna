@@ -11,6 +11,7 @@
     "db:import-content": "node scripts/import-content.mjs",
     "db:migrate": "node scripts/migrate-database.mjs",
     "setup-admin": "node setup-admin.mjs",
-    "start": "node server.mjs"
+    "start": "node server.mjs",
+    "test": "node --test"
   }
 }

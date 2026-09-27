@@ -20,7 +20,7 @@ function fail(res,status,message){json(res,status,{error:message})}
 function sameOrigin(req){const origin=req.headers.origin;if(!origin)return false;try{return new URL(origin).host===req.headers.host&&['http:','https:'].includes(new URL(origin).protocol)}catch{return false}}
 function rate(key,max,interval){const now=Date.now(),entry=limits.get(key);if(!entry||now>entry.until){limits.set(key,{count:1,until:now+interval});return true}entry.count++;return entry.count<=max}
 function clientKey(req){return req.socket.remoteAddress||'local'}
-async function body(req){let chunks='',bytes=0;for await(const chunk of req){bytes+=chunk.length;if(bytes>30000)throw Error('too large');chunks+=chunk}return JSON.parse(chunks||'{}')}
+async function body(req,limit=30000){const chunks=[];let bytes=0;for await(const chunk of req){bytes+=chunk.length;if(bytes>limit)throw Error('too large');chunks.push(chunk)}return JSON.parse(Buffer.concat(chunks).toString('utf8')||'{}')}
 function token(req){return /(?:^|;\s*)nocturna_session=([a-f0-9]{64})(?:;|$)/.exec(req.headers.cookie||'')?.[1]}
 function session(req){const value=token(req);return value?store.session(hash(value)):null}
 function authenticated(req,requestBody){const value=session(req);return value&&value.expires>Date.now()&&req.headers['x-csrf-token']===value.csrf}
@@ -34,12 +34,12 @@ function validStory(s){if(!s||typeof s!=='object'||!/^([a-z0-9]+)(-[a-z0-9]+)*$/
 async function saveStory(story){const current=stories();const index=current.findIndex(s=>s.slug===story.slug);if(index>=0)current[index]=story;else current.push(story);const next=JSON.stringify(current,null,2)+'\n';const temp=contentFile+'.tmp';await writeFile(temp,next);const previous=cachedContent;await rename(temp,contentFile);const python=process.platform==='win32'?'py':'python3',args=process.platform==='win32'?['-3','build_pages.py']:['build_pages.py'];const build=spawnSync(python,args,{cwd:root,encoding:'utf8',timeout:15000});if(build.status!==0){await writeFile(contentFile,previous);throw Error('Falha ao gerar páginas: '+(build.stderr||build.error?.message||'erro desconhecido').slice(0,300))}cachedContent=next}
 async function api(req,res,url){
   if(req.method==='GET'&&url.pathname==='/api/stories'){
-    return json(res,200,{stories:stories().filter(s=>s.status==='published').map(s=>({slug:s.slug,classification:s.classification,place:s.place,translations:s.translations}))});
+    return json(res,200,{stories:stories().filter(s=>s.status==='published').map(s=>({slug:s.slug,classification:s.classification,place:s.place,translations:Object.fromEntries(Object.entries(s.translations).map(([lang,copy])=>[lang,{title:copy.title,summary:copy.summary}]))}))});
   }
   if(req.method==='GET'&&url.pathname==='/api/comments/regions'){
     const catalogue=new Map(stories().filter(s=>s.status==='published').map(s=>[s.slug,s]));
     const comments=store.approvedRecent()
-      .flatMap(comment=>{const story=catalogue.get(comment.slug);return story?[{...comment,latitude:story.place.latitude,longitude:story.place.longitude,city:story.place.city,storyTitle:story.translations}]:[]});
+      .flatMap(comment=>{const story=catalogue.get(comment.slug);return story?[{...comment,latitude:story.place.latitude,longitude:story.place.longitude,city:story.place.city,storyTitle:Object.fromEntries(Object.entries(story.translations).map(([lang,copy])=>[lang,copy.title]))}]:[]});
     return json(res,200,{comments});
   }
   if(req.method==='GET'&&url.pathname==='/api/comments'){
@@ -49,7 +49,7 @@ async function api(req,res,url){
   if(req.method==='POST'&&url.pathname==='/api/comments'){
     if(!sameOrigin(req))return fail(res,403,'Origem inválida');if(!rate('comment:'+clientKey(req),5,600000))return fail(res,429,'Aguarde antes de comentar');
     const input=await body(req);if(input.website)return json(res,202,{status:'pending'});
-    if(!published(input.story)||!['pt','en','es'].includes(input.lang)||typeof input.author!=='string'||typeof input.body!=='string'||input.author.trim().length<2||input.author.trim().length>50||input.body.trim().length<3||input.body.trim().length>2000)return fail(res,400,'Revise o comentário');
+    if(typeof input.story!=='string'||!published(input.story)||!['pt','en','es'].includes(input.lang)||typeof input.author!=='string'||typeof input.body!=='string'||input.author.trim().length<2||input.author.trim().length>50||input.body.trim().length<3||input.body.trim().length>2000)return fail(res,400,'Revise o comentário');
     store.addComment({slug:input.story,author:input.author.trim(),body:input.body.trim(),lang:input.lang,status:'pending',created_at:new Date().toISOString()});return json(res,202,{status:'pending'});
   }
   if(req.method==='POST'&&url.pathname==='/api/admin/login'){
@@ -67,7 +67,7 @@ async function api(req,res,url){
   if(!sameOrigin(req)||req.headers['x-csrf-token']!==user.csrf)return fail(res,403,'Solicitação inválida');
   if(req.method==='POST'&&url.pathname==='/api/admin/logout'){store.removeSession(hash(token(req)));return json(res,200,{ok:true},{'Set-Cookie':'nocturna_session=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0'})}
   if(req.method==='POST'&&url.pathname==='/api/admin/stories'){
-    const input=await body(req);if(!validStory(input))return fail(res,400,'Revise os campos da história');
+    const input=await body(req,800000);if(!validStory(input))return fail(res,400,'Revise os campos da história');
     const work=writeQueue.then(()=>saveStory(input));writeQueue=work.catch(()=>{});await work;return json(res,200,{ok:true});
   }
   if(req.method==='PATCH'&&/^\/api\/admin\/comments\/\d+$/.test(url.pathname)){

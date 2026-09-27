@@ -13,6 +13,14 @@ Esta configuração publica as páginas estáticas em `dist/` e adiciona Functio
 
 Depois de confirmar o catálogo no Preview, remova do índice Git o arquivo local `content/stories.json` e as páginas editoriais geradas. Eles já estão em `.gitignore`, portanto continuarão preservados no computador, mas não serão enviados em commits futuros. O painel passa a gravar exclusivamente no PostgreSQL.
 
+## Geração das páginas
+
+O `npm run build` executa `build_pages.py`. Na Vercel, a variável de sistema `VERCEL=1` faz o gerador produzir as páginas iniciais e de privacidade na versão pública: `index,follow`, canônicas, `hreflang` e Vercel Web Analytics condicionado ao aviso de privacidade. Sem essa variável (uso local), o gerador produz a versão de protótipo com `noindex`. Para forçar um modo, defina `NOCTURNA_STATIC_CATALOG=0` (público) ou `1` (local). Essas páginas não são versionadas no Git; são sempre geradas no build.
+
+## Cache e cabeçalhos
+
+As páginas de histórias, localidades, `/api/story` e `/sitemap.xml` usam cache da CDN por 5 minutos (`s-maxage=300`, com `stale-while-revalidate`). `/api/stories`, `/api/comments` e `/api/comments/regions` usam 1 minuto. Rotas administrativas continuam sem cache. Depois de publicar, retirar uma história ou aprovar um comentário, aguarde esse intervalo ou limpe o cache no painel da Vercel. O `vercel.json` também aplica `X-Frame-Options`, `frame-ancestors 'none'`, `nosniff`, `Referrer-Policy`, `Permissions-Policy` e HSTS a todas as rotas, e `noindex` com `no-store` em `/admin/`.
+
 ## Rotas e mídia
 
 As rotas de leitura e de localidades geram HTML completo na Function a partir das histórias publicadas no banco. Uma história recém-publicada fica acessível sem esperar outra geração completa. `/sitemap.xml` é atualizado a partir do mesmo catálogo. O deploy não inclui os textos editoriais nem páginas de histórias no repositório.

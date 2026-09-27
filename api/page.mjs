@@ -1,11 +1,12 @@
-import { publicStories, storyBySlug } from './_lib/store.mjs';
-import { sitemap, storyPage } from './_lib/seo.mjs';
+import { publicStories } from './_lib/store.mjs';
+import { localitySlugFor, sitemap, storyPage } from './_lib/seo.mjs';
+import { PUBLIC_CACHE } from './_lib/http.mjs';
 
 export async function GET(request) {
   const params = new URL(request.url).searchParams;
   if (params.get('type') === 'sitemap') {
     try {
-      return new Response(sitemap(await publicStories()), { headers: { 'Content-Type': 'application/xml; charset=utf-8', 'Cache-Control': 'no-store' } });
+      return new Response(sitemap(await publicStories()), { headers: { 'Content-Type': 'application/xml; charset=utf-8', 'Cache-Control': PUBLIC_CACHE } });
     } catch (error) {
       console.error(error);
       return new Response('Sitemap indisponível', { status: 503, headers: { 'X-Robots-Tag': 'noindex' } });
@@ -17,9 +18,10 @@ export async function GET(request) {
     return new Response('História indisponível', { status: 404, headers: { 'Content-Type': 'text/plain; charset=utf-8', 'X-Robots-Tag': 'noindex' } });
   }
   try {
-    const story = await storyBySlug(slug);
+    const stories = await publicStories();
+    const story = stories.find(item => item.slug === slug);
     if (!story) return new Response('História indisponível', { status: 404, headers: { 'Content-Type': 'text/plain; charset=utf-8', 'X-Robots-Tag': 'noindex' } });
-    return new Response(storyPage(story, lang), { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' } });
+    return new Response(storyPage(story, lang, localitySlugFor(story, stories)), { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': PUBLIC_CACHE } });
   } catch (error) {
     console.error(error);
     return new Response('História temporariamente indisponível', { status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8', 'X-Robots-Tag': 'noindex' } });
