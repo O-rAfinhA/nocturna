@@ -25,11 +25,22 @@ export async function storyBySlug(slug, publishedOnly = true) {
 }
 
 export async function allStories() {
-  return (await sql()`SELECT story FROM stories ORDER BY (story->>'updatedAt') DESC, slug`).map(decode);
+  // Mais recentes primeiro: createdAt (definido pelo servidor ao criar); histórias antigas sem ele vêm depois, por data de publicação.
+  return (await sql()`SELECT story FROM stories ORDER BY (story->>'createdAt') DESC NULLS LAST, (story->>'publishedAt') DESC, slug`).map(decode);
 }
 
 export async function saveStory(story) {
-  await sql()`INSERT INTO stories (slug, status, story, updated_at) VALUES (${story.slug}, ${story.status}, ${JSON.stringify(story)}::jsonb, now()) ON CONFLICT (slug) DO UPDATE SET status = EXCLUDED.status, story = EXCLUDED.story, updated_at = now()`;
+  // createdAt é do servidor: vale a data da criação; numa edição, preserva a original (ou continua ausente).
+  const { createdAt, ...fields } = story;
+  const created = { ...fields, createdAt: new Date().toISOString() };
+  await sql()`INSERT INTO stories (slug, status, story, updated_at) VALUES (${story.slug}, ${story.status}, ${JSON.stringify(created)}::jsonb, now())
+    ON CONFLICT (slug) DO UPDATE SET status = EXCLUDED.status, updated_at = now(),
+      story = CASE WHEN stories.story ? 'createdAt' THEN (EXCLUDED.story - 'createdAt') || jsonb_build_object('createdAt', stories.story->'createdAt') ELSE EXCLUDED.story - 'createdAt' END`;
+}
+
+export async function deleteStory(slug) {
+  // Os comentários da história são removidos junto (ON DELETE CASCADE).
+  return (await sql()`DELETE FROM stories WHERE slug = ${slug} RETURNING slug`).length > 0;
 }
 
 export async function addComment(comment) {

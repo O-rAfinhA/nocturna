@@ -22,6 +22,7 @@
       }
     },
     "eventDate": {"type": ["string", "null"], "description": "Date or date range as published, or null when unknown."},
+    "createdAt": {"type": "string", "format": "date-time", "description": "Set by the server when the story is first saved; orders the admin list (newest first)."},
     "publishedAt": {"type": "string", "format": "date"},
     "updatedAt": {"type": "string", "format": "date"},
     "translations": {
