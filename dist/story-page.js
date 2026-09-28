@@ -35,12 +35,18 @@ function pageLinks() {
   document.querySelector('#footer-home-link').href = `/${lang}/`;
   const footer = document.querySelector('#footer-copy');
   footer.append(`${footerWords.note} `, link(`/${lang}/privacidade.html`, footerWords.privacy));
-  const links = document.querySelector('#language-links');
+  document.querySelector('#masthead-label').textContent = { pt: 'ATLAS DO INCOMUM', en: 'ATLAS OF THE UNUSUAL', es: 'ATLAS DE LO INSÓLITO' }[lang];
+  const languageName = { pt: 'Idioma', en: 'Language', es: 'Idioma' }[lang];
+  document.querySelector('#language-label').textContent = languageName;
+  const menu = document.querySelector('#language-links');
+  menu.setAttribute('aria-label', languageName);
   for (const option of ['pt', 'en', 'es']) {
-    const item = link(`/${option}/${routes[option]}/${encodeURIComponent(slug)}/`, option.toUpperCase());
-    if (option === lang) item.setAttribute('aria-current', 'page');
-    links.append(item);
+    const item = element('option', option.toUpperCase());
+    item.value = `/${option}/${routes[option]}/${encodeURIComponent(slug)}/`;
+    if (option === lang) item.selected = true;
+    menu.append(item);
   }
+  menu.onchange = () => { location.href = menu.value; };
 }
 
 function render(story) {
