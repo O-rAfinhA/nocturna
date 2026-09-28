@@ -19,6 +19,10 @@ Depois de confirmar o catálogo no Preview, remova do índice Git o arquivo loca
 
 O `npm run build` executa `build_pages.py`. Na Vercel, a variável de sistema `VERCEL=1` faz o gerador produzir as páginas iniciais e de privacidade na versão pública: `index,follow`, canônicas, `hreflang` e Vercel Web Analytics condicionado ao aviso de privacidade. Sem essa variável (uso local), o gerador produz a versão de protótipo com `noindex`. Para forçar um modo, defina `NOCTURNA_STATIC_CATALOG=0` (público) ou `1` (local). Essas páginas não são versionadas no Git; são sempre geradas no build.
 
+## Limite de Functions
+
+O plano Hobby da Vercel aceita no máximo 12 Functions por deploy; cada arquivo `.mjs` em `api/` (fora de `api/_lib/`) conta como uma. Acima disso o deploy falha. Para novas rotas, prefira um `rewrite` no `vercel.json` para uma Function existente (como `/api/geo` → `api/page.mjs`). O teste `tests/vercel.test.mjs` verifica esse limite.
+
 ## Cache e cabeçalhos
 
 As páginas de histórias, localidades, `/api/story` e `/sitemap.xml` usam cache da CDN por 5 minutos (`s-maxage=300`, com `stale-while-revalidate`). `/api/stories`, `/api/comments` e `/api/comments/regions` usam 1 minuto. Rotas administrativas continuam sem cache. Depois de publicar, retirar uma história ou aprovar um comentário, aguarde esse intervalo ou limpe o cache no painel da Vercel. O `vercel.json` também aplica `X-Frame-Options`, `frame-ancestors 'none'`, `nosniff`, `Referrer-Policy`, `Permissions-Policy` e HSTS a todas as rotas, e `noindex` com `no-store` em `/admin/`.
