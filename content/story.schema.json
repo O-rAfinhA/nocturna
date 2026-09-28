@@ -17,7 +17,7 @@
         "country": {"type": "string", "minLength": 1},
         "latitude": {"type": "number", "minimum": -90, "maximum": 90},
         "longitude": {"type": "number", "minimum": -180, "maximum": 180},
-        "precision": {"enum": ["exact", "approximate"], "description": "exact: confirmed location, the map offers a Street View link. Default: approximate."}
+        "precision": {"enum": ["exact", "approximate"], "description": "exact: confirmed location. Default: approximate (the map popup says so). Every popup links to Street View."}
       }
     },
     "eventDate": {"type": ["string", "null"], "description": "Date or date range as published, or null when unknown."},
