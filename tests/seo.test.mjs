@@ -69,3 +69,13 @@ test('story pages link to the de-duplicated slug of their own place', () => {
     assert.ok(storyPage(item, 'pt', localitySlugFor(item, [first, second])).includes(placeUrl('pt', expected)));
   }
 });
+
+test('story pages link to the map between the article and the sources', () => {
+  const located = { ...story, place: { ...story.place, latitude: -25.4, longitude: -49.2 } };
+  const html = storyPage(located, 'pt');
+  const link = html.indexOf('https://www.google.com/maps/search/?api=1&amp;query=-25.4,-49.2');
+  assert.ok(link > html.indexOf('Segundo parágrafo') && link < html.indexOf('id="sources-heading"'));
+  assert.match(html, />Ver no Google Maps<\/a> <span class="location-note">· Local aproximado<\/span>/);
+  const street = storyPage({ ...located, place: { ...located.place, precision: 'exact', streetViewUrl: 'https://www.google.com/maps/@-25.4,-49.2,3a,75y,90h' } }, 'en');
+  assert.match(street, /<a href="https:\/\/www\.google\.com\/maps\/@-25\.4,-49\.2,3a,75y,90h" target="_blank" rel="noopener noreferrer">Open in Street View<\/a><\/p>/);
+});

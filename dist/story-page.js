@@ -3,9 +3,9 @@ const storyPath = location.pathname.match(/^\/(pt|en|es)\/(?:historias|stories)\
 const lang = storyPath?.[1] || (['pt', 'en', 'es'].includes(params.get('lang')) ? params.get('lang') : 'pt');
 const slug = storyPath?.[2] || params.get('slug') || '';
 const words = {
-  pt: { back: 'Voltar ao atlas', sources: 'Fontes', classification: 'Classificação', documented: 'Documentado', unverified: 'Relato não verificado', fiction: 'Ficção', explore: 'Explore mais', note: 'Estes links externos ajudam a investigar o contexto; eles não confirmam, por si só, as alegações da história.', privacy: 'Sem cadastro. Localização opcional. Privacidade', unavailable: 'Esta história não está disponível.' },
-  en: { back: 'Back to the atlas', sources: 'Sources', classification: 'Classification', documented: 'Documented', unverified: 'Unverified account', fiction: 'Fiction', explore: 'Explore further', note: 'These external links help investigate the context; they do not, by themselves, confirm the story’s claims.', privacy: 'No account. Location is optional. Privacy', unavailable: 'This story is unavailable.' },
-  es: { back: 'Volver al atlas', sources: 'Fuentes', classification: 'Clasificación', documented: 'Documentado', unverified: 'Relato no verificado', fiction: 'Ficción', explore: 'Explora más', note: 'Estos enlaces externos ayudan a investigar el contexto; por sí solos no confirman las afirmaciones de la historia.', privacy: 'Sin cuenta. Ubicación opcional. Privacidad', unavailable: 'Esta historia no está disponible.' },
+  pt: { streetView: 'Ver no Street View', googleMaps: 'Ver no Google Maps', approximate: 'Local aproximado', back: 'Voltar ao atlas', sources: 'Fontes', classification: 'Classificação', documented: 'Documentado', unverified: 'Relato não verificado', fiction: 'Ficção', explore: 'Explore mais', note: 'Estes links externos ajudam a investigar o contexto; eles não confirmam, por si só, as alegações da história.', privacy: 'Sem cadastro. Localização opcional. Privacidade', unavailable: 'Esta história não está disponível.' },
+  en: { streetView: 'Open in Street View', googleMaps: 'Open in Google Maps', approximate: 'Approximate location', back: 'Back to the atlas', sources: 'Sources', classification: 'Classification', documented: 'Documented', unverified: 'Unverified account', fiction: 'Fiction', explore: 'Explore further', note: 'These external links help investigate the context; they do not, by themselves, confirm the story’s claims.', privacy: 'No account. Location is optional. Privacy', unavailable: 'This story is unavailable.' },
+  es: { streetView: 'Ver en Street View', googleMaps: 'Ver en Google Maps', approximate: 'Ubicación aproximada', back: 'Volver al atlas', sources: 'Fuentes', classification: 'Clasificación', documented: 'Documentado', unverified: 'Relato no verificado', fiction: 'Ficción', explore: 'Explora más', note: 'Estos enlaces externos ayudan a investigar el contexto; por sí solos no confirman las afirmaciones de la historia.', privacy: 'Sin cuenta. Ubicación opcional. Privacidad', unavailable: 'Esta historia no está disponible.' },
 }[lang];
 const footerWords = {
   pt: { note: 'Sem cadastro. Localização opcional.', privacy: 'Privacidade' },
@@ -52,6 +52,11 @@ function render(story) {
   main.append(element('h1', copy.title), element('p', copy.summary));
   main.append(element('p', `${story.place.city}, ${story.place.region}, ${story.place.country}`));
   for (const paragraph of copy.body.split('\n\n')) if (paragraph.trim()) main.append(element('p', paragraph));
+  const location = element('p', undefined, 'story-map-link');
+  const mapAnchor = link(story.place.streetViewUrl || `https://www.google.com/maps/search/?api=1&query=${story.place.latitude},${story.place.longitude}`, story.place.streetViewUrl ? words.streetView : words.googleMaps);
+  mapAnchor.target = '_blank'; mapAnchor.rel = 'noopener noreferrer'; location.append(mapAnchor);
+  if (story.place.precision !== 'exact') location.append(' ', element('span', `· ${words.approximate}`, 'location-note'));
+  main.append(location);
   if (story.sources.length) {
     main.append(element('h2', words.sources));
     const list = element('ul');
