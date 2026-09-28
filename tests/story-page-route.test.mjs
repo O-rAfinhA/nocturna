@@ -3,7 +3,10 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import vm from 'node:vm';
 
-const script = await readFile(new URL('../dist/story-page.js', import.meta.url), 'utf8');
+import { plainText, renderMarkdown } from '../dist/markdown.js';
+
+// story-page.js é um módulo; o teste roda o corpo como script, com as funções de formatação já disponíveis.
+const script = (await readFile(new URL('../dist/story-page.js', import.meta.url), 'utf8')).replace(/^import .*\n/m, '');
 
 function loadStoryPage(pathname, search = '') {
   const nodes = new Map();
@@ -23,6 +26,8 @@ function loadStoryPage(pathname, search = '') {
   };
   const context = {
     URLSearchParams,
+    plainText,
+    renderMarkdown,
     document,
     location: { pathname, search },
     fetch(url) { requests.push(url); return new Promise(() => {}); },

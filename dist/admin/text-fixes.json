@@ -1,0 +1,91 @@
+{
+  "description": "Revisão de pontuação dos dossiês publicados: substitui travessões (— e –) por pontuação convencional, sem alterar o conteúdo.",
+  "fixes": [
+    { "slug": "amityville-defeo-lutz-1974-1976", "lang": "pt", "field": "body", "from": "## Quem investigou — e quando", "to": "## Quem investigou e quando" },
+    { "slug": "amityville-defeo-lutz-1974-1976", "lang": "pt", "field": "body", "from": "vendida como experiência paranormal — e em quantas vezes, nessa conversão,", "to": "vendida como experiência paranormal e em quantas vezes, nessa conversão," },
+    { "slug": "amityville-defeo-lutz-1974-1976", "lang": "en", "field": "body", "from": "marketed as paranormal—and how often", "to": "marketed as paranormal, and how often" },
+
+    { "slug": "chupacabra-porto-rico-1995", "lang": "pt", "field": "body", "from": "A semelhança temática — animais, feridas, suposta falta de sangue — pode ter ajudado", "to": "A semelhança temática (animais, feridas, suposta falta de sangue) pode ter ajudado" },
+    { "slug": "chupacabra-porto-rico-1995", "lang": "pt", "field": "body", "from": "unir acontecimentos distintos — e como, a cada nova fotografia,", "to": "unir acontecimentos distintos e como, a cada nova fotografia," },
+    { "slug": "chupacabra-porto-rico-1995", "lang": "en", "field": "body", "from": "The shared themes — livestock, wounds and alleged lack of blood — may have helped", "to": "The shared themes of livestock, wounds and an alleged lack of blood may have helped" },
+    { "slug": "chupacabra-porto-rico-1995", "lang": "en", "field": "body", "from": "to join different events — and why every new photograph", "to": "to join different events, and why every new photograph" },
+    { "slug": "chupacabra-porto-rico-1995", "lang": "es", "field": "body", "from": "Los temas compartidos — animales, heridas y supuesta ausencia de sangre — pudieron facilitar", "to": "Los temas compartidos (animales, heridas y supuesta ausencia de sangre) pudieron facilitar" },
+    { "slug": "chupacabra-porto-rico-1995", "lang": "es", "field": "body", "from": "a reunir sucesos distintos — y por qué cada nueva fotografía", "to": "a reunir sucesos distintos y por qué cada nueva fotografía" },
+
+    { "slug": "dalia-negra-elizabeth-short-1947", "lang": "pt", "field": "summary", "from": "o que os arquivos comprovam — e o que o apelido", "to": "o que os arquivos comprovam e o que o apelido" },
+    { "slug": "dalia-negra-elizabeth-short-1947", "lang": "pt", "field": "body", "from": "O retrato repetido depois de sua morte — a jovem que teria ido a Hollywood exclusivamente para se tornar estrela — é mais seguro", "to": "O retrato repetido depois de sua morte, o da jovem que teria ido a Hollywood exclusivamente para se tornar estrela, é mais seguro" },
+    { "slug": "dalia-negra-elizabeth-short-1947", "lang": "pt", "field": "body", "from": "## O que o arquivo diz — e o que não diz", "to": "## O que o arquivo diz e o que não diz" },
+    { "slug": "dalia-negra-elizabeth-short-1947", "lang": "pt", "field": "body", "from": "É por esse percurso documental — e pelo cuidado com o que não se sabe — que o caso", "to": "É por esse percurso documental, e pelo cuidado com o que não se sabe, que o caso" },
+    { "slug": "dalia-negra-elizabeth-short-1947", "lang": "en", "field": "body", "from": "The image repeatedly imposed after her death — a young woman who went to Hollywood solely to become a movie star — is safer", "to": "The image repeatedly imposed after her death, that of a young woman who went to Hollywood solely to become a movie star, is safer" },
+    { "slug": "dalia-negra-elizabeth-short-1947", "lang": "en", "field": "body", "from": "## What the record says — and does not", "to": "## What the record says and does not" },
+    { "slug": "dalia-negra-elizabeth-short-1947", "lang": "en", "field": "body", "from": "That documentary trail — and care with what remains unknown — is why", "to": "That documentary trail, and care with what remains unknown, is why" },
+    { "slug": "dalia-negra-elizabeth-short-1947", "lang": "es", "field": "body", "from": "La imagen repetida tras su muerte — la joven que habría ido a Hollywood únicamente para hacerse estrella de cine — es más segura", "to": "La imagen repetida tras su muerte, la de la joven que habría ido a Hollywood únicamente para hacerse estrella de cine, es más segura" },
+    { "slug": "dalia-negra-elizabeth-short-1947", "lang": "es", "field": "body", "from": "## Lo que dice el archivo — y lo que no", "to": "## Lo que dice el archivo y lo que no" },
+    { "slug": "dalia-negra-elizabeth-short-1947", "lang": "es", "field": "body", "from": "Ese recorrido documental — y el cuidado con lo que no sabemos — hacen que", "to": "Ese recorrido documental, y el cuidado con lo que no sabemos, hacen que" },
+
+    { "slug": "danca-de-1518-estrasburgo", "lang": "pt", "field": "body", "from": "os textos de 1518 que menciona — anais, uma crônica e a resposta do magistrado ao bispo — não dão o nome", "to": "os textos de 1518 que menciona (anais, uma crônica e a resposta do magistrado ao bispo) não dão o nome" },
+    { "slug": "danca-de-1518-estrasburgo", "lang": "pt", "field": "body", "from": "ao calor da estação — explicação da medicina daquele tempo,", "to": "ao calor da estação: explicação da medicina daquele tempo," },
+    { "slug": "danca-de-1518-estrasburgo", "lang": "pt", "field": "body", "from": "## Cinquenta, duzentos, quatrocentos — e quantos mortos?", "to": "## Cinquenta, duzentos, quatrocentos. E quantos mortos?" },
+    { "slug": "danca-de-1518-estrasburgo", "lang": "pt", "field": "body", "from": "ainda não conseguia acomodar — e porque cinco séculos", "to": "ainda não conseguia acomodar, e porque cinco séculos" },
+    { "slug": "danca-de-1518-estrasburgo", "lang": "en", "field": "body", "from": "the 1518 texts she examines — annals, a chronicle and the city’s reply to the bishop — never name the woman", "to": "the 1518 texts she examines (annals, a chronicle and the city’s reply to the bishop) never name the woman" },
+    { "slug": "danca-de-1518-estrasburgo", "lang": "en", "field": "body", "from": "## Fifty, two hundred, four hundred — and how many deaths?", "to": "## Fifty, two hundred, four hundred. And how many deaths?" },
+    { "slug": "danca-de-1518-estrasburgo", "lang": "en", "field": "body", "from": "its language could barely contain — and because five centuries", "to": "its language could barely contain, and because five centuries" },
+    { "slug": "danca-de-1518-estrasburgo", "lang": "es", "field": "body", "from": "los textos de 1518 que examina — anales, una crónica y la respuesta del magistrado al obispo — no identifican", "to": "los textos de 1518 que examina (anales, una crónica y la respuesta del magistrado al obispo) no identifican" },
+
+    { "slug": "desaparecimentos-vale-da-morte-1996-2022", "lang": "pt", "field": "body", "from": "por horas, dias ou anos — e em como um vestígio tardio", "to": "por horas, dias ou anos, e em como um vestígio tardio" },
+    { "slug": "desaparecimentos-vale-da-morte-1996-2022", "lang": "en", "field": "body", "from": "for hours, days, or years—and how a late clue", "to": "for hours, days, or years, and how a late clue" },
+
+    { "slug": "estruturas-submersas-guanahacabibes-cuba", "lang": "pt", "field": "summary", "from": "a hipótese de uma cidade perdida — mas a evidência", "to": "a hipótese de uma cidade perdida, mas a evidência" },
+    { "slug": "estruturas-submersas-guanahacabibes-cuba", "lang": "pt", "field": "body", "from": "as grandes feições vistas no sonar — com dezenas ou até uma centena de metros — dos blocos menores", "to": "as grandes feições vistas no sonar, com dezenas ou até uma centena de metros, dos blocos menores" },
+    { "slug": "estruturas-submersas-guanahacabibes-cuba", "lang": "pt", "field": "body", "from": "por mostrarem menos — e exigirem mais cautela — do que", "to": "por mostrarem menos, e exigirem mais cautela, do que" },
+    { "slug": "estruturas-submersas-guanahacabibes-cuba", "lang": "en", "field": "body", "from": "a Cuban–Canadian expedition", "to": "a Cuban-Canadian expedition" },
+    { "slug": "estruturas-submersas-guanahacabibes-cuba", "lang": "en", "field": "body", "from": "the large sonar features — tens or even a hundred metres long — from smaller blocks", "to": "the large sonar features, tens or even a hundred metres long, from smaller blocks" },
+    { "slug": "estruturas-submersas-guanahacabibes-cuba", "lang": "es", "field": "body", "from": "a unos 600–750 metros de profundidad", "to": "a unos 600 a 750 metros de profundidad" },
+    { "slug": "estruturas-submersas-guanahacabibes-cuba", "lang": "es", "field": "body", "from": "las grandes formas vistas por sonar — de decenas o hasta un centenar de metros — de los bloques pequeños", "to": "las grandes formas vistas por sonar, de decenas o hasta un centenar de metros, de los bloques pequeños" },
+    { "slug": "estruturas-submersas-guanahacabibes-cuba", "lang": "es", "field": "body", "from": "porque muestran menos — y obligan a ser más cuidadosos — que las", "to": "porque muestran menos, y obligan a ser más cuidadosos, que las" },
+
+    { "slug": "gargola-de-guanica-2010", "lang": "pt", "field": "body", "from": "como meditação e telepatia — práticas incapazes, por si,", "to": "como meditação e telepatia, práticas incapazes, por si," },
+    { "slug": "gargola-de-guanica-2010", "lang": "pt", "field": "body", "from": "dar forma ao que viu — e de uma pergunta", "to": "dar forma ao que viu e de uma pergunta" },
+
+    { "slug": "julgamentos-bruxas-de-salem-1692", "lang": "pt", "field": "summary", "from": "ganhou força — e como sobreviventes", "to": "ganhou força e como sobreviventes" },
+    { "slug": "julgamentos-bruxas-de-salem-1692", "lang": "en", "field": "summary", "from": "gained force — and how survivors", "to": "gained force, and how survivors" },
+
+    { "slug": "poltergeist-enfield-1977-1978", "lang": "pt", "field": "body", "from": "as perguntas feitas na época — não uma gravação que,", "to": "as perguntas feitas na época, e não uma gravação que," },
+
+    { "slug": "sindrome-de-havana-incidentes-anomalos-2016", "lang": "pt", "field": "body", "from": "É esse duplo dever — investigar sem inventar certeza e cuidar sem exigir certeza prévia — que torna", "to": "É esse duplo dever, investigar sem inventar certeza e cuidar sem exigir certeza prévia, que torna" },
+    { "slug": "sindrome-de-havana-incidentes-anomalos-2016", "lang": "en", "field": "body", "from": "That double obligation — to investigate without inventing certainty and to provide care without demanding certainty first — makes", "to": "That double obligation, to investigate without inventing certainty and to provide care without demanding certainty first, makes" },
+    { "slug": "sindrome-de-havana-incidentes-anomalos-2016", "lang": "es", "field": "body", "from": "Esa doble obligación —investigar sin inventar certezas y cuidar sin exigir una certeza previa— hace", "to": "Esa doble obligación, investigar sin inventar certezas y cuidar sin exigir una certeza previa, hace" },
+
+    { "slug": "ayotzinapa-43-iguala-2014", "lang": "pt", "field": "body", "from": "A pergunta dos familiares — onde estão? — continua dirigida ao Estado mexicano.", "to": "A pergunta dos familiares, “onde estão?”, continua dirigida ao Estado mexicano." },
+    { "slug": "ayotzinapa-43-iguala-2014", "lang": "en", "field": "summary", "from": "On 26–27 September 2014,", "to": "On 26 and 27 September 2014," },
+    { "slug": "ayotzinapa-43-iguala-2014", "lang": "en", "field": "body", "from": "The families' question — where are they? — is still addressed to the Mexican state.", "to": "The families' question, “where are they?”, is still addressed to the Mexican state." },
+    { "slug": "ayotzinapa-43-iguala-2014", "lang": "es", "field": "body", "from": "La pregunta de las familias —¿dónde están?— sigue dirigida al Estado mexicano.", "to": "La pregunta de las familias, «¿dónde están?», sigue dirigida al Estado mexicano." },
+
+    { "slug": "castelinho-rua-apa-1937", "lang": "pt", "field": "body", "from": "Esses fatos — a data, as vítimas, a cena e a investigação — aparecem", "to": "Esses fatos (a data, as vítimas, a cena e a investigação) aparecem" },
+    { "slug": "castelinho-rua-apa-1937", "lang": "en", "field": "body", "from": "Those elements — the date, victims, scene, and investigation — appear", "to": "Those elements (the date, victims, scene, and investigation) appear" },
+    { "slug": "castelinho-rua-apa-1937", "lang": "es", "field": "body", "from": "Estos elementos —fecha, víctimas, escena e investigación— aparecen", "to": "Estos elementos (fecha, víctimas, escena e investigación) aparecen" },
+
+    { "slug": "edificio-martinelli-sao-paulo", "lang": "pt", "field": "body", "from": "Não foi o primeiro edifício alto da cidade — o Sampaio Moreira já existia —, mas deu", "to": "Não foi o primeiro edifício alto da cidade (o Sampaio Moreira já existia), mas deu" },
+    { "slug": "edificio-martinelli-sao-paulo", "lang": "en", "field": "body", "from": "It was not the city's first tall building — Sampaio Moreira already stood nearby — but it gave", "to": "It was not the city's first tall building (Sampaio Moreira already stood nearby), but it gave" },
+    { "slug": "edificio-martinelli-sao-paulo", "lang": "es", "field": "body", "from": "No era el primer edificio alto de la ciudad —el Sampaio Moreira ya existía—, pero dio", "to": "No era el primer edificio alto de la ciudad (el Sampaio Moreira ya existía), pero dio" },
+
+    { "slug": "lobisomem-iml-curitiba-paraibinha", "lang": "pt", "field": "body", "from": "conta outra história — ou, pelo menos, conserva", "to": "conta outra história ou, pelo menos, conserva" },
+    { "slug": "lobisomem-iml-curitiba-paraibinha", "lang": "pt", "field": "body", "from": "que informou 11 de setembro de 1977 — data compatível com", "to": "que informou 11 de setembro de 1977, data compatível com" },
+    { "slug": "lobisomem-iml-curitiba-paraibinha", "lang": "pt", "field": "body", "from": "do IML de 1975 — marcos de fases institucionais", "to": "do IML de 1975. São marcos de fases institucionais" },
+    { "slug": "lobisomem-iml-curitiba-paraibinha", "lang": "pt", "field": "body", "from": "O que falta — identidade confirmada, laudo, inquérito e eventual desfecho judicial — continua", "to": "O que falta (identidade confirmada, laudo, inquérito e eventual desfecho judicial) continua" },
+    { "slug": "lobisomem-iml-curitiba-paraibinha", "lang": "en", "field": "body", "from": "tells another story — or at least preserves", "to": "tells another story, or at least preserves" },
+    { "slug": "lobisomem-iml-curitiba-paraibinha", "lang": "en", "field": "body", "from": "who gave 11 September 1977 — a date consistent with", "to": "who gave 11 September 1977, a date consistent with" },
+    { "slug": "lobisomem-iml-curitiba-paraibinha", "lang": "en", "field": "body", "from": "the IML museum to 1975 — markers of institutional stages", "to": "the IML museum to 1975. These are markers of institutional stages" },
+    { "slug": "lobisomem-iml-curitiba-paraibinha", "lang": "en", "field": "body", "from": "What remains missing — confirmed identity, autopsy, police investigation, and any judicial outcome — is essential", "to": "What remains missing (confirmed identity, autopsy, police investigation, and any judicial outcome) is essential" },
+    { "slug": "lobisomem-iml-curitiba-paraibinha", "lang": "es", "field": "body", "from": "cuenta otra historia —o, al menos, conserva", "to": "cuenta otra historia o, al menos, conserva" },
+    { "slug": "lobisomem-iml-curitiba-paraibinha", "lang": "es", "field": "body", "from": "Lo que falta —identidad confirmada, autopsia, investigación policial y eventual desenlace judicial— sigue", "to": "Lo que falta (identidad confirmada, autopsia, investigación policial y eventual desenlace judicial) sigue" },
+
+    { "slug": "pedras-voadoras-capao-da-imbuia-1974", "lang": "pt", "field": "summary", "from": "documenta a investigação — e também como", "to": "documenta a investigação e também como" },
+    { "slug": "pedras-voadoras-capao-da-imbuia-1974", "lang": "pt", "field": "body", "from": "dos testemunhos isolados — não à dos fenômenos comprovados.", "to": "dos testemunhos isolados, não à dos fenômenos comprovados." },
+    { "slug": "pedras-voadoras-capao-da-imbuia-1974", "lang": "en", "field": "summary", "from": "documents the investigation — and shows how", "to": "documents the investigation and shows how" },
+
+    { "slug": "revisao-noite-oficial-dos-ovnis-1986", "lang": "pt", "field": "body", "from": "não encontraram nada — e nenhuma dessas frases,", "to": "não encontraram nada. E nenhuma dessas frases," },
+    { "slug": "revisao-noite-oficial-dos-ovnis-1986", "lang": "en", "field": "summary", "from": "On 19–20 May 1986,", "to": "On 19 and 20 May 1986," },
+    { "slug": "revisao-noite-oficial-dos-ovnis-1986", "lang": "en", "field": "body", "from": "found nothing — and none of those statements", "to": "found nothing. And none of those statements" }
+  ]
+}
