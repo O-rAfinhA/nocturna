@@ -5,9 +5,9 @@ export const SITE_URL = 'https://portalnocturna.com.br';
 const route = { pt: 'historias', en: 'stories', es: 'historias' };
 const locale = { pt: 'pt-BR', en: 'en', es: 'es' };
 const labels = {
-  pt: { back: 'Voltar ao atlas', place: 'Ver histórias deste lugar', classification: 'Classificação', documented: 'Documentado', unverified: 'Relato não verificado', fiction: 'Ficção', sources: 'Fontes', explore: 'Explore mais', exploreNote: 'Estes links ajudam a investigar o contexto; eles não confirmam, por si só, as alegações da história.', privacy: 'Privacidade', footer: 'Sem cadastro. Localização opcional.' },
-  en: { back: 'Back to the atlas', place: 'See stories from this place', classification: 'Classification', documented: 'Documented', unverified: 'Unverified account', fiction: 'Fiction', sources: 'Sources', explore: 'Explore further', exploreNote: 'These links help investigate the context; they do not, by themselves, confirm the story’s claims.', privacy: 'Privacy', footer: 'No account. Location is optional.' },
-  es: { back: 'Volver al atlas', place: 'Ver historias de este lugar', classification: 'Clasificación', documented: 'Documentado', unverified: 'Relato no verificado', fiction: 'Ficción', sources: 'Fuentes', explore: 'Explora más', exploreNote: 'Estos enlaces ayudan a investigar el contexto; por sí solos no confirman las afirmaciones de la historia.', privacy: 'Privacidad', footer: 'Sin cuenta. Ubicación opcional.' },
+  pt: { streetView: 'Ver no Street View', googleMaps: 'Ver no Google Maps', approximate: 'Local aproximado', back: 'Voltar ao atlas', place: 'Ver histórias deste lugar', classification: 'Classificação', documented: 'Documentado', unverified: 'Relato não verificado', fiction: 'Ficção', sources: 'Fontes', explore: 'Explore mais', exploreNote: 'Estes links ajudam a investigar o contexto; eles não confirmam, por si só, as alegações da história.', privacy: 'Privacidade', footer: 'Sem cadastro. Localização opcional.' },
+  en: { streetView: 'Open in Street View', googleMaps: 'Open in Google Maps', approximate: 'Approximate location', back: 'Back to the atlas', place: 'See stories from this place', classification: 'Classification', documented: 'Documented', unverified: 'Unverified account', fiction: 'Fiction', sources: 'Sources', explore: 'Explore further', exploreNote: 'These links help investigate the context; they do not, by themselves, confirm the story’s claims.', privacy: 'Privacy', footer: 'No account. Location is optional.' },
+  es: { streetView: 'Ver en Street View', googleMaps: 'Ver en Google Maps', approximate: 'Ubicación aproximada', back: 'Volver al atlas', place: 'Ver historias de este lugar', classification: 'Clasificación', documented: 'Documentado', unverified: 'Relato no verificado', fiction: 'Ficción', sources: 'Fuentes', explore: 'Explora más', exploreNote: 'Estos enlaces ayudan a investigar el contexto; por sí solos no confirman las afirmaciones de la historia.', privacy: 'Privacidad', footer: 'Sin cuenta. Ubicación opcional.' },
 };
 const resourceType = {
   document: { pt: 'Documento', en: 'Document', es: 'Documento' },
@@ -59,6 +59,10 @@ export function languageLinks(slug) {
   return ['pt', 'en', 'es'].map(lang => `<link rel="alternate" hreflang="${locale[lang]}" href="${storyUrl(lang, slug)}">`).join('') + `<link rel="alternate" hreflang="x-default" href="${storyUrl('pt', slug)}">`;
 }
 
+export function mapLink(place) {
+  return place.streetViewUrl || `https://www.google.com/maps/search/?api=1&query=${place.latitude},${place.longitude}`;
+}
+
 export function storyPage(story, lang, localitySlug = localitySlugFor(story)) {
   const copy = story.translations[lang];
   const words = labels[lang];
@@ -68,6 +72,8 @@ export function storyPage(story, lang, localitySlug = localitySlugFor(story)) {
   const description = escapeHtml(copy.summary);
   const nav = ['pt', 'en', 'es'].map(code => `<a href="${storyUrl(code, story.slug)}"${code === lang ? ' aria-current="page"' : ''}>${code.toUpperCase()}</a>`).join('');
   const paragraphs = copy.body.replace(/\r\n/g, '\n').split(/\n\s*\n/).filter(Boolean).map(paragraph => `<p>${escapeHtml(paragraph.trim())}</p>`).join('');
+  const mapLabel = story.place.streetViewUrl ? words.streetView : words.googleMaps;
+  const location = `<p class="story-map-link"><a href="${escapeHtml(mapLink(story.place))}" target="_blank" rel="noopener noreferrer">${mapLabel}</a>${story.place.precision === 'exact' ? '' : ` <span class="location-note">· ${words.approximate}</span>`}</p>`;
   const sources = story.sources.length ? `<section aria-labelledby="sources-heading"><h2 id="sources-heading">${words.sources}</h2><ul>${story.sources.map(item => `<li><a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.title)}</a></li>`).join('')}</ul></section>` : '';
   const explore = story.explore?.length ? `<section class="story-explore" aria-labelledby="explore-heading"><h2 id="explore-heading">${words.explore}</h2><p>${words.exploreNote}</p><ul>${story.explore.map(item => `<li><span class="resource-kind">${resourceType[item.kind][lang]}</span><a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.labels[lang])}</a></li>`).join('')}</ul></section>` : '';
   const structured = JSON.stringify({
@@ -97,7 +103,7 @@ export function storyPage(story, lang, localitySlug = localitySlugFor(story)) {
 <p class="eyebrow">${words.classification}: ${words[story.classification]}</p>
 <h1>${escapeHtml(copy.title)}</h1><p>${escapeHtml(copy.summary)}</p>
 <p><a href="${placeUrl(lang, localitySlug)}">${escapeHtml(story.place.city)}, ${escapeHtml(story.place.region)}, ${escapeHtml(story.place.country)} — ${words.place}</a></p>
-${paragraphs}${sources}${explore}
+${paragraphs}${location}${sources}${explore}
 <section id="comments" class="comments" data-story="${escapeHtml(story.slug)}" data-lang="${lang}"></section></main>
 <footer><a class="footer-brand brand" href="/${lang}/" aria-label="Nocturna"><span class="brand-mark" aria-hidden="true">✦</span><span>NOCTURNA</span></a><span>${words.footer} <a href="/${lang}/privacidade.html">${words.privacy}</a></span></footer>
 </div></body></html>`;

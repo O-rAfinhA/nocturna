@@ -265,6 +265,16 @@ def render_story(story, lang, locality_slug):
     classification = types[{"documented": 0, "unverified": 1, "fiction": 2}[story["classification"]]]
     source_items = "".join(f'<li><a href="{escape(item["url"], quote=True)}" rel="noopener noreferrer">{escape(item["title"])}</a></li>' for item in story["sources"])
     source_section = f"<h2>{sources_label}</h2><ul>{source_items}</ul>" if source_items else ""
+    map_labels = {
+        "pt": ("Ver no Street View", "Ver no Google Maps", "Local aproximado"),
+        "en": ("Open in Street View", "Open in Google Maps", "Approximate location"),
+        "es": ("Ver en Street View", "Ver en Google Maps", "Ubicación aproximada"),
+    }
+    street_label, maps_label, approximate_label = map_labels[lang]
+    place = story["place"]
+    map_href = place.get("streetViewUrl") or f"https://www.google.com/maps/search/?api=1&query={place['latitude']},{place['longitude']}"
+    map_note = "" if place.get("precision") == "exact" else f' <span class="location-note">· {approximate_label}</span>'
+    map_section = f'<p class="story-map-link"><a href="{escape(map_href, quote=True)}" target="_blank" rel="noopener noreferrer">{street_label if place.get("streetViewUrl") else maps_label}</a>{map_note}</p>'
     explore_labels = {
         "pt": ("Explore mais", "Estes links externos ajudam a investigar o contexto; eles não confirmam, por si só, as alegações da história.", {"document": "Documento", "image": "Imagem", "audio": "Áudio", "video": "Vídeo", "reading": "Leitura"}),
         "en": ("Explore further", "These external links help investigate the context; they do not, by themselves, confirm the story's claims.", {"document": "Document", "image": "Image", "audio": "Audio", "video": "Video", "reading": "Reading"}),
@@ -278,7 +288,7 @@ def render_story(story, lang, locality_slug):
     locality_label = {"pt": "Ver histórias deste lugar", "en": "See stories from this place", "es": "Ver historias de este lugar"}[lang]
     locality_href = f"/{lang}/{ROUTES[lang][1]}/{locality_slug}/"
     footer = reading_footer(lang)
-    html = f'''<!doctype html><html lang="{locale}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex,follow"><title>{escape(copy['title'])} — Nocturna</title><meta name="description" content="{escape(copy['summary'], quote=True)}"><link rel="stylesheet" href="../../../styles.css"><script type="module" src="../../../comments.js"></script></head><body><div class="shell"><header class="masthead"><a class="brand" href="/{lang}/"><span class="brand-mark" aria-hidden="true">✦</span><span>NOCTURNA</span></a>{language_links(0, story['slug'], lang)}</header><main class="legal"><a class="back" href="/{lang}/">← {back}</a><p class="eyebrow">{class_label}: {classification}</p><h1>{escape(copy['title'])}</h1><p>{escape(copy['summary'])}</p><p><a href="{locality_href}">{escape(story['place']['city'])}, {escape(story['place']['region'])}, {escape(story['place']['country'])} — {locality_label}</a></p>{body}{source_section}{explore_section}<section id="comments" class="comments" data-story="{escape(story['slug'])}" data-lang="{lang}"></section></main>{footer}</div></body></html>'''
+    html = f'''<!doctype html><html lang="{locale}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex,follow"><title>{escape(copy['title'])} — Nocturna</title><meta name="description" content="{escape(copy['summary'], quote=True)}"><link rel="stylesheet" href="../../../styles.css"><script type="module" src="../../../comments.js"></script></head><body><div class="shell"><header class="masthead"><a class="brand" href="/{lang}/"><span class="brand-mark" aria-hidden="true">✦</span><span>NOCTURNA</span></a>{language_links(0, story['slug'], lang)}</header><main class="legal"><a class="back" href="/{lang}/">← {back}</a><p class="eyebrow">{class_label}: {classification}</p><h1>{escape(copy['title'])}</h1><p>{escape(copy['summary'])}</p><p><a href="{locality_href}">{escape(story['place']['city'])}, {escape(story['place']['region'])}, {escape(story['place']['country'])} — {locality_label}</a></p>{body}{map_section}{source_section}{explore_section}<section id="comments" class="comments" data-story="{escape(story['slug'])}" data-lang="{lang}"></section></main>{footer}</div></body></html>'''
     html = html.replace('</head>', '<script defer src="/privacy.js"></script></head>', 1)
     folder = ROOT / lang / slugs[lang] / story["slug"]
     folder.mkdir(parents=True, exist_ok=True)
