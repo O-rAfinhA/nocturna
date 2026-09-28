@@ -17,6 +17,7 @@
         "country": {"type": "string", "minLength": 1},
         "latitude": {"type": "number", "minimum": -90, "maximum": 90},
         "longitude": {"type": "number", "minimum": -180, "maximum": 180},
+        "streetViewUrl": {"type": "string", "pattern": "^https://", "maxLength": 2048, "description": "Optional Google Maps / Street View link chosen by the editor (google.com/maps or maps.app.goo.gl)."},
         "precision": {"enum": ["exact", "approximate"], "description": "exact: confirmed location. Default: approximate (the map popup says so). Every popup links to Street View."}
       }
     },

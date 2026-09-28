@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { STORY_BYTES, input, validStory } from '../api/_lib/http.mjs';
+import { STORY_BYTES, input, validStory, validStreetViewUrl } from '../api/_lib/http.mjs';
 
 const longStory = {
   slug: 'historia-longa', status: 'draft', classification: 'fiction',
@@ -24,4 +24,15 @@ test('the default limit counts bytes, not characters', async () => {
 test('location precision is optional and limited to exact or approximate', () => {
   for (const precision of [undefined, 'exact', 'approximate']) assert.ok(validStory({ ...longStory, place: { ...longStory.place, precision } }));
   assert.ok(!validStory({ ...longStory, place: { ...longStory.place, precision: 'street' } }));
+});
+
+test('Street View links must point to Google Maps over HTTPS', () => {
+  for (const url of [
+    'https://www.google.com/maps/@-25.4288,-49.2733,3a,75y,90h,90t/data=!3m6!1e1',
+    'https://maps.app.goo.gl/AbCdEf123',
+    'https://goo.gl/maps/AbCdEf123',
+  ]) assert.ok(validStreetViewUrl(url), url);
+  for (const url of ['http://www.google.com/maps/@1,2', 'https://www.google.com/search?q=x', 'https://evil.example/maps', 'javascript:alert(1)', 42]) assert.ok(!validStreetViewUrl(url), String(url));
+  assert.ok(validStory({ ...longStory, place: { ...longStory.place, streetViewUrl: 'https://maps.app.goo.gl/AbCdEf123' } }));
+  assert.ok(!validStory({ ...longStory, place: { ...longStory.place, streetViewUrl: 'https://evil.example/maps' } }));
 });

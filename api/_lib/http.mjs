@@ -52,12 +52,22 @@ export function passwordIsValid(password) {
   return timingSafeEqual(expected, actual);
 }
 
+export function validStreetViewUrl(value) {
+  if (typeof value !== 'string' || value.length > 2048) return false;
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' && ['www.google.com', 'google.com', 'maps.google.com', 'maps.app.goo.gl', 'goo.gl'].includes(url.hostname)
+      && (url.hostname === 'maps.app.goo.gl' || url.pathname.startsWith('/maps'));
+  } catch { return false; }
+}
+
 export function validStory(story) {
   if (!story || typeof story !== 'object' || !/^([a-z0-9]+)(-[a-z0-9]+)*$/.test(story.slug || '')) return false;
   if (!['draft', 'review', 'published'].includes(story.status) || !['documented', 'unverified', 'fiction'].includes(story.classification)) return false;
   const place = story.place || {};
   if (!['city', 'region', 'country'].every(key => typeof place[key] === 'string' && place[key].trim()) || !Number.isFinite(place.latitude) || !Number.isFinite(place.longitude) || Math.abs(place.latitude) > 90 || Math.abs(place.longitude) > 180) return false;
   if (place.precision !== undefined && !['exact', 'approximate'].includes(place.precision)) return false;
+  if (place.streetViewUrl !== undefined && !validStreetViewUrl(place.streetViewUrl)) return false;
   if (!/^\d{4}-\d{2}-\d{2}$/.test(story.publishedAt || '') || !/^\d{4}-\d{2}-\d{2}$/.test(story.updatedAt || '')) return false;
   if (!Array.isArray(story.sources) || story.sources.length > 10 || !story.sources.every(source => typeof source.title === 'string' && source.title.trim() && source.title.length < 200 && typeof source.url === 'string' && /^https:\/\//.test(source.url))) return false;
   if (story.explore !== undefined && (!Array.isArray(story.explore) || story.explore.length > 10 || !story.explore.every(item => ['document', 'image', 'audio', 'video', 'reading'].includes(item.kind) && typeof item.url === 'string' && /^https:\/\//.test(item.url) && ['pt', 'en', 'es'].every(lang => typeof item.labels?.[lang] === 'string' && item.labels[lang].trim() && item.labels[lang].length < 200)))) return false;
