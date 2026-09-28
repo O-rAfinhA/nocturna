@@ -16,6 +16,15 @@ const resourceType = {
   video: { pt: 'Vídeo', en: 'Video', es: 'Vídeo' },
   reading: { pt: 'Leitura', en: 'Reading', es: 'Lectura' },
 };
+const masthead = { pt: 'ATLAS DO INCOMUM', en: 'ATLAS OF THE UNUSUAL', es: 'ATLAS DE LO INSÓLITO' };
+const languageName = { pt: 'Idioma', en: 'Language', es: 'Idioma' };
+
+// Mesmo cabeçalho da página inicial: rótulo e menu suspenso com o idioma atual.
+export function languageMenu(lang, pathFor) {
+  const options = ['pt', 'en', 'es'].map(code => `<option value="${escapeHtml(pathFor(code))}"${code === lang ? ' selected' : ''}>${code.toUpperCase()}</option>`).join('');
+  return `<div class="header-right"><span class="masthead-label">${masthead[lang]}</span><label class="language"><span class="sr-only">${languageName[lang]}</span><select aria-label="${languageName[lang]}" onchange="location.href=this.value">${options}</select></label></div>`;
+}
+
 const privacyScript = '<script defer src="/privacy.js" data-analytics="vercel"></script>';
 
 export function escapeHtml(value) {
@@ -70,7 +79,7 @@ export function storyPage(story, lang, localitySlug = localitySlugFor(story)) {
   const title = `${copy.title} — Nocturna`;
   const titleEscaped = escapeHtml(title);
   const description = escapeHtml(copy.summary);
-  const nav = ['pt', 'en', 'es'].map(code => `<a href="${storyUrl(code, story.slug)}"${code === lang ? ' aria-current="page"' : ''}>${code.toUpperCase()}</a>`).join('');
+  const nav = languageMenu(lang, code => `/${code}/${route[code]}/${encodeURIComponent(story.slug)}/`);
   const paragraphs = copy.body.replace(/\r\n/g, '\n').split(/\n\s*\n/).filter(Boolean).map(paragraph => `<p>${escapeHtml(paragraph.trim())}</p>`).join('');
   const mapLabel = story.place.streetViewUrl ? words.streetView : words.googleMaps;
   const location = `<p class="story-map-link"><a href="${escapeHtml(mapLink(story.place))}" target="_blank" rel="noopener noreferrer">${mapLabel}</a>${story.place.precision === 'exact' ? '' : ` <span class="location-note">· ${words.approximate}</span>`}</p>`;
@@ -98,7 +107,7 @@ export function storyPage(story, lang, localitySlug = localitySlugFor(story)) {
 <script type="application/ld+json">${structured}</script>
 <link rel="stylesheet" href="/styles.css"><script type="module" src="/comments.js"></script>${privacyScript}
 </head><body><div class="shell">
-<header class="masthead"><a class="brand" href="/${lang}/"><span class="brand-mark" aria-hidden="true">✦</span><span>NOCTURNA</span></a><nav class="article-languages" aria-label="Languages">${nav}</nav></header>
+<header class="masthead"><a class="brand" href="/${lang}/"><span class="brand-mark" aria-hidden="true">✦</span><span>NOCTURNA</span></a>${nav}</header>
 <main class="legal"><a class="back" href="/${lang}/">← ${words.back}</a>
 <p class="eyebrow">${words.classification}: ${words[story.classification]}</p>
 <h1>${escapeHtml(copy.title)}</h1><p>${escapeHtml(copy.summary)}</p>
@@ -115,7 +124,7 @@ export function placePage(group, lang) {
   const description = { pt: `Explore as histórias publicadas de ${name}.`, en: `Explore published stories from ${name}.`, es: `Explora las historias publicadas de ${name}.` }[lang];
   const canonical = placeUrl(lang, group.slug);
   const alternates = ['pt', 'en', 'es'].map(code => `<link rel="alternate" hreflang="${locale[code]}" href="${placeUrl(code, group.slug)}">`).join('');
-  const nav = ['pt', 'en', 'es'].map(code => `<a href="${placeUrl(code, group.slug)}"${code === lang ? ' aria-current="page"' : ''}>${code.toUpperCase()}</a>`).join('');
+  const nav = languageMenu(lang, code => `/${code}/${placeRoute[code]}/${encodeURIComponent(group.slug)}/`);
   const articles = group.stories.map(story => `<article class="place-story"><h2><a href="${storyUrl(lang, story.slug)}">${escapeHtml(story.translations[lang].title)}</a></h2><p>${escapeHtml(story.translations[lang].summary)}</p></article>`).join('');
   const structured = JSON.stringify({ '@context': 'https://schema.org', '@type': 'CollectionPage', name: title, description, inLanguage: locale[lang], url: canonical, mainEntity: { '@type': 'ItemList', itemListElement: group.stories.map((story, index) => ({ '@type': 'ListItem', position: index + 1, url: storyUrl(lang, story.slug) })) } }).replace(/</g, '\\u003c');
   return `<!doctype html><html lang="${locale[lang]}"><head>
@@ -124,7 +133,7 @@ export function placePage(group, lang) {
 <link rel="canonical" href="${canonical}">${alternates}<link rel="alternate" hreflang="x-default" href="${placeUrl('pt', group.slug)}">
 <meta property="og:type" content="website"><meta property="og:site_name" content="Nocturna"><meta property="og:title" content="${escapeHtml(title)}"><meta property="og:description" content="${escapeHtml(description)}"><meta property="og:url" content="${canonical}"><meta name="twitter:card" content="summary">
 <script type="application/ld+json">${structured}</script><link rel="stylesheet" href="/styles.css">${privacyScript}</head>
-<body><div class="shell"><header class="masthead"><a class="brand" href="/${lang}/"><span class="brand-mark" aria-hidden="true">✦</span><span>NOCTURNA</span></a><nav class="article-languages" aria-label="Languages">${nav}</nav></header>
+<body><div class="shell"><header class="masthead"><a class="brand" href="/${lang}/"><span class="brand-mark" aria-hidden="true">✦</span><span>NOCTURNA</span></a>${nav}</header>
 <main class="legal place-page"><a class="back" href="/${lang}/">← ${labels[lang].back}</a><h1>${escapeHtml(title.replace(/ — Nocturna$/, ''))}</h1><p>${escapeHtml(description)}</p>${articles}</main>
 <footer><a class="footer-brand brand" href="/${lang}/" aria-label="Nocturna"><span class="brand-mark" aria-hidden="true">✦</span><span>NOCTURNA</span></a><span>${labels[lang].footer} <a href="/${lang}/privacidade.html">${labels[lang].privacy}</a></span></footer>
 </div></body></html>`;

@@ -27,6 +27,9 @@ for (const lang of ['pt', 'en', 'es']) {
     assert.ok(!html.includes('Segundo parágrafo com <script>.'));
     assert.ok(html.includes('<script defer src="/privacy.js" data-analytics="vercel"></script>'));
     assert.ok(!html.includes('/_vercel/insights/script.js'));
+    assert.match(html, new RegExp(`<option value="/${lang}/(historias|stories)/historia-exemplo/" selected>${lang.toUpperCase()}</option>`));
+    assert.equal((html.match(/<option /g) || []).length, 3);
+    assert.ok(!html.includes('article-languages'));
   });
 }
 

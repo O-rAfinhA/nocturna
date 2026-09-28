@@ -235,11 +235,15 @@ def place_slug(key):
 
 
 def language_links(kind, slug, current):
-    labels = {"pt": "PT", "en": "EN", "es": "ES"}
-    return '<nav class="article-languages" aria-label="Languages">' + "".join(
-        f'<a href="/{lang}/{ROUTES[lang][kind]}/{slug}/"' + (' aria-current="page"' if lang == current else '') + f'>{label}</a>'
-        for lang, label in labels.items()
-    ) + '</nav>'
+    """Mesmo cabeçalho da página inicial: rótulo e menu suspenso com o idioma atual."""
+    masthead = {"pt": "ATLAS DO INCOMUM", "en": "ATLAS OF THE UNUSUAL", "es": "ATLAS DE LO INSÓLITO"}[current]
+    name = {"pt": "Idioma", "en": "Language", "es": "Idioma"}[current]
+    options = "".join(
+        f'<option value="/{lang}/{ROUTES[lang][kind]}/{slug}/"' + (' selected' if lang == current else '') + f'>{lang.upper()}</option>'
+        for lang in ("pt", "en", "es")
+    )
+    return (f'<div class="header-right"><span class="masthead-label">{masthead}</span><label class="language"><span class="sr-only">{name}</span>'
+            f'<select aria-label="{name}" onchange="location.href=this.value">{options}</select></label></div>')
 
 
 def reading_footer(lang):
