@@ -8,6 +8,7 @@ import re
 import unicodedata
 from datetime import date
 import hashlib
+import math
 from urllib.parse import urlparse
 import shutil
 
@@ -291,7 +292,7 @@ def render_story(story, lang, locality_slug):
     explore_section = f'<section class="story-explore"><h2>{explore_heading}</h2><p>{explore_note}</p><ul>{explore_items}</ul></section>' if explore_items else ""
     body = "".join(f"<p>{escape(paragraph)}</p>" for paragraph in copy["body"].split("\n\n") if paragraph.strip())
     locale = {"pt": "pt-BR", "en": "en", "es": "es"}[lang]
-    locality_label = {"pt": "Ver histórias deste lugar", "en": "See stories from this place", "es": "Ver historias de este lugar"}[lang]
+    locality_label = {"pt": "Ver histórias deste lugar e arredores", "en": "See stories from this place and nearby", "es": "Ver historias de este lugar y alrededores"}[lang]
     locality_href = f"/{lang}/{ROUTES[lang][1]}/{locality_slug}/"
     footer = reading_footer(lang)
     html = f'''<!doctype html><html lang="{locale}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex,follow"><title>{escape(copy['title'])} — Nocturna</title><meta name="description" content="{escape(copy['summary'], quote=True)}"><link rel="stylesheet" href="../../../styles.css"><script type="module" src="../../../comments.js"></script></head><body><div class="shell"><header class="masthead"><a class="brand" href="/{lang}/"><span class="brand-mark" aria-hidden="true">✦</span><span>NOCTURNA</span></a>{language_links(0, story['slug'], lang)}</header><main class="legal"><a class="back" href="/{lang}/">← {back}</a><p class="eyebrow">{class_label}: {classification}</p><h1>{escape(copy['title'])}</h1><p>{escape(copy['summary'])}</p><p><a href="{locality_href}">{escape(story['place']['city'])}, {escape(story['place']['region'])}, {escape(story['place']['country'])} — {locality_label}</a></p>{body}{map_section}{source_section}{explore_section}<section id="comments" class="comments" data-story="{escape(story['slug'])}" data-lang="{lang}"></section></main>{footer}</div></body></html>'''
@@ -301,24 +302,54 @@ def render_story(story, lang, locality_slug):
     (folder / "index.html").write_text(html, encoding="utf-8")
 
 
-def render_locality(group, slug, lang):
+NEARBY_KM = 300
+NEARBY_MIN, NEARBY_MAX = 3, 12
+
+
+def distance_km(a, b):
+    lat1, lat2 = math.radians(a["latitude"]), math.radians(b["latitude"])
+    d_lat, d_lon = lat2 - lat1, math.radians(b["longitude"] - a["longitude"])
+    h = math.sin(d_lat / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin(d_lon / 2) ** 2
+    return 6371 * 2 * math.asin(min(1, math.sqrt(h)))
+
+
+def nearby_stories(group, stories):
+    """Todas as histórias até NEARBY_KM; se forem menos de NEARBY_MIN, completa com as mais próximas (igual à API)."""
+    own = {story["slug"] for story in group}
+    ranked = sorted(((distance_km(group[0]["place"], story["place"]), story) for story in stories if story["slug"] not in own), key=lambda item: (item[0], item[1]["slug"]))
+    close = [item for item in ranked if item[0] <= NEARBY_KM]
+    return (close if len(close) >= NEARBY_MIN else ranked[:NEARBY_MIN])[:NEARBY_MAX]
+
+
+def render_locality(group, slug, lang, stories):
     place = group[0]["place"]
     city = place["city"].strip()
     region = place["region"].strip()
     country = place["country"].strip()
     location = ", ".join((city, region, country))
     labels = {
-        "pt": ("Histórias de", "Histórias publicadas", "Voltar ao atlas", "Documentado", "Relato não verificado", "Ficção"),
-        "en": ("Stories from", "Published stories", "Back to the atlas", "Documented", "Unverified account", "Fiction"),
-        "es": ("Historias de", "Historias publicadas", "Volver al atlas", "Documentado", "Relato no verificado", "Ficción"),
+        "pt": ("Histórias de", "Histórias publicadas", "Voltar ao atlas", "Neste lugar", "Histórias próximas", "Documentado", "Relato não verificado", "Ficção"),
+        "en": ("Stories from", "Published stories", "Back to the atlas", "In this place", "Nearby stories", "Documented", "Unverified account", "Fiction"),
+        "es": ("Historias de", "Historias publicadas", "Volver al atlas", "En este lugar", "Historias cercanas", "Documentado", "Relato no verificado", "Ficción"),
     }
-    title_prefix, heading, back, *classifications = labels[lang]
+    title_prefix, heading, back, here_heading, nearby_heading, *classifications = labels[lang]
     articles = []
     for story in sorted(group, key=lambda item: (item["publishedAt"], item["slug"]), reverse=True):
         copy = story["translations"][lang]
         category = classifications[{"documented": 0, "unverified": 1, "fiction": 2}[story["classification"]]]
         href = f"/{lang}/{ROUTES[lang][0]}/{story['slug']}/"
         articles.append(f'<article class="place-story"><p class="eyebrow">{category}</p><h2><a href="{href}">{escape(copy["title"])}</a></h2><p>{escape(copy["summary"])}</p></article>')
+    articles.insert(0, f'<section class="place-group"><h2 class="place-group-heading">{here_heading}</h2>')
+    articles.append("</section>")
+    nearby = nearby_stories(group, stories)
+    if nearby:
+        articles.append(f'<section class="place-group"><h2 class="place-group-heading">{nearby_heading}</h2>')
+        for km, story in nearby:
+            copy = story["translations"][lang]
+            href = f"/{lang}/{ROUTES[lang][0]}/{story['slug']}/"
+            distance = f"{round(km):,}".replace(",", "," if lang == "en" else ".")
+            articles.append(f'<article class="place-story"><p class="eyebrow">{distance} km · {escape(story["place"]["city"])}</p><h2><a href="{href}">{escape(copy["title"])}</a></h2><p>{escape(copy["summary"])}</p></article>')
+        articles.append("</section>")
     locale = {"pt": "pt-BR", "en": "en", "es": "es"}[lang]
     title = f"{title_prefix} {location}"
     footer = reading_footer(lang)
@@ -378,7 +409,7 @@ for lang in ROUTES:
         if generated.exists():
             shutil.rmtree(generated)
     for key, group in groups.items():
-        render_locality(group, slugs[key], lang)
+        render_locality(group, slugs[key], lang, [story for items in groups.values() for story in items])
         for story in group:
             render_story(story, lang, slugs[key])
     add_locality_directory(groups, slugs, lang)

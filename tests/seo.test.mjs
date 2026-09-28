@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { groupPlaces, localitySlugFor, placePage, placeUrl, sitemap, storyPage, storyUrl } from '../api/_lib/seo.mjs';
+import { groupPlaces, localitySlugFor, nearbyStories, placePage, placeUrl, sitemap, storyPage, storyUrl } from '../api/_lib/seo.mjs';
 
 const story = {
   slug: 'historia-exemplo', status: 'published', classification: 'documented',
@@ -81,4 +81,19 @@ test('story pages link to the map between the article and the sources', () => {
   assert.match(html, />Ver no Google Maps<\/a> <span class="location-note">· Local aproximado<\/span>/);
   const street = storyPage({ ...located, place: { ...located.place, precision: 'exact', streetViewUrl: 'https://www.google.com/maps/@-25.4,-49.2,3a,75y,90h' } }, 'en');
   assert.match(street, /<a href="https:\/\/www\.google\.com\/maps\/@-25\.4,-49\.2,3a,75y,90h" target="_blank" rel="noopener noreferrer">Open in Street View<\/a><\/p>/);
+});
+
+test('place pages also list nearby stories, closest first', () => {
+  const at = (slug, city, latitude, longitude) => ({ ...story, slug, place: { city, region: 'R', country: 'Brasil', latitude, longitude } });
+  const curitiba = at('curitiba', 'Curitiba', -25.43, -49.27);
+  const all = [curitiba, at('guaratuba', 'Guaratuba', -25.88, -48.58), at('sao-paulo', 'São Paulo', -23.55, -46.63), at('colares', 'Colares', -0.94, -48.28), at('varginha', 'Varginha', -21.55, -45.43)];
+  const group = groupPlaces(all).find(item => item.stories.includes(curitiba));
+  // Só Guaratuba fica a menos de 300 km; completa com as mais próximas até 3.
+  assert.deepEqual(nearbyStories(group, all).map(item => item.story.slug), ['guaratuba', 'sao-paulo', 'varginha']);
+  const html = placePage(group, 'pt', all);
+  assert.ok(html.indexOf('>Neste lugar<') < html.indexOf('>Histórias próximas<'));
+  assert.match(html, /<p class="eyebrow">\d+ km · Guaratuba<\/p>/);
+  assert.ok(!html.includes('/colares/'));
+  const near = [curitiba, ...Array.from({ length: 5 }, (_, i) => at(`perto-${i}`, 'Perto', -25.43 + i * 0.1, -49.27))];
+  assert.equal(nearbyStories(groupPlaces(near).find(item => item.stories.includes(curitiba)), [...near, ...all.slice(1)]).length, 6);
 });

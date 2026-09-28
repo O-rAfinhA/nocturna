@@ -5,9 +5,9 @@ export const SITE_URL = 'https://portalnocturna.com.br';
 const route = { pt: 'historias', en: 'stories', es: 'historias' };
 const locale = { pt: 'pt-BR', en: 'en', es: 'es' };
 const labels = {
-  pt: { streetView: 'Ver no Street View', googleMaps: 'Ver no Google Maps', approximate: 'Local aproximado', back: 'Voltar ao atlas', place: 'Ver histórias deste lugar', classification: 'Classificação', documented: 'Documentado', unverified: 'Relato não verificado', fiction: 'Ficção', sources: 'Fontes', explore: 'Explore mais', exploreNote: 'Estes links ajudam a investigar o contexto; eles não confirmam, por si só, as alegações da história.', privacy: 'Privacidade', footer: 'Sem cadastro. Localização opcional.' },
-  en: { streetView: 'Open in Street View', googleMaps: 'Open in Google Maps', approximate: 'Approximate location', back: 'Back to the atlas', place: 'See stories from this place', classification: 'Classification', documented: 'Documented', unverified: 'Unverified account', fiction: 'Fiction', sources: 'Sources', explore: 'Explore further', exploreNote: 'These links help investigate the context; they do not, by themselves, confirm the story’s claims.', privacy: 'Privacy', footer: 'No account. Location is optional.' },
-  es: { streetView: 'Ver en Street View', googleMaps: 'Ver en Google Maps', approximate: 'Ubicación aproximada', back: 'Volver al atlas', place: 'Ver historias de este lugar', classification: 'Clasificación', documented: 'Documentado', unverified: 'Relato no verificado', fiction: 'Ficción', sources: 'Fuentes', explore: 'Explora más', exploreNote: 'Estos enlaces ayudan a investigar el contexto; por sí solos no confirman las afirmaciones de la historia.', privacy: 'Privacidad', footer: 'Sin cuenta. Ubicación opcional.' },
+  pt: { streetView: 'Ver no Street View', googleMaps: 'Ver no Google Maps', approximate: 'Local aproximado', back: 'Voltar ao atlas', place: 'Ver histórias deste lugar e arredores', nearby: 'Histórias próximas', here: 'Neste lugar', classification: 'Classificação', documented: 'Documentado', unverified: 'Relato não verificado', fiction: 'Ficção', sources: 'Fontes', explore: 'Explore mais', exploreNote: 'Estes links ajudam a investigar o contexto; eles não confirmam, por si só, as alegações da história.', privacy: 'Privacidade', footer: 'Sem cadastro. Localização opcional.' },
+  en: { streetView: 'Open in Street View', googleMaps: 'Open in Google Maps', approximate: 'Approximate location', back: 'Back to the atlas', place: 'See stories from this place and nearby', nearby: 'Nearby stories', here: 'In this place', classification: 'Classification', documented: 'Documented', unverified: 'Unverified account', fiction: 'Fiction', sources: 'Sources', explore: 'Explore further', exploreNote: 'These links help investigate the context; they do not, by themselves, confirm the story’s claims.', privacy: 'Privacy', footer: 'No account. Location is optional.' },
+  es: { streetView: 'Ver en Street View', googleMaps: 'Ver en Google Maps', approximate: 'Ubicación aproximada', back: 'Volver al atlas', place: 'Ver historias de este lugar y alrededores', nearby: 'Historias cercanas', here: 'En este lugar', classification: 'Clasificación', documented: 'Documentado', unverified: 'Relato no verificado', fiction: 'Ficción', sources: 'Fuentes', explore: 'Explora más', exploreNote: 'Estos enlaces ayudan a investigar el contexto; por sí solos no confirman las afirmaciones de la historia.', privacy: 'Privacidad', footer: 'Sin cuenta. Ubicación opcional.' },
 };
 const resourceType = {
   document: { pt: 'Documento', en: 'Document', es: 'Documento' },
@@ -118,14 +118,36 @@ ${paragraphs}${location}${sources}${explore}
 </div></body></html>`;
 }
 
-export function placePage(group, lang) {
+// Histórias próximas de um lugar: todas até NEARBY_KM; se forem menos de NEARBY_MIN, completa com as mais próximas.
+export const NEARBY_KM = 300;
+const NEARBY_MIN = 3, NEARBY_MAX = 12;
+
+export function distanceKm(a, b) {
+  const rad = Math.PI / 180, dLat = (b.latitude - a.latitude) * rad, dLon = (b.longitude - a.longitude) * rad;
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(a.latitude * rad) * Math.cos(b.latitude * rad) * Math.sin(dLon / 2) ** 2;
+  return 6371 * 2 * Math.asin(Math.min(1, Math.sqrt(h)));
+}
+
+export function nearbyStories(group, stories) {
+  const own = new Set(group.stories.map(story => story.slug));
+  const ranked = stories.filter(story => !own.has(story.slug)).map(story => ({ story, km: distanceKm(group.place, story.place) })).sort((a, b) => a.km - b.km || a.story.slug.localeCompare(b.story.slug));
+  const close = ranked.filter(item => item.km <= NEARBY_KM);
+  return (close.length >= NEARBY_MIN ? close : ranked.slice(0, NEARBY_MIN)).slice(0, NEARBY_MAX);
+}
+
+export function placePage(group, lang, stories = group.stories) {
   const name = [group.place.city, group.place.region, group.place.country].join(', ');
   const title = { pt: `Histórias de ${name} — Nocturna`, en: `Stories from ${name} — Nocturna`, es: `Historias de ${name} — Nocturna` }[lang];
-  const description = { pt: `Explore as histórias publicadas de ${name}.`, en: `Explore published stories from ${name}.`, es: `Explora las historias publicadas de ${name}.` }[lang];
+  const description = { pt: `Explore as histórias publicadas de ${name} e arredores.`, en: `Explore published stories from ${name} and nearby.`, es: `Explora las historias publicadas de ${name} y alrededores.` }[lang];
   const canonical = placeUrl(lang, group.slug);
   const alternates = ['pt', 'en', 'es'].map(code => `<link rel="alternate" hreflang="${locale[code]}" href="${placeUrl(code, group.slug)}">`).join('');
   const nav = languageMenu(lang, code => `/${code}/${placeRoute[code]}/${encodeURIComponent(group.slug)}/`);
-  const articles = group.stories.map(story => `<article class="place-story"><h2><a href="${storyUrl(lang, story.slug)}">${escapeHtml(story.translations[lang].title)}</a></h2><p>${escapeHtml(story.translations[lang].summary)}</p></article>`).join('');
+  const words = labels[lang];
+  const card = (story, meta) => `<article class="place-story">${meta ? `<p class="eyebrow">${meta}</p>` : ''}<h2><a href="${storyUrl(lang, story.slug)}">${escapeHtml(story.translations[lang].title)}</a></h2><p>${escapeHtml(story.translations[lang].summary)}</p></article>`;
+  const nearby = nearbyStories(group, stories);
+  const number = new Intl.NumberFormat(locale[lang], { maximumFractionDigits: 0 });
+  const articles = `<section class="place-group" aria-labelledby="here-heading"><h2 id="here-heading" class="place-group-heading">${words.here}</h2>${group.stories.map(story => card(story)).join('')}</section>`
+    + (nearby.length ? `<section class="place-group" aria-labelledby="nearby-heading"><h2 id="nearby-heading" class="place-group-heading">${words.nearby}</h2>${nearby.map(({ story, km }) => card(story, `${number.format(km)} km · ${escapeHtml(story.place.city)}`)).join('')}</section>` : '');
   const structured = JSON.stringify({ '@context': 'https://schema.org', '@type': 'CollectionPage', name: title, description, inLanguage: locale[lang], url: canonical, mainEntity: { '@type': 'ItemList', itemListElement: group.stories.map((story, index) => ({ '@type': 'ListItem', position: index + 1, url: storyUrl(lang, story.slug) })) } }).replace(/</g, '\\u003c');
   return `<!doctype html><html lang="${locale[lang]}"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="index,follow,max-image-preview:large">
