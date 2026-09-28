@@ -9,8 +9,8 @@ export const json = (value, status = 200, headers = {}) => new Response(JSON.str
 export const PUBLIC_CACHE = 'public, max-age=0, s-maxage=300, stale-while-revalidate=86400';
 export const SHORT_PUBLIC_CACHE = 'public, max-age=0, s-maxage=60, stale-while-revalidate=600';
 
-// 3 idiomas × (título + resumo + corpo < 15.000 caracteres), com folga para acentos (até 4 bytes) e fontes.
-export const STORY_BYTES = 800_000;
+// 3 idiomas × (título + resumo + texto até 60.000 caracteres), com folga para acentos (até 4 bytes) e fontes.
+export const STORY_BYTES = 1_000_000;
 
 export const failure = (message, status = 400) => json({ error: message }, status);
 
@@ -52,24 +52,54 @@ export function passwordIsValid(password) {
   return timingSafeEqual(expected, actual);
 }
 
+// Domínios do Google Maps, incluindo os regionais (google.com.br, google.es, google.co.uk…).
+const GOOGLE_MAPS_HOST = /^(?:www\.|maps\.)?google\.(?:com|[a-z]{2}|com?\.[a-z]{2})$/;
+
 export function validStreetViewUrl(value) {
   if (typeof value !== 'string' || value.length > 2048) return false;
   try {
     const url = new URL(value);
-    return url.protocol === 'https:' && ['www.google.com', 'google.com', 'maps.google.com', 'maps.app.goo.gl', 'goo.gl'].includes(url.hostname)
-      && (url.hostname === 'maps.app.goo.gl' || url.pathname.startsWith('/maps'));
+    if (url.protocol !== 'https:') return false;
+    if (url.hostname === 'maps.app.goo.gl') return true;
+    return (url.hostname === 'goo.gl' || GOOGLE_MAPS_HOST.test(url.hostname)) && url.pathname.startsWith('/maps');
   } catch { return false; }
 }
 
-export function validStory(story) {
-  if (!story || typeof story !== 'object' || !/^([a-z0-9]+)(-[a-z0-9]+)*$/.test(story.slug || '')) return false;
-  if (!['draft', 'review', 'published'].includes(story.status) || !['documented', 'unverified', 'fiction'].includes(story.classification)) return false;
+export const TEXT_LIMITS = { title: 500, summary: 5_000, body: 60_000 };
+const LANGUAGE_NAMES = { pt: 'Português', en: 'English', es: 'Español' };
+const FIELD_NAMES = { title: 'Título', summary: 'Resumo', body: 'Texto' };
+
+// Retorna a descrição do primeiro problema encontrado, ou null quando a história é válida.
+export function storyProblem(story) {
+  if (!story || typeof story !== 'object') return 'História inválida.';
+  if (!/^([a-z0-9]+)(-[a-z0-9]+)*$/.test(story.slug || '')) return 'Identificador da URL inválido: use apenas letras minúsculas sem acento, números e hífens.';
+  if (!['draft', 'review', 'published'].includes(story.status)) return 'Situação inválida.';
+  if (!['documented', 'unverified', 'fiction'].includes(story.classification)) return 'Classificação inválida.';
   const place = story.place || {};
-  if (!['city', 'region', 'country'].every(key => typeof place[key] === 'string' && place[key].trim()) || !Number.isFinite(place.latitude) || !Number.isFinite(place.longitude) || Math.abs(place.latitude) > 90 || Math.abs(place.longitude) > 180) return false;
-  if (place.precision !== undefined && !['exact', 'approximate'].includes(place.precision)) return false;
-  if (place.streetViewUrl !== undefined && !validStreetViewUrl(place.streetViewUrl)) return false;
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(story.publishedAt || '') || !/^\d{4}-\d{2}-\d{2}$/.test(story.updatedAt || '')) return false;
-  if (!Array.isArray(story.sources) || story.sources.length > 10 || !story.sources.every(source => typeof source.title === 'string' && source.title.trim() && source.title.length < 200 && typeof source.url === 'string' && /^https:\/\//.test(source.url))) return false;
-  if (story.explore !== undefined && (!Array.isArray(story.explore) || story.explore.length > 10 || !story.explore.every(item => ['document', 'image', 'audio', 'video', 'reading'].includes(item.kind) && typeof item.url === 'string' && /^https:\/\//.test(item.url) && ['pt', 'en', 'es'].every(lang => typeof item.labels?.[lang] === 'string' && item.labels[lang].trim() && item.labels[lang].length < 200)))) return false;
-  return ['pt', 'en', 'es'].every(lang => ['title', 'summary', 'body'].every(key => typeof story.translations?.[lang]?.[key] === 'string' && story.translations[lang][key].trim() && story.translations[lang][key].length < 15_000));
+  if (!['city', 'region', 'country'].every(key => typeof place[key] === 'string' && place[key].trim())) return 'Preencha cidade, região/estado e país.';
+  if (!Number.isFinite(place.latitude) || !Number.isFinite(place.longitude) || Math.abs(place.latitude) > 90 || Math.abs(place.longitude) > 180) return 'Latitude ou longitude inválida.';
+  if (place.precision !== undefined && !['exact', 'approximate'].includes(place.precision)) return 'Precisão do local inválida.';
+  if (place.streetViewUrl !== undefined && !validStreetViewUrl(place.streetViewUrl)) return 'Link do Street View inválido: cole um endereço do Google Maps que comece com https://.';
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(story.publishedAt || '') || !/^\d{4}-\d{2}-\d{2}$/.test(story.updatedAt || '')) return 'Datas de publicação ou atualização inválidas.';
+  if (!Array.isArray(story.sources) || story.sources.length > 10) return 'Use no máximo 10 fontes.';
+  for (const source of story.sources) {
+    if (typeof source.title !== 'string' || !source.title.trim() || source.title.length >= 200) return 'Cada fonte precisa de um título com menos de 200 caracteres.';
+    if (typeof source.url !== 'string' || !/^https:\/\//.test(source.url)) return `A URL da fonte “${source.title}” precisa começar com https://.`;
+  }
+  if (story.explore !== undefined) {
+    if (!Array.isArray(story.explore) || story.explore.length > 10) return 'Use no máximo 10 links de exploração.';
+    for (const item of story.explore) {
+      if (!['document', 'image', 'audio', 'video', 'reading'].includes(item.kind)) return 'Tipo de link de exploração inválido.';
+      if (typeof item.url !== 'string' || !/^https:\/\//.test(item.url)) return 'Cada link de exploração precisa de uma URL que comece com https://.';
+      if (!['pt', 'en', 'es'].every(lang => typeof item.labels?.[lang] === 'string' && item.labels[lang].trim() && item.labels[lang].length < 200)) return 'Cada link de exploração precisa dos três títulos, com menos de 200 caracteres.';
+    }
+  }
+  for (const lang of ['pt', 'en', 'es']) for (const key of ['title', 'summary', 'body']) {
+    const value = story.translations?.[lang]?.[key];
+    if (typeof value !== 'string' || !value.trim()) return `Preencha o campo ${FIELD_NAMES[key]} da aba ${LANGUAGE_NAMES[lang]}.`;
+    if (value.length > TEXT_LIMITS[key]) return `O campo ${FIELD_NAMES[key]} da aba ${LANGUAGE_NAMES[lang]} tem ${value.length.toLocaleString('pt-BR')} caracteres; o limite é ${TEXT_LIMITS[key].toLocaleString('pt-BR')}.`;
+  }
+  return null;
 }
+
+export const validStory = story => storyProblem(story) === null;
