@@ -4,6 +4,12 @@ import { PUBLIC_CACHE } from './_lib/http.mjs';
 
 export async function GET(request) {
   const params = new URL(request.url).searchParams;
+  // /api/geo (rewrite): país aproximado informado pela Vercel a partir do IP. Fica nesta função porque o plano
+  // da Vercel limita o número de Functions. Só o código ISO é devolvido; nada é gravado.
+  if (params.get('type') === 'geo') {
+    const country = request.headers.get('x-vercel-ip-country') || '';
+    return new Response(JSON.stringify({ country: /^[A-Z]{2}$/.test(country) ? country : null }), { headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'private, no-store' } });
+  }
   if (params.get('type') === 'sitemap') {
     try {
       return new Response(sitemap(await publicStories()), { headers: { 'Content-Type': 'application/xml; charset=utf-8', 'Cache-Control': PUBLIC_CACHE } });

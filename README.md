@@ -8,7 +8,7 @@ Para configurar ou atualizar a publicação na Vercel, siga [DEPLOYMENT.md](DEPL
 
 As páginas ficam em `/pt/`, `/en/` e `/es/`, com páginas de privacidade correspondentes. Histórias publicadas ganham páginas individuais e páginas por localidade, como `/pt/locais/curitiba-parana-brasil/`, `/en/places/curitiba-parana-brasil/` e `/es/lugares/curitiba-parana-brasil/`. Na Vercel, o HTML das histórias e localidades é gerado a partir do banco, com URLs canônicas, alternância de idiomas e `/sitemap.xml` dinâmico. As páginas de privacidade também têm URLs canônicas e aparecem no sitemap.
 
-Ao abrir a página inicial, o marcador começa no centro do país do visitante: na Vercel, `/api/geo` devolve apenas o código do país informado pela hospedagem a partir do IP (`x-vercel-ip-country`), sem pedir permissão nem gravar dados; sem ele (por exemplo, no servidor local), usa a região do idioma do navegador e, por fim, o Brasil. O centro é calculado a partir dos contornos do `world-atlas`.
+Ao abrir a página inicial, o marcador começa no centro do país do visitante: na Vercel, `/api/geo` (atendida pela função `api/page.mjs`, pois o plano da Vercel limita o número de Functions) devolve apenas o código do país informado pela hospedagem a partir do IP (`x-vercel-ip-country`), sem pedir permissão nem gravar dados; sem ele (por exemplo, no servidor local), usa a região do idioma do navegador e, por fim, o Brasil. O centro é calculado a partir dos contornos do `world-atlas`.
 
 Ao abrir `/`, o idioma segue o navegador: português para `pt`, espanhol para `es` e inglês para os demais. Os caminhos explícitos preservam o idioma indicado neles. A troca manual na página não salva uma preferência no dispositivo.
 

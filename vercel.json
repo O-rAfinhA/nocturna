@@ -28,6 +28,7 @@
     { "source": "/pt/locais/:slug/", "destination": "/api/place?lang=pt&slug=:slug" },
     { "source": "/en/places/:slug/", "destination": "/api/place?lang=en&slug=:slug" },
     { "source": "/es/lugares/:slug/", "destination": "/api/place?lang=es&slug=:slug" },
-    { "source": "/sitemap.xml", "destination": "/api/page?type=sitemap" }
+    { "source": "/sitemap.xml", "destination": "/api/page?type=sitemap" },
+    { "source": "/api/geo", "destination": "/api/page?type=geo" }
   ]
 }
