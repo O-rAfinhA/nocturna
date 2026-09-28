@@ -186,7 +186,9 @@ def validate_story(story):
     street_view = place.get("streetViewUrl")
     if street_view is not None:
         parsed = urlparse(street_view) if isinstance(street_view, str) else None
-        if not parsed or len(street_view) > 2048 or parsed.scheme != "https" or parsed.hostname not in {"www.google.com", "google.com", "maps.google.com", "maps.app.goo.gl", "goo.gl"} or (parsed.hostname != "maps.app.goo.gl" and not parsed.path.startswith("/maps")):
+        host = parsed.hostname if parsed else None
+        google = bool(host) and (host == "goo.gl" or re.fullmatch(r"(?:www\.|maps\.)?google\.(?:com|[a-z]{2}|com?\.[a-z]{2})", host))
+        if not parsed or len(street_view) > 2048 or parsed.scheme != "https" or not (host == "maps.app.goo.gl" or (google and parsed.path.startswith("/maps"))):
             raise ValueError(f"Invalid Street View link for {slug}")
     for key in ("city", "region", "country"):
         if not isinstance(place.get(key), str) or not place[key].strip():

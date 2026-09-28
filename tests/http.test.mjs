@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { STORY_BYTES, input, validStory, validStreetViewUrl } from '../api/_lib/http.mjs';
+import { STORY_BYTES, input, storyProblem, validStory, validStreetViewUrl } from '../api/_lib/http.mjs';
 
 const longStory = {
   slug: 'historia-longa', status: 'draft', classification: 'fiction',
   publishedAt: '2026-01-01', updatedAt: '2026-01-01',
   place: { city: 'Cidade', region: 'Região', country: 'Brasil', latitude: 0, longitude: 0 },
   sources: [],
-  translations: Object.fromEntries(['pt', 'en', 'es'].map(lang => [lang, { title: 'Título', summary: 'Resumo', body: 'ã'.repeat(14_999) }])),
+  translations: Object.fromEntries(['pt', 'en', 'es'].map(lang => [lang, { title: 'Título', summary: 'Resumo', body: 'ã'.repeat(59_999) }])),
 };
 
 const request = value => new Request('https://portalnocturna.com.br/api/admin/stories', { method: 'POST', body: JSON.stringify(value) });
@@ -31,8 +31,19 @@ test('Street View links must point to Google Maps over HTTPS', () => {
     'https://www.google.com/maps/@-25.4288,-49.2733,3a,75y,90h,90t/data=!3m6!1e1',
     'https://maps.app.goo.gl/AbCdEf123',
     'https://goo.gl/maps/AbCdEf123',
+    'https://www.google.com.br/maps/@-23.53,-46.65,3a,75y,90h/data=!3m6',
+    'https://www.google.es/maps/place/Madrid',
+    'https://maps.google.co.uk/maps?q=x',
   ]) assert.ok(validStreetViewUrl(url), url);
-  for (const url of ['http://www.google.com/maps/@1,2', 'https://www.google.com/search?q=x', 'https://evil.example/maps', 'javascript:alert(1)', 42]) assert.ok(!validStreetViewUrl(url), String(url));
+  for (const url of ['http://www.google.com/maps/@1,2', 'https://www.google.com/search?q=x', 'https://evil.example/maps', 'https://google.evil.com/maps', 'https://www.google.com.br.evil.io/maps', 'javascript:alert(1)', 42]) assert.ok(!validStreetViewUrl(url), String(url));
   assert.ok(validStory({ ...longStory, place: { ...longStory.place, streetViewUrl: 'https://maps.app.goo.gl/AbCdEf123' } }));
   assert.ok(!validStory({ ...longStory, place: { ...longStory.place, streetViewUrl: 'https://evil.example/maps' } }));
+});
+
+test('storyProblem explains what is wrong', () => {
+  assert.equal(storyProblem(longStory), null);
+  assert.match(storyProblem({ ...longStory, translations: { ...longStory.translations, en: { ...longStory.translations.en, title: '' } } }), /Título da aba English/);
+  assert.match(storyProblem({ ...longStory, place: { ...longStory.place, streetViewUrl: 'https://example.org' } }), /Street View/);
+  assert.match(storyProblem({ ...longStory, translations: { ...longStory.translations, es: { ...longStory.translations.es, body: 'x'.repeat(60_001) } } }), /Texto da aba Español tem 60\.001 caracteres/);
+  assert.equal(storyProblem({ ...longStory, translations: { ...longStory.translations, pt: { ...longStory.translations.pt, body: 'ã'.repeat(60_000) } } }), null);
 });

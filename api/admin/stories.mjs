@@ -1,4 +1,4 @@
-import { STORY_BYTES, failure, input, json, sameOrigin, validStory } from '../_lib/http.mjs';
+import { STORY_BYTES, failure, input, json, sameOrigin, storyProblem } from '../_lib/http.mjs';
 import { requireAdmin } from '../_lib/auth.mjs';
 import { allStories, saveStory } from '../_lib/store.mjs';
 
@@ -19,7 +19,8 @@ export async function POST(request) {
     if (auth.response) return auth.response;
     if (!sameOrigin(request)) return failure('Origem inválida', 403);
     const story = await input(request, STORY_BYTES);
-    if (!validStory(story)) return failure('Revise os campos da história');
+    const problem = storyProblem(story);
+    if (problem) return failure(problem);
     await saveStory(story);
     return json({ ok: true });
   } catch (error) {
