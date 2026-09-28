@@ -20,3 +20,8 @@ test('a story at the maximum length per language fits the request limit', async 
 test('the default limit counts bytes, not characters', async () => {
   await assert.rejects(input(request({ body: 'ã'.repeat(20_000) })), /too large/);
 });
+
+test('location precision is optional and limited to exact or approximate', () => {
+  for (const precision of [undefined, 'exact', 'approximate']) assert.ok(validStory({ ...longStory, place: { ...longStory.place, precision } }));
+  assert.ok(!validStory({ ...longStory, place: { ...longStory.place, precision: 'street' } }));
+});

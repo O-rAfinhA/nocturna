@@ -16,7 +16,8 @@
         "region": {"type": "string", "minLength": 1},
         "country": {"type": "string", "minLength": 1},
         "latitude": {"type": "number", "minimum": -90, "maximum": 90},
-        "longitude": {"type": "number", "minimum": -180, "maximum": 180}
+        "longitude": {"type": "number", "minimum": -180, "maximum": 180},
+        "precision": {"enum": ["exact", "approximate"], "description": "exact: confirmed location, the map offers a Street View link. Default: approximate."}
       }
     },
     "eventDate": {"type": ["string", "null"], "description": "Date or date range as published, or null when unknown."},
