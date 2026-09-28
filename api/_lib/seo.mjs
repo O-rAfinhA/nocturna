@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { plainText, renderMarkdown } from '../../dist/markdown.js';
 
 export const SITE_URL = 'https://portalnocturna.com.br';
 
@@ -73,14 +74,15 @@ export function mapLink(place) {
 }
 
 export function storyPage(story, lang, localitySlug = localitySlugFor(story)) {
-  const copy = story.translations[lang];
+  const source = story.translations[lang];
+  const copy = { ...source, title: plainText(source.title), summary: plainText(source.summary) };
   const words = labels[lang];
   const canonical = storyUrl(lang, story.slug);
   const title = `${copy.title} — Nocturna`;
   const titleEscaped = escapeHtml(title);
   const description = escapeHtml(copy.summary);
   const nav = languageMenu(lang, code => `/${code}/${route[code]}/${encodeURIComponent(story.slug)}/`);
-  const paragraphs = copy.body.replace(/\r\n/g, '\n').split(/\n\s*\n/).filter(Boolean).map(paragraph => `<p>${escapeHtml(paragraph.trim())}</p>`).join('');
+  const paragraphs = renderMarkdown(copy.body);
   const mapLabel = story.place.streetViewUrl ? words.streetView : words.googleMaps;
   const location = `<p class="story-map-link"><a href="${escapeHtml(mapLink(story.place))}" target="_blank" rel="noopener noreferrer">${mapLabel}</a>${story.place.precision === 'exact' ? '' : ` <span class="location-note">· ${words.approximate}</span>`}</p>`;
   const sources = story.sources.length ? `<section aria-labelledby="sources-heading"><h2 id="sources-heading">${words.sources}</h2><ul>${story.sources.map(item => `<li><a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.title)}</a></li>`).join('')}</ul></section>` : '';
@@ -111,7 +113,7 @@ export function storyPage(story, lang, localitySlug = localitySlugFor(story)) {
 <main class="legal"><a class="back" href="/${lang}/">← ${words.back}</a>
 <p class="eyebrow">${words.classification}: ${words[story.classification]}</p>
 <h1>${escapeHtml(copy.title)}</h1><p>${escapeHtml(copy.summary)}</p>
-<p><a href="${placeUrl(lang, localitySlug)}">${escapeHtml(story.place.city)}, ${escapeHtml(story.place.region)}, ${escapeHtml(story.place.country)} — ${words.place}</a></p>
+<p><a href="${placeUrl(lang, localitySlug)}">${escapeHtml(story.place.city)}, ${escapeHtml(story.place.region)}, ${escapeHtml(story.place.country)} · ${words.place}</a></p>
 ${paragraphs}${location}${sources}${explore}
 <section id="comments" class="comments" data-story="${escapeHtml(story.slug)}" data-lang="${lang}"></section></main>
 <footer><a class="footer-brand brand" href="/${lang}/" aria-label="Nocturna"><span class="brand-mark" aria-hidden="true">✦</span><span>NOCTURNA</span></a><span>${words.footer} <a href="/${lang}/privacidade.html">${words.privacy}</a></span></footer>
@@ -143,7 +145,7 @@ export function placePage(group, lang, stories = group.stories) {
   const alternates = ['pt', 'en', 'es'].map(code => `<link rel="alternate" hreflang="${locale[code]}" href="${placeUrl(code, group.slug)}">`).join('');
   const nav = languageMenu(lang, code => `/${code}/${placeRoute[code]}/${encodeURIComponent(group.slug)}/`);
   const words = labels[lang];
-  const card = (story, meta) => `<article class="place-story">${meta ? `<p class="eyebrow">${meta}</p>` : ''}<h2><a href="${storyUrl(lang, story.slug)}">${escapeHtml(story.translations[lang].title)}</a></h2><p>${escapeHtml(story.translations[lang].summary)}</p></article>`;
+  const card = (story, meta) => `<article class="place-story">${meta ? `<p class="eyebrow">${meta}</p>` : ''}<h2><a href="${storyUrl(lang, story.slug)}">${escapeHtml(plainText(story.translations[lang].title))}</a></h2><p>${escapeHtml(plainText(story.translations[lang].summary))}</p></article>`;
   const nearby = nearbyStories(group, stories);
   const number = new Intl.NumberFormat(locale[lang], { maximumFractionDigits: 0 });
   const articles = `<section class="place-group" aria-labelledby="here-heading"><h2 id="here-heading" class="place-group-heading">${words.here}</h2>${group.stories.map(story => card(story)).join('')}</section>`

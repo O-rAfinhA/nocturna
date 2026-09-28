@@ -260,8 +260,71 @@ def reading_footer(lang):
     return f'<footer>{brand}<span>{privacy_note} <a href="/{lang}/privacidade.html">{privacy}</a></span></footer>'
 
 
+def render_inline(text):
+    """Mesma formatação de dist/markdown.js: **negrito**, *itálico*, _itálico_ e [link](https://...)."""
+    html = escape(text, quote=True).replace("&#x27;", "&#39;")
+    html = re.sub(r'\[([^\]\n]+)\]\((https://[^\s()<>"]+)\)', r'<a href="\2" target="_blank" rel="noopener noreferrer">\1</a>', html)
+    html = re.sub(r"\*\*(?=\S)([^*\n]*?\S)\*\*", r"<strong>\1</strong>", html)
+    html = re.sub(r"(^|[^*\w])\*(?=\S)([^*\n]*?\S)\*(?![*\w])", r"\1<em>\2</em>", html, flags=re.ASCII)
+    html = re.sub(r"(^|[^\w])_(?=\S)([^_\n]*?\S)_(?!\w)", r"\1<em>\2</em>", html, flags=re.ASCII)
+    return html.replace("**", "")
+
+
+def render_markdown(text):
+    """Subtítulos (## e ###), listas, parágrafos e marcas de texto, como dist/markdown.js."""
+    html = []
+    for block in re.split(r"\n\s*\n", str(text).replace("\r\n", "\n").replace("\r", "\n")):
+        paragraph, list_tag, items = [], None, []
+
+        def flush_paragraph():
+            if paragraph:
+                html.append(f"<p>{render_inline(' '.join(paragraph))}</p>")
+                paragraph.clear()
+
+        def flush_list():
+            nonlocal list_tag
+            if list_tag:
+                html.append(f"<{list_tag}>" + "".join(f"<li>{render_inline(item)}</li>" for item in items) + f"</{list_tag}>")
+                items.clear()
+                list_tag = None
+
+        for line in (line.strip() for line in block.split("\n")):
+            if not line:
+                continue
+            heading = re.match(r"^(#{1,6})\s+(.+?)\s*#*$", line)
+            bullet = re.match(r"^[-*•]\s+(.+)$", line)
+            numbered = re.match(r"^\d+[.)]\s+(.+)$", line)
+            if heading:
+                flush_paragraph()
+                flush_list()
+                level = min(max(len(heading.group(1)), 2), 3)
+                html.append(f"<h{level}>{render_inline(heading.group(2))}</h{level}>")
+            elif bullet or numbered:
+                flush_paragraph()
+                tag = "ul" if bullet else "ol"
+                if list_tag != tag:
+                    flush_list()
+                    list_tag = tag
+                items.append((bullet or numbered).group(1))
+            else:
+                flush_list()
+                paragraph.append(line)
+        flush_paragraph()
+        flush_list()
+    return "".join(html)
+
+
+def plain_text(text):
+    text = re.sub(r"\[([^\]\n]+)\]\((https://[^\s()]+)\)", r"\1", str(text))
+    text = re.sub(r"^#{1,6}\s+", "", text, flags=re.M)
+    text = text.replace("**", "").replace("__", "")
+    text = re.sub(r"(^|[^*\w])\*(?=\S)([^*\n]*?\S)\*(?![*\w])", r"\1\2", text, flags=re.ASCII)
+    return re.sub(r"(^|[^\w])_(?=\S)([^_\n]*?\S)_(?!\w)", r"\1\2", text, flags=re.ASCII)
+
+
 def render_story(story, lang, locality_slug):
-    copy = story["translations"][lang]
+    source = story["translations"][lang]
+    copy = {**source, "title": plain_text(source["title"]), "summary": plain_text(source["summary"])}
     slugs = {"pt": "historias", "en": "stories", "es": "historias"}
     labels = {
         "pt": ("Voltar ao atlas", "Fontes", "Classificação", "Documentado", "Relato não verificado", "Ficção"),
@@ -290,12 +353,12 @@ def render_story(story, lang, locality_slug):
     explore_heading, explore_note, explore_types = explore_labels[lang]
     explore_items = "".join(f'<li><span class="resource-kind">{escape(explore_types[item["kind"]])}</span><a href="{escape(item["url"], quote=True)}" target="_blank" rel="noopener noreferrer">{escape(item["labels"][lang])}</a></li>' for item in story.get("explore", []))
     explore_section = f'<section class="story-explore"><h2>{explore_heading}</h2><p>{explore_note}</p><ul>{explore_items}</ul></section>' if explore_items else ""
-    body = "".join(f"<p>{escape(paragraph)}</p>" for paragraph in copy["body"].split("\n\n") if paragraph.strip())
+    body = render_markdown(copy["body"])
     locale = {"pt": "pt-BR", "en": "en", "es": "es"}[lang]
     locality_label = {"pt": "Ver histórias deste lugar e arredores", "en": "See stories from this place and nearby", "es": "Ver historias de este lugar y alrededores"}[lang]
     locality_href = f"/{lang}/{ROUTES[lang][1]}/{locality_slug}/"
     footer = reading_footer(lang)
-    html = f'''<!doctype html><html lang="{locale}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex,follow"><title>{escape(copy['title'])} — Nocturna</title><meta name="description" content="{escape(copy['summary'], quote=True)}"><link rel="stylesheet" href="../../../styles.css"><script type="module" src="../../../comments.js"></script></head><body><div class="shell"><header class="masthead"><a class="brand" href="/{lang}/"><span class="brand-mark" aria-hidden="true">✦</span><span>NOCTURNA</span></a>{language_links(0, story['slug'], lang)}</header><main class="legal"><a class="back" href="/{lang}/">← {back}</a><p class="eyebrow">{class_label}: {classification}</p><h1>{escape(copy['title'])}</h1><p>{escape(copy['summary'])}</p><p><a href="{locality_href}">{escape(story['place']['city'])}, {escape(story['place']['region'])}, {escape(story['place']['country'])} — {locality_label}</a></p>{body}{map_section}{source_section}{explore_section}<section id="comments" class="comments" data-story="{escape(story['slug'])}" data-lang="{lang}"></section></main>{footer}</div></body></html>'''
+    html = f'''<!doctype html><html lang="{locale}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex,follow"><title>{escape(copy['title'])} — Nocturna</title><meta name="description" content="{escape(copy['summary'], quote=True)}"><link rel="stylesheet" href="../../../styles.css"><script type="module" src="../../../comments.js"></script></head><body><div class="shell"><header class="masthead"><a class="brand" href="/{lang}/"><span class="brand-mark" aria-hidden="true">✦</span><span>NOCTURNA</span></a>{language_links(0, story['slug'], lang)}</header><main class="legal"><a class="back" href="/{lang}/">← {back}</a><p class="eyebrow">{class_label}: {classification}</p><h1>{escape(copy['title'])}</h1><p>{escape(copy['summary'])}</p><p><a href="{locality_href}">{escape(story['place']['city'])}, {escape(story['place']['region'])}, {escape(story['place']['country'])} · {locality_label}</a></p>{body}{map_section}{source_section}{explore_section}<section id="comments" class="comments" data-story="{escape(story['slug'])}" data-lang="{lang}"></section></main>{footer}</div></body></html>'''
     html = html.replace('</head>', '<script defer src="/privacy.js"></script></head>', 1)
     folder = ROOT / lang / slugs[lang] / story["slug"]
     folder.mkdir(parents=True, exist_ok=True)

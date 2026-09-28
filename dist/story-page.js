@@ -1,3 +1,4 @@
+import { plainText, renderMarkdown } from './markdown.js';
 const params = new URLSearchParams(location.search);
 const storyPath = location.pathname.match(/^\/(pt|en|es)\/(?:historias|stories)\/([a-z0-9]+(?:-[a-z0-9]+)*)\/?$/);
 const lang = storyPath?.[1] || (['pt', 'en', 'es'].includes(params.get('lang')) ? params.get('lang') : 'pt');
@@ -50,14 +51,15 @@ function pageLinks() {
 }
 
 function render(story) {
-  const copy = story.translations[lang];
+  const source = story.translations[lang];
+  const copy = { ...source, title: plainText(source.title), summary: plainText(source.summary) };
   document.title = `${copy.title} — Nocturna`;
   main.append(link(`/${lang}/`, `← ${words.back}`));
   main.lastElementChild.className = 'back';
   main.append(element('p', `${words.classification}: ${words[story.classification]}`, 'eyebrow'));
   main.append(element('h1', copy.title), element('p', copy.summary));
   main.append(element('p', `${story.place.city}, ${story.place.region}, ${story.place.country}`));
-  for (const paragraph of copy.body.split('\n\n')) if (paragraph.trim()) main.append(element('p', paragraph));
+  const body = element('div', undefined, 'story-body'); body.innerHTML = renderMarkdown(copy.body); main.append(...body.childNodes);
   const location = element('p', undefined, 'story-map-link');
   const mapAnchor = link(story.place.streetViewUrl || `https://www.google.com/maps/search/?api=1&query=${story.place.latitude},${story.place.longitude}`, story.place.streetViewUrl ? words.streetView : words.googleMaps);
   mapAnchor.target = '_blank'; mapAnchor.rel = 'noopener noreferrer'; location.append(mapAnchor);
