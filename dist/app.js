@@ -41,7 +41,7 @@ function distance(a,b){const dlat=(b.lat-a.lat)*deg,dlon=(b.lon-a.lon)*deg,x=Mat
 function coordinates(pos){const digits=state.view==='map'?5:1;return `${Math.abs(pos.lat).toFixed(digits).replace('.',state.lang==='en'?'.':',')}° ${pos.lat<0?'S':'N'} · ${Math.abs(pos.lon).toFixed(digits).replace('.',state.lang==='en'?'.':',')}° ${pos.lon<0?(state.lang==='en'?'W':'O'):'E'}`}
 function nearest(pos){return [...places].sort((a,b)=>distance(pos,a)-distance(pos,b))}
 function storyPlaces(stories){const found=new Map();for(const story of stories){const place=story.place;if(!place||!Number.isFinite(place.latitude)||!Number.isFinite(place.longitude))continue;const id=[place.city,place.region,place.country].join('|');if(!found.has(id))found.set(id,{id,city:place.city,region:place.region,country:place.country,lat:place.latitude,lon:place.longitude})}return [...found.values()].sort((a,b)=>a.city.localeCompare(b.city,'pt-BR'))}
-function locationName(pos){if(pos.city){let country=pos.country||pos.countryCode;try{if(pos.countryCode)country=new Intl.DisplayNames([{pt:'pt-BR',en:'en',es:'es'}[state.lang]],{type:'region'}).of(pos.countryCode)||country}catch{}return [pos.city,pos.region,country].filter(Boolean).join(', ')}const near=nearest(pos)[0];return near&&distance(pos,near)<80?[near.city,near.region,near.country].filter(Boolean).join(', '):coordinates(pos)}
+function locationName(pos){if(pos.countryCenter){try{return new Intl.DisplayNames([{pt:'pt-BR',en:'en',es:'es'}[state.lang]],{type:'region'}).of(pos.countryCode)||pos.countryCode}catch{return pos.countryCode}}if(pos.city){let country=pos.country||pos.countryCode;try{if(pos.countryCode)country=new Intl.DisplayNames([{pt:'pt-BR',en:'en',es:'es'}[state.lang]],{type:'region'}).of(pos.countryCode)||country}catch{}return [pos.city,pos.region,country].filter(Boolean).join(', ')}const near=nearest(pos)[0];return near&&distance(pos,near)<80?[near.city,near.region,near.country].filter(Boolean).join(', '):coordinates(pos)}
 function setNotice(message){state.notice=message;$('#notice').textContent=message||t('chooseHint')}
 function select(pos,notice,mapZoom){cancelPlaceSearch();state.selected=pos;state.lon=pos.lon;state.lat=pos.lat;state.zoom=Math.max(1,state.zoom);setNotice(notice||null);renderResults();draw();if(state.view==='map'&&state.map){state.map.setView([pos.lat,pos.lon],mapZoom||state.map.getZoom());updateMapMarker()}}
 function renderResults(){const pos=state.selected;
@@ -138,7 +138,7 @@ function topoShapes(topology,codes){
 Promise.all([
   fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json').then(response=>{if(!response.ok)throw Error('map unavailable');return response.json()}),
   fetch('/country-codes.json').then(response=>response.ok?response.json():{}).catch(()=>({})),
-]).then(([topology,codes])=>{const shapes=topoShapes(topology,codes);state.outlines=shapes.lines;state.countries=shapes.countries;draw()}).catch(()=>{draw()});
+]).then(([topology,codes])=>{const shapes=topoShapes(topology,codes);state.outlines=shapes.lines;state.countries=shapes.countries;draw();startAtCountry()}).catch(()=>{state.atlasFailed=true;draw();startAtCountry()});
 
 let searchController=null,searchSequence=0;
 function cancelPlaceSearch(){searchSequence++;searchController?.abort();searchController=null;$('#search-results').replaceChildren();$('#search-results').hidden=true}
@@ -177,5 +177,16 @@ canvas.addEventListener('pointerup',event=>{if(!state.pointer)return;const moved
 canvas.addEventListener('pointercancel',()=>{state.pointer=null});
 
 new ResizeObserver(draw).observe(stage);localize(state.lang);
-fetch('/api/stories').then(response=>{if(!response.ok)throw Error('catalog unavailable');return response.json()}).then(({stories})=>{state.published=Array.isArray(stories)?stories:[];places=storyPlaces(state.published);state.catalogStatus='ready';renderPlaces();if(!state.selected&&places.length)select(places[0]);else{renderResults();draw()}renderStoryMarkers()}).catch(()=>{state.catalogStatus='error';renderResults()});
+fetch('/api/stories').then(response=>{if(!response.ok)throw Error('catalog unavailable');return response.json()}).then(({stories})=>{state.published=Array.isArray(stories)?stories:[];places=storyPlaces(state.published);state.catalogStatus='ready';renderPlaces();renderResults();draw();startAtCountry();renderStoryMarkers()}).catch(()=>{state.catalogStatus='error';renderResults()});
 fetch('/api/comments/regions').then(response=>response.ok?response.json():{comments:[]}).then(({comments})=>{state.regionalComments=Array.isArray(comments)?comments:[];if(state.selected)renderRegional(state.selected)}).catch(()=>{});
+
+// Abertura: marcador no centro do país do visitante. O país vem da hospedagem (IP, sem pedir permissão);
+// sem ele, da região do idioma do navegador; por fim, Brasil. Não substitui uma escolha já feita pelo visitante.
+const visitorCountry=fetch('/api/geo').then(response=>response.ok?response.json():{}).then(data=>data.country).catch(()=>null).then(code=>{
+  if(/^[A-Z]{2}$/.test(code||''))return code;
+  for(const language of navigator.languages||[navigator.language]){const region=/^[a-z]{2,3}-([A-Z]{2})\b/i.exec(language||'')?.[1];if(region)return region.toUpperCase()}
+  return 'BR'});
+function startAtCountry(){visitorCountry.then(code=>{if(state.selected||state.catalogStatus==='loading')return;
+  const country=state.countries.find(item=>item.code===code);
+  if(country)select({lat:country.lat,lon:country.lon,countryCode:code,countryCenter:true});
+  else if(state.atlasFailed&&places.length)select(places[0])})}
