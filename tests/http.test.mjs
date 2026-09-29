@@ -47,3 +47,11 @@ test('storyProblem explains what is wrong', () => {
   assert.match(storyProblem({ ...longStory, translations: { ...longStory.translations, es: { ...longStory.translations.es, body: 'x'.repeat(60_001) } } }), /Texto da aba Español tem 60\.001 caracteres/);
   assert.equal(storyProblem({ ...longStory, translations: { ...longStory.translations, pt: { ...longStory.translations.pt, body: 'ã'.repeat(60_000) } } }), null);
 });
+
+test('story texts with em or en dashes are rejected with a clear message', () => {
+  const withDash = { ...longStory, translations: { ...longStory.translations, en: { ...longStory.translations.en, summary: 'The record says — and does not.' } } };
+  assert.match(storyProblem(withDash), /Resumo da aba English tem travessão/);
+  const withRange = { ...longStory, translations: { ...longStory.translations, pt: { ...longStory.translations.pt, body: 'Entre 1987–1988.' } } };
+  assert.match(storyProblem(withRange), /Texto da aba Português tem travessão/);
+  assert.equal(storyProblem({ ...longStory, sources: [{ title: 'Elizabeth Báthory – Between Legend and Reality', url: 'https://example.org' }] }), null);
+});

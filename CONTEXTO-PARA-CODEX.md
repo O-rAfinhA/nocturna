@@ -32,6 +32,10 @@ node server.mjs
 
 Acesse `http://localhost:8000/` e `http://localhost:8000/admin/`. Se houver um servidor Python antigo na porta 8000, pare-o com Ctrl+C. Não execute `node server.mjs` dentro de `dist`.
 
+## Redação dos dossiês
+
+Siga `GUIA-EDITORIAL.md`. Textos com travessão (— ou –) são recusados pela API; use vírgulas, parênteses, dois-pontos ou hífen. Use apenas o Markdown simples descrito no guia.
+
 ## Restrições e próximos passos
 
 1. Preservar o trabalho local do usuário. O código está sincronizado com `https://github.com/O-rAfinhA/nocturna`; histórias, senhas, sessões e comentários não devem entrar no GitHub.

@@ -1,6 +1,6 @@
 # Nocturna — instruções para o Codex
 
-Leia `CONTEXTO-PARA-CODEX.md` e `README.md` antes de alterar o projeto.
+Leia `CONTEXTO-PARA-CODEX.md` e `README.md` antes de alterar o projeto. Ao escrever, traduzir ou revisar dossiês, siga `GUIA-EDITORIAL.md` (pontuação sem travessões, Markdown simples, fontes verificáveis, localização exata só para locais públicos).
 
 - Converse com o usuário em português. A interface para visitantes tem PT, EN e ES; preserve os três idiomas em alterações de texto e navegação.
 - Este é um protótipo local. Não publique nem configure anúncios sem solicitação explícita do usuário.
