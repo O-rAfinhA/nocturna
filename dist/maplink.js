@@ -1,12 +1,25 @@
 // Localização pública das histórias.
-// - Local exato (place.precision === "exact"): lugares e endereços públicos. O link abre o Street View escolhido
-//   no painel ou o Google Maps no nome/endereço público (mapQuery) ou nas coordenadas.
-// - Local aproximado (padrão): locais indefinidos ou sensíveis. As coordenadas públicas são arredondadas
-//   (~1 km) e o link abre o Google Maps com o alfinete nesse ponto arredondado; Street View e endereço não
-//   são publicados.
-// Usado por app.js, story-page.js e api/_lib/seo.mjs; build_pages.py e server.mjs têm equivalentes.
+// - Padrão: local exato. O link abre o Street View escolhido no painel ou o Google Maps no nome/endereço
+//   público (mapQuery, ou a lista public-places.js) ou nas coordenadas.
+// - Local sensível (caixa no painel, place.sensitive, ou a lista sensitive-places.js para dossiês antigos):
+//   crimes, vítimas, residências. As coordenadas públicas são arredondadas (~1 km), Street View e endereço
+//   não são publicados e a página mostra o aviso "Local aproximado".
+// resolvePlace() calcula place.precision a partir dessas regras; o valor gravado antes disso é ignorado.
+// Usado por app.js, story-page.js, api/_lib/store.mjs e api/_lib/seo.mjs; build_pages.py e server.mjs têm equivalentes.
+
+import publicPlaces from './public-places.js';
+import sensitiveSlugs from './sensitive-places.js';
 
 export const isExact = place => place?.precision === 'exact';
+
+export const isSensitive = (slug, place) => typeof place?.sensitive === 'boolean' ? place.sensitive : sensitiveSlugs.includes(slug);
+
+export function resolvePlace(slug, place) {
+  if (!place) return place;
+  if (isSensitive(slug, place)) return { ...place, precision: 'approximate' };
+  const mapQuery = place.mapQuery || publicPlaces[slug]?.mapQuery;
+  return { ...place, precision: 'exact', ...(mapQuery ? { mapQuery } : {}) };
+}
 
 const round = value => Math.round(value * 100) / 100;
 

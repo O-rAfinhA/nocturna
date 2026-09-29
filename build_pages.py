@@ -182,6 +182,8 @@ def validate_story(story):
     place = story.get("place", {})
     if not (-90 <= place.get("latitude", 999) <= 90 and -180 <= place.get("longitude", 999) <= 180):
         raise ValueError(f"Invalid coordinates for {slug}")
+    if "sensitive" in place and not isinstance(place["sensitive"], bool):
+        raise ValueError(f"Invalid sensitive flag for {slug}")
     if place.get("precision", "approximate") not in {"exact", "approximate"}:
         raise ValueError(f"Invalid location precision for {slug}")
     map_query = place.get("mapQuery")
@@ -325,6 +327,25 @@ def plain_text(text):
     return re.sub(r"(^|[^\w])_(?=\S)([^_\n]*?\S)_(?!\w)", r"\1\2", text, flags=re.ASCII)
 
 
+def load_public_places():
+    """Lista de locais públicos de dist/public-places.js (mesma regra de resolvePlace em dist/maplink.js)."""
+    source = (ROOT / "public-places.js").read_text(encoding="utf-8")
+    return json.loads(source[source.index("{"):source.rindex("}") + 1])
+
+
+PUBLIC_PLACES = load_public_places()
+SENSITIVE_SLUGS = set(json.loads((lambda text: text[text.index("["):text.rindex("]") + 1])((ROOT / "sensitive-places.js").read_text(encoding="utf-8"))))
+
+
+def resolve_place(slug, place):
+    """Mesma regra de resolvePlace em dist/maplink.js: exato por padrão, aproximado se sensível."""
+    sensitive = place["sensitive"] if isinstance(place.get("sensitive"), bool) else slug in SENSITIVE_SLUGS
+    if sensitive:
+        return {**place, "precision": "approximate"}
+    map_query = place.get("mapQuery") or PUBLIC_PLACES.get(slug, {}).get("mapQuery")
+    return {**place, "precision": "exact", **({"mapQuery": map_query} if map_query else {})}
+
+
 def map_link(place):
     """Mesma regra de dist/maplink.js: local exato abre o lugar; aproximado abre o alfinete no ponto arredondado (~1 km)."""
     if place.get("precision") == "exact":
@@ -360,7 +381,7 @@ def render_story(story, lang, locality_slug):
         "en": {"streetView": "Open in Street View", "place": "Open in Google Maps", "region": "Open in Google Maps", "approximate": "Approximate location"},
         "es": {"streetView": "Ver en Street View", "place": "Ver en Google Maps", "region": "Ver en Google Maps", "approximate": "Ubicación aproximada"},
     }[lang]
-    map_kind, map_href = map_link(story["place"])
+    map_kind, map_href = map_link(resolve_place(story["slug"], story["place"]))
     map_note = f' <span class="location-note">· {map_labels["approximate"]}</span>' if map_kind == "region" else ""
     map_section = f'<p class="story-map-link"><a href="{escape(map_href, quote=True)}" target="_blank" rel="noopener noreferrer">{map_labels[map_kind]}</a>{map_note}</p>'
     explore_labels = {

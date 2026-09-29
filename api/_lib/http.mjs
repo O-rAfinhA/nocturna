@@ -79,6 +79,7 @@ export function storyProblem(story) {
   if (!['city', 'region', 'country'].every(key => typeof place[key] === 'string' && place[key].trim())) return 'Preencha cidade, região/estado e país.';
   if (!Number.isFinite(place.latitude) || !Number.isFinite(place.longitude) || Math.abs(place.latitude) > 90 || Math.abs(place.longitude) > 180) return 'Latitude ou longitude inválida.';
   if (place.precision !== undefined && !['exact', 'approximate'].includes(place.precision)) return 'Precisão do local inválida.';
+  if (place.sensitive !== undefined && typeof place.sensitive !== 'boolean') return 'Indicação de local sensível inválida.';
   if (place.mapQuery !== undefined && (typeof place.mapQuery !== 'string' || place.mapQuery.length > 200 || /[\n<>]|:\/\//.test(place.mapQuery))) return 'Nome ou endereço público inválido: use até 200 caracteres, sem links.';
   if (place.streetViewUrl !== undefined && !validStreetViewUrl(place.streetViewUrl)) return 'Link do Street View inválido: cole um endereço do Google Maps que comece com https://.';
   if (!/^\d{4}-\d{2}-\d{2}$/.test(story.publishedAt || '') || !/^\d{4}-\d{2}-\d{2}$/.test(story.updatedAt || '')) return 'Datas de publicação ou atualização inválidas.';
