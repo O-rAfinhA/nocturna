@@ -98,6 +98,7 @@ export function storyProblem(story) {
   for (const lang of ['pt', 'en', 'es']) for (const key of ['title', 'summary', 'body']) {
     const value = story.translations?.[lang]?.[key];
     if (typeof value !== 'string' || !value.trim()) return `Preencha o campo ${FIELD_NAMES[key]} da aba ${LANGUAGE_NAMES[lang]}.`;
+    if (/[—–]/.test(value)) return `O campo ${FIELD_NAMES[key]} da aba ${LANGUAGE_NAMES[lang]} tem travessão (— ou –). Use vírgulas, parênteses, dois-pontos ou hífen (veja GUIA-EDITORIAL.md).`;
     if (value.length > TEXT_LIMITS[key]) return `O campo ${FIELD_NAMES[key]} da aba ${LANGUAGE_NAMES[lang]} tem ${value.length.toLocaleString('pt-BR')} caracteres; o limite é ${TEXT_LIMITS[key].toLocaleString('pt-BR')}.`;
   }
   return null;
