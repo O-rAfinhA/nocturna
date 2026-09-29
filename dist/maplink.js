@@ -28,7 +28,7 @@ export function mapLink(place) {
 }
 
 export const mapLabels = {
-  pt: { streetView: 'Ver no Street View', place: 'Ver no Google Maps', region: 'Ver no Google Maps' },
-  en: { streetView: 'Open in Street View', place: 'Open in Google Maps', region: 'Open in Google Maps' },
-  es: { streetView: 'Ver en Street View', place: 'Ver en Google Maps', region: 'Ver en Google Maps' },
+  pt: { streetView: 'Ver no Street View', place: 'Ver no Google Maps', region: 'Ver no Google Maps', approximate: 'Local aproximado' },
+  en: { streetView: 'Open in Street View', place: 'Open in Google Maps', region: 'Open in Google Maps', approximate: 'Approximate location' },
+  es: { streetView: 'Ver en Street View', place: 'Ver en Google Maps', region: 'Ver en Google Maps', approximate: 'Ubicación aproximada' },
 };
