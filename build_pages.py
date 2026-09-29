@@ -326,14 +326,14 @@ def plain_text(text):
 
 
 def map_link(place):
-    """Mesma regra de dist/maplink.js: local exato abre o lugar; aproximado abre só a região (~1 km)."""
+    """Mesma regra de dist/maplink.js: local exato abre o lugar; aproximado abre o alfinete no ponto arredondado (~1 km)."""
     if place.get("precision") == "exact":
         if place.get("streetViewUrl"):
             return "streetView", place["streetViewUrl"]
         query = (place.get("mapQuery") or "").strip() or f"{place['latitude']},{place['longitude']}"
         return "place", "https://www.google.com/maps/search/?api=1&query=" + quote(query, safe="-_.!~*'()")
     latitude, longitude = round_coordinate(place["latitude"]), round_coordinate(place["longitude"])
-    return "region", f"https://www.google.com/maps/@?api=1&map_action=map&center={latitude},{longitude}&zoom=13"
+    return "region", "https://www.google.com/maps/search/?api=1&query=" + quote(f"{latitude},{longitude}", safe="-_.!~*'()")
 
 
 def round_coordinate(value):
@@ -356,9 +356,9 @@ def render_story(story, lang, locality_slug):
     source_items = "".join(f'<li><a href="{escape(item["url"], quote=True)}" rel="noopener noreferrer">{escape(item["title"])}</a></li>' for item in story["sources"])
     source_section = f"<h2>{sources_label}</h2><ul>{source_items}</ul>" if source_items else ""
     map_labels = {
-        "pt": {"streetView": "Ver no Street View", "place": "Ver no Google Maps", "region": "Ver região no Google Maps", "approximate": "Local aproximado"},
-        "en": {"streetView": "Open in Street View", "place": "Open in Google Maps", "region": "View area in Google Maps", "approximate": "Approximate location"},
-        "es": {"streetView": "Ver en Street View", "place": "Ver en Google Maps", "region": "Ver zona en Google Maps", "approximate": "Ubicación aproximada"},
+        "pt": {"streetView": "Ver no Street View", "place": "Ver no Google Maps", "region": "Ver no Google Maps", "approximate": "Local aproximado"},
+        "en": {"streetView": "Open in Street View", "place": "Open in Google Maps", "region": "Open in Google Maps", "approximate": "Approximate location"},
+        "es": {"streetView": "Ver en Street View", "place": "Ver en Google Maps", "region": "Ver en Google Maps", "approximate": "Ubicación aproximada"},
     }[lang]
     map_kind, map_href = map_link(story["place"])
     map_note = f' <span class="location-note">· {map_labels["approximate"]}</span>' if map_kind == "region" else ""

@@ -7,7 +7,7 @@ const base = { city: 'São Paulo', region: 'SP', country: 'Brasil', latitude: -2
 test('approximate places are published rounded and without exact links', () => {
   const place = publicPlace({ ...base, streetViewUrl: 'https://maps.app.goo.gl/x', mapQuery: 'Rua X, 10' });
   assert.deepEqual(place, { ...base, latitude: -23.55, longitude: -46.64 });
-  assert.equal(mapLink(base).kind, 'region');
+  assert.deepEqual(mapLink(base), { kind: 'region', href: 'https://www.google.com/maps/search/?api=1&query=-23.55%2C-46.64' });
 });
 
 test('exact public places keep their data and link to the place', () => {
