@@ -2,7 +2,8 @@
 // - Local exato (place.precision === "exact"): lugares e endereços públicos. O link abre o Street View escolhido
 //   no painel ou o Google Maps no nome/endereço público (mapQuery) ou nas coordenadas.
 // - Local aproximado (padrão): locais indefinidos ou sensíveis. As coordenadas públicas são arredondadas
-//   (~1 km) e o link abre o mapa da região, sem alfinete; Street View e endereço não são publicados.
+//   (~1 km) e o link abre o Google Maps com o alfinete nesse ponto arredondado; Street View e endereço não
+//   são publicados.
 // Usado por app.js, story-page.js e api/_lib/seo.mjs; build_pages.py e server.mjs têm equivalentes.
 
 export const isExact = place => place?.precision === 'exact';
@@ -23,11 +24,11 @@ export function mapLink(place) {
     return { kind: 'place', href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}` };
   }
   const { latitude, longitude } = publicPlace(place);
-  return { kind: 'region', href: `https://www.google.com/maps/@?api=1&map_action=map&center=${latitude},${longitude}&zoom=13` };
+  return { kind: 'region', href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${latitude},${longitude}`)}` };
 }
 
 export const mapLabels = {
-  pt: { streetView: 'Ver no Street View', place: 'Ver no Google Maps', region: 'Ver região no Google Maps', approximate: 'Local aproximado' },
-  en: { streetView: 'Open in Street View', place: 'Open in Google Maps', region: 'View area in Google Maps', approximate: 'Approximate location' },
-  es: { streetView: 'Ver en Street View', place: 'Ver en Google Maps', region: 'Ver zona en Google Maps', approximate: 'Ubicación aproximada' },
+  pt: { streetView: 'Ver no Street View', place: 'Ver no Google Maps', region: 'Ver no Google Maps', approximate: 'Local aproximado' },
+  en: { streetView: 'Open in Street View', place: 'Open in Google Maps', region: 'Open in Google Maps', approximate: 'Approximate location' },
+  es: { streetView: 'Ver en Street View', place: 'Ver en Google Maps', region: 'Ver en Google Maps', approximate: 'Ubicación aproximada' },
 };

@@ -76,10 +76,10 @@ test('story pages link to the de-duplicated slug of their own place', () => {
 test('story pages link to the map between the article and the sources', () => {
   const located = { ...story, place: { ...story.place, latitude: -25.4321, longitude: -49.2765 } };
   const html = storyPage(located, 'pt');
-  // Local aproximado: mapa da região, coordenadas arredondadas, sem alfinete.
-  const link = html.indexOf('https://www.google.com/maps/@?api=1&amp;map_action=map&amp;center=-25.43,-49.28&amp;zoom=13');
+  // Local aproximado: alfinete no ponto arredondado (~1 km).
+  const link = html.indexOf('https://www.google.com/maps/search/?api=1&amp;query=-25.43%2C-49.28');
   assert.ok(link > html.indexOf('Segundo parágrafo') && link < html.indexOf('id="sources-heading"'));
-  assert.match(html, />Ver região no Google Maps<\/a> <span class="location-note">· Local aproximado<\/span>/);
+  assert.match(html, />Ver no Google Maps<\/a> <span class="location-note">· Local aproximado<\/span>/);
   // Street View cadastrado num local aproximado não é publicado.
   assert.ok(!storyPage({ ...located, place: { ...located.place, streetViewUrl: 'https://www.google.com/maps/@-25.4,-49.2,3a' } }, 'pt').includes('3a'));
   const exact = { ...located, place: { ...located.place, precision: 'exact', mapQuery: 'Edifício Martinelli, São Paulo' } };
