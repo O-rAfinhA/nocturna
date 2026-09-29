@@ -9,7 +9,7 @@ import unicodedata
 from datetime import date
 import hashlib
 import math
-from urllib.parse import urlparse
+from urllib.parse import quote, urlparse
 import shutil
 
 ROOT = Path(__file__).parent / "dist"
@@ -184,6 +184,9 @@ def validate_story(story):
         raise ValueError(f"Invalid coordinates for {slug}")
     if place.get("precision", "approximate") not in {"exact", "approximate"}:
         raise ValueError(f"Invalid location precision for {slug}")
+    map_query = place.get("mapQuery")
+    if map_query is not None and (not isinstance(map_query, str) or len(map_query) > 200 or re.search(r"[\n<>]|://", map_query)):
+        raise ValueError(f"Invalid public place name for {slug}")
     street_view = place.get("streetViewUrl")
     if street_view is not None:
         parsed = urlparse(street_view) if isinstance(street_view, str) else None
@@ -322,6 +325,23 @@ def plain_text(text):
     return re.sub(r"(^|[^\w])_(?=\S)([^_\n]*?\S)_(?!\w)", r"\1\2", text, flags=re.ASCII)
 
 
+def map_link(place):
+    """Mesma regra de dist/maplink.js: local exato abre o lugar; aproximado abre só a região (~1 km)."""
+    if place.get("precision") == "exact":
+        if place.get("streetViewUrl"):
+            return "streetView", place["streetViewUrl"]
+        query = (place.get("mapQuery") or "").strip() or f"{place['latitude']},{place['longitude']}"
+        return "place", "https://www.google.com/maps/search/?api=1&query=" + quote(query, safe="-_.!~*'()")
+    latitude, longitude = round_coordinate(place["latitude"]), round_coordinate(place["longitude"])
+    return "region", f"https://www.google.com/maps/@?api=1&map_action=map&center={latitude},{longitude}&zoom=13"
+
+
+def round_coordinate(value):
+    # Igual a Math.round(value * 100) / 100 em JavaScript (arredonda .5 para cima) e sem ".0" em inteiros.
+    rounded = math.floor(value * 100 + 0.5) / 100
+    return int(rounded) if rounded == int(rounded) else rounded
+
+
 def render_story(story, lang, locality_slug):
     source = story["translations"][lang]
     copy = {**source, "title": plain_text(source["title"]), "summary": plain_text(source["summary"])}
@@ -336,15 +356,13 @@ def render_story(story, lang, locality_slug):
     source_items = "".join(f'<li><a href="{escape(item["url"], quote=True)}" rel="noopener noreferrer">{escape(item["title"])}</a></li>' for item in story["sources"])
     source_section = f"<h2>{sources_label}</h2><ul>{source_items}</ul>" if source_items else ""
     map_labels = {
-        "pt": ("Ver no Street View", "Ver no Google Maps", "Local aproximado"),
-        "en": ("Open in Street View", "Open in Google Maps", "Approximate location"),
-        "es": ("Ver en Street View", "Ver en Google Maps", "Ubicación aproximada"),
-    }
-    street_label, maps_label, approximate_label = map_labels[lang]
-    place = story["place"]
-    map_href = place.get("streetViewUrl") or f"https://www.google.com/maps/search/?api=1&query={place['latitude']},{place['longitude']}"
-    map_note = "" if place.get("precision") == "exact" else f' <span class="location-note">· {approximate_label}</span>'
-    map_section = f'<p class="story-map-link"><a href="{escape(map_href, quote=True)}" target="_blank" rel="noopener noreferrer">{street_label if place.get("streetViewUrl") else maps_label}</a>{map_note}</p>'
+        "pt": {"streetView": "Ver no Street View", "place": "Ver no Google Maps", "region": "Ver região no Google Maps", "approximate": "Local aproximado"},
+        "en": {"streetView": "Open in Street View", "place": "Open in Google Maps", "region": "View area in Google Maps", "approximate": "Approximate location"},
+        "es": {"streetView": "Ver en Street View", "place": "Ver en Google Maps", "region": "Ver zona en Google Maps", "approximate": "Ubicación aproximada"},
+    }[lang]
+    map_kind, map_href = map_link(story["place"])
+    map_note = f' <span class="location-note">· {map_labels["approximate"]}</span>' if map_kind == "region" else ""
+    map_section = f'<p class="story-map-link"><a href="{escape(map_href, quote=True)}" target="_blank" rel="noopener noreferrer">{map_labels[map_kind]}</a>{map_note}</p>'
     explore_labels = {
         "pt": ("Explore mais", "Estes links externos ajudam a investigar o contexto; eles não confirmam, por si só, as alegações da história.", {"document": "Documento", "image": "Imagem", "audio": "Áudio", "video": "Vídeo", "reading": "Leitura"}),
         "en": ("Explore further", "These external links help investigate the context; they do not, by themselves, confirm the story's claims.", {"document": "Document", "image": "Image", "audio": "Audio", "video": "Video", "reading": "Reading"}),
