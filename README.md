@@ -1,6 +1,6 @@
 # Nocturna
 
-Atlas interativo de histórias incomuns, em português, inglês e espanhol. O catálogo publicado fica no PostgreSQL da versão online; a cópia editorial local em `content/stories.json` e os dados em `data/` permanecem fora do GitHub. Na versão online, o Vercel Web Analytics só carrega após a escolha do visitante no aviso de privacidade, em PT/EN/ES. A preferência é salva no armazenamento local e pode ser alterada pelo botão no rodapé. Google Analytics e anúncios não estão ativos.
+Atlas interativo de histórias incomuns, em português, inglês e espanhol. O catálogo publicado fica no PostgreSQL da versão online; a cópia editorial local em `content/stories.json` e os dados em `data/` permanecem fora do GitHub. Na versão online, o Vercel Web Analytics só carrega após a escolha do visitante no aviso de privacidade, em PT/EN/ES. A preferência é salva no armazenamento local e pode ser alterada pelo botão na página de privacidade; o aviso só aparece na primeira visita. Google Analytics e anúncios não estão ativos.
 
 Se você abrir este projeto com outro Codex, leia `AGENTS.md` e `CONTEXTO-PARA-CODEX.md` para conhecer as decisões anteriores e preservar dados transferidos do computador antigo.
 
