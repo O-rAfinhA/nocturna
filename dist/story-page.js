@@ -65,7 +65,6 @@ function render(story) {
   const map = mapLink(story.place);
   const mapAnchor = link(map.href, mapLabels[lang][map.kind]);
   mapAnchor.target = '_blank'; mapAnchor.rel = 'noopener noreferrer'; location.append(mapAnchor);
-  if (map.kind === 'region') location.append(' ', element('span', `· ${mapLabels[lang].approximate}`, 'location-note'));
   main.append(location);
   if (story.sources.length) {
     main.append(element('h2', words.sources));

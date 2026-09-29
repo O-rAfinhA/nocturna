@@ -361,8 +361,7 @@ def render_story(story, lang, locality_slug):
         "es": {"streetView": "Ver en Street View", "place": "Ver en Google Maps", "region": "Ver en Google Maps", "approximate": "Ubicación aproximada"},
     }[lang]
     map_kind, map_href = map_link(story["place"])
-    map_note = f' <span class="location-note">· {map_labels["approximate"]}</span>' if map_kind == "region" else ""
-    map_section = f'<p class="story-map-link"><a href="{escape(map_href, quote=True)}" target="_blank" rel="noopener noreferrer">{map_labels[map_kind]}</a>{map_note}</p>'
+    map_section = f'<p class="story-map-link"><a href="{escape(map_href, quote=True)}" target="_blank" rel="noopener noreferrer">{map_labels[map_kind]}</a></p>'
     explore_labels = {
         "pt": ("Explore mais", "Estes links externos ajudam a investigar o contexto; eles não confirmam, por si só, as alegações da história.", {"document": "Documento", "image": "Imagem", "audio": "Áudio", "video": "Vídeo", "reading": "Leitura"}),
         "en": ("Explore further", "These external links help investigate the context; they do not, by themselves, confirm the story's claims.", {"document": "Document", "image": "Image", "audio": "Audio", "video": "Video", "reading": "Reading"}),

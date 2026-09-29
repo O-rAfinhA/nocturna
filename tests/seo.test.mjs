@@ -79,7 +79,8 @@ test('story pages link to the map between the article and the sources', () => {
   // Local aproximado: alfinete no ponto arredondado (~1 km).
   const link = html.indexOf('https://www.google.com/maps/search/?api=1&amp;query=-25.43%2C-49.28');
   assert.ok(link > html.indexOf('Segundo parágrafo') && link < html.indexOf('id="sources-heading"'));
-  assert.match(html, />Ver no Google Maps<\/a> <span class="location-note">· Local aproximado<\/span>/);
+  assert.match(html, />Ver no Google Maps<\/a><\/p>/);
+  assert.ok(!html.includes('Local aproximado'));
   // Street View cadastrado num local aproximado não é publicado.
   assert.ok(!storyPage({ ...located, place: { ...located.place, streetViewUrl: 'https://www.google.com/maps/@-25.4,-49.2,3a' } }, 'pt').includes('3a'));
   const exact = { ...located, place: { ...located.place, precision: 'exact', mapQuery: 'Edifício Martinelli, São Paulo' } };
