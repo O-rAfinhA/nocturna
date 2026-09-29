@@ -50,8 +50,6 @@ HOME_TEXT = {
         "Afastar": "Zoom out", "Aproximar": "Zoom in",
         "LOCAL SELECIONADO": "SELECTED LOCATION",
         "Comentários da região": "Comments from this region",
-        "Ou escolha uma cidade": "Or choose a city",
-        "Locais com histórias publicadas": "Places with published stories",
         "Um atlas de histórias incomuns pelo mundo.": "An atlas of unusual stories around the world.",
         "Sem cadastro. Localização opcional.": "No account. Location is optional.",
         "Privacidade": "Privacy",
@@ -77,8 +75,6 @@ HOME_TEXT = {
         "Afastar": "Alejar", "Aproximar": "Acercar",
         "LOCAL SELECIONADO": "UBICACIÓN SELECCIONADA",
         "Comentários da região": "Comentarios de la región",
-        "Ou escolha uma cidade": "O elige una ciudad",
-        "Locais com histórias publicadas": "Lugares con historias publicadas",
         "Um atlas de histórias incomuns pelo mundo.": "Un atlas de historias insólitas por el mundo.",
         "Sem cadastro. Localização opcional.": "Sin cuenta. Ubicación opcional.",
         "Privacidade": "Privacidad",
@@ -462,22 +458,6 @@ def render_locality(group, slug, lang, stories):
     (folder / "index.html").write_text(html, encoding="utf-8")
 
 
-def add_locality_directory(groups, slugs, lang):
-    if not groups:
-        return
-    heading = {"pt": "Explorar por local", "en": "Explore by place", "es": "Explorar por lugar"}[lang]
-    page = ROOT / lang / "index.html"
-    html = page.read_text(encoding="utf-8")
-    cards = []
-    for key, group in sorted(groups.items(), key=lambda entry: entry[0]):
-        city, region, country = (group[0]["place"][field].strip() for field in ("city", "region", "country"))
-        href = f"/{lang}/{ROUTES[lang][1]}/{slugs[key]}/"
-        cards.append(f'<a href="{href}">{escape(city)}, {escape(region)}, {escape(country)} <span>({len(group)})</span></a>')
-    section = f'<section class="locality-directory" aria-labelledby="locality-heading"><h2 id="locality-heading">{heading}</h2><div class="locality-list">{"".join(cards)}</div></section>'
-    assert "</main>" in html
-    page.write_text(html.replace("</main>", section + "</main>", 1), encoding="utf-8")
-
-
 content_file = Path(__file__).parent / "content" / "stories.json"
 # The remote deployment reads published stories from Postgres.  Keep the local
 # catalog available for the offline Node server and editorial workflow.
@@ -514,6 +494,5 @@ for lang in ROUTES:
         render_locality(group, slugs[key], lang, [story for items in groups.values() for story in items])
         for story in group:
             render_story(story, lang, slugs[key])
-    add_locality_directory(groups, slugs, lang)
 
 print(f"Generated pt, en, es pages, {sum(len(group) for group in groups.values())} stories and {len(groups)} places")
