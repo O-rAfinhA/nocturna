@@ -1,4 +1,5 @@
 import { plainText, renderMarkdown } from './markdown.js';
+import { mapLabels, mapLink } from './maplink.js';
 const params = new URLSearchParams(location.search);
 const storyPath = location.pathname.match(/^\/(pt|en|es)\/(?:historias|stories)\/([a-z0-9]+(?:-[a-z0-9]+)*)\/?$/);
 const lang = storyPath?.[1] || (['pt', 'en', 'es'].includes(params.get('lang')) ? params.get('lang') : 'pt');
@@ -61,9 +62,10 @@ function render(story) {
   main.append(element('p', `${story.place.city}, ${story.place.region}, ${story.place.country}`));
   const body = element('div', undefined, 'story-body'); body.innerHTML = renderMarkdown(copy.body); main.append(...body.childNodes);
   const location = element('p', undefined, 'story-map-link');
-  const mapAnchor = link(story.place.streetViewUrl || `https://www.google.com/maps/search/?api=1&query=${story.place.latitude},${story.place.longitude}`, story.place.streetViewUrl ? words.streetView : words.googleMaps);
+  const map = mapLink(story.place);
+  const mapAnchor = link(map.href, mapLabels[lang][map.kind]);
   mapAnchor.target = '_blank'; mapAnchor.rel = 'noopener noreferrer'; location.append(mapAnchor);
-  if (story.place.precision !== 'exact') location.append(' ', element('span', `· ${words.approximate}`, 'location-note'));
+  if (map.kind === 'region') location.append(' ', element('span', `· ${mapLabels[lang].approximate}`, 'location-note'));
   main.append(location);
   if (story.sources.length) {
     main.append(element('h2', words.sources));

@@ -1,0 +1,21 @@
+{
+  "description": "Dossiês cujo local é um lugar público conhecido. Ao aplicar, o local passa a “exato” e o Google Maps abre no nome indicado. Crimes, residências, locais ligados a vítimas e pontos indefinidos continuam aproximados.",
+  "suggestions": [
+    { "slug": "edificio-martinelli-sao-paulo", "mapQuery": "Edifício Martinelli, São Paulo", "reason": "Edifício histórico aberto ao público" },
+    { "slug": "revisao-incendio-edificio-joelma-1974", "mapQuery": "Edifício Joelma, Avenida Nove de Julho, São Paulo", "reason": "Edifício comercial conhecido, hoje Edifício Praça da Bandeira" },
+    { "slug": "castelinho-rua-apa-1937", "mapQuery": "Castelinho da Rua Apa, São Paulo", "reason": "Imóvel tombado, hoje sede de projeto social" },
+    { "slug": "catacumbas-de-paris-ossuario-cidade-subterranea", "mapQuery": "Catacombes de Paris", "reason": "Museu público" },
+    { "slug": "cecil-hotel-historia-los-angeles", "mapQuery": "Hotel Cecil, 640 S Main St, Los Angeles", "reason": "Edifício histórico conhecido" },
+    { "slug": "castelo-cachtice-condessa-erzsebet-bathory", "mapQuery": "Čachtický hrad, Čachtice", "reason": "Ruínas de castelo abertas à visitação" },
+    { "slug": "cratera-darvaza-porta-do-inferno", "mapQuery": "Darvaza gas crater", "reason": "Ponto turístico" },
+    { "slug": "chernobyl-desastre-nuclear-1986", "mapQuery": "Chernobyl Nuclear Power Plant", "reason": "Instalação conhecida mundialmente" },
+    { "slug": "manuscrito-voynich-ms-408", "mapQuery": "Beinecke Rare Book & Manuscript Library, New Haven", "reason": "Biblioteca que guarda o manuscrito" },
+    { "slug": "ponte-overtoun-caes-entre-fatos-e-lenda", "mapQuery": "Overtoun Bridge, Dumbarton", "reason": "Ponte pública" },
+    { "slug": "ilha-das-bonecas-xochimilco", "mapQuery": "Isla de las Muñecas, Xochimilco", "reason": "Ponto turístico" },
+    { "slug": "farol-ilhas-flannan-tres-faroleiros-1900", "mapQuery": "Flannan Isles Lighthouse", "reason": "Farol histórico" },
+    { "slug": "ilha-de-poveglia-veneza", "mapQuery": "Poveglia, Venezia", "reason": "Ilha da laguna de Veneza" },
+    { "slug": "centralia-incendio-subterraneo-pensilvania", "mapQuery": "Centralia, Pennsylvania", "reason": "Localidade pública" },
+    { "slug": "mascaras-de-chumbo-morro-do-vintem-1966", "mapQuery": "Morro do Vintém, Niterói", "reason": "Morro público citado nos documentos" },
+    { "slug": "julgamentos-bruxas-de-salem-1692", "mapQuery": "Salem Witch Trials Memorial, Salem", "reason": "Memorial público" }
+  ]
+}

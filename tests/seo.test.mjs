@@ -74,12 +74,17 @@ test('story pages link to the de-duplicated slug of their own place', () => {
 });
 
 test('story pages link to the map between the article and the sources', () => {
-  const located = { ...story, place: { ...story.place, latitude: -25.4, longitude: -49.2 } };
+  const located = { ...story, place: { ...story.place, latitude: -25.4321, longitude: -49.2765 } };
   const html = storyPage(located, 'pt');
-  const link = html.indexOf('https://www.google.com/maps/search/?api=1&amp;query=-25.4,-49.2');
+  // Local aproximado: mapa da região, coordenadas arredondadas, sem alfinete.
+  const link = html.indexOf('https://www.google.com/maps/@?api=1&amp;map_action=map&amp;center=-25.43,-49.28&amp;zoom=13');
   assert.ok(link > html.indexOf('Segundo parágrafo') && link < html.indexOf('id="sources-heading"'));
-  assert.match(html, />Ver no Google Maps<\/a> <span class="location-note">· Local aproximado<\/span>/);
-  const street = storyPage({ ...located, place: { ...located.place, precision: 'exact', streetViewUrl: 'https://www.google.com/maps/@-25.4,-49.2,3a,75y,90h' } }, 'en');
+  assert.match(html, />Ver região no Google Maps<\/a> <span class="location-note">· Local aproximado<\/span>/);
+  // Street View cadastrado num local aproximado não é publicado.
+  assert.ok(!storyPage({ ...located, place: { ...located.place, streetViewUrl: 'https://www.google.com/maps/@-25.4,-49.2,3a' } }, 'pt').includes('3a'));
+  const exact = { ...located, place: { ...located.place, precision: 'exact', mapQuery: 'Edifício Martinelli, São Paulo' } };
+  assert.match(storyPage(exact, 'es'), /<a href="https:\/\/www\.google\.com\/maps\/search\/\?api=1&amp;query=Edif%C3%ADcio%20Martinelli%2C%20S%C3%A3o%20Paulo" target="_blank" rel="noopener noreferrer">Ver en Google Maps<\/a><\/p>/);
+  const street = storyPage({ ...exact, place: { ...exact.place, streetViewUrl: 'https://www.google.com/maps/@-25.4,-49.2,3a,75y,90h' } }, 'en');
   assert.match(street, /<a href="https:\/\/www\.google\.com\/maps\/@-25\.4,-49\.2,3a,75y,90h" target="_blank" rel="noopener noreferrer">Open in Street View<\/a><\/p>/);
 });
 

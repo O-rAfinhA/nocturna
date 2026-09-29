@@ -1,4 +1,5 @@
 import { neon } from '@neondatabase/serverless';
+import { publicPlace } from '../../dist/maplink.js';
 
 let client;
 
@@ -12,16 +13,22 @@ function decode(row) {
   return typeof row.story === 'string' ? JSON.parse(row.story) : row.story;
 }
 
+// Versão pública: local aproximado sai arredondado e sem Street View/endereço (ver dist/maplink.js).
+function decodePublic(row) {
+  const story = decode(row);
+  return { ...story, place: publicPlace(story.place) };
+}
+
 export async function publicStories() {
   const rows = await sql()`SELECT story FROM stories WHERE status = 'published' ORDER BY (story->>'publishedAt') DESC, slug`;
-  return rows.map(decode);
+  return rows.map(decodePublic);
 }
 
 export async function storyBySlug(slug, publishedOnly = true) {
   const rows = publishedOnly
     ? await sql()`SELECT story FROM stories WHERE slug = ${slug} AND status = 'published'`
     : await sql()`SELECT story FROM stories WHERE slug = ${slug}`;
-  return rows[0] ? decode(rows[0]) : null;
+  return rows[0] ? (publishedOnly ? decodePublic(rows[0]) : decode(rows[0])) : null;
 }
 
 export async function allStories() {

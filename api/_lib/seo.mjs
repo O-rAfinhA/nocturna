@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { plainText, renderMarkdown } from '../../dist/markdown.js';
+import { mapLabels, mapLink } from '../../dist/maplink.js';
 
 export const SITE_URL = 'https://portalnocturna.com.br';
 
@@ -69,10 +70,6 @@ export function languageLinks(slug) {
   return ['pt', 'en', 'es'].map(lang => `<link rel="alternate" hreflang="${locale[lang]}" href="${storyUrl(lang, slug)}">`).join('') + `<link rel="alternate" hreflang="x-default" href="${storyUrl('pt', slug)}">`;
 }
 
-export function mapLink(place) {
-  return place.streetViewUrl || `https://www.google.com/maps/search/?api=1&query=${place.latitude},${place.longitude}`;
-}
-
 export function storyPage(story, lang, localitySlug = localitySlugFor(story)) {
   const source = story.translations[lang];
   const copy = { ...source, title: plainText(source.title), summary: plainText(source.summary) };
@@ -83,8 +80,8 @@ export function storyPage(story, lang, localitySlug = localitySlugFor(story)) {
   const description = escapeHtml(copy.summary);
   const nav = languageMenu(lang, code => `/${code}/${route[code]}/${encodeURIComponent(story.slug)}/`);
   const paragraphs = renderMarkdown(copy.body);
-  const mapLabel = story.place.streetViewUrl ? words.streetView : words.googleMaps;
-  const location = `<p class="story-map-link"><a href="${escapeHtml(mapLink(story.place))}" target="_blank" rel="noopener noreferrer">${mapLabel}</a>${story.place.precision === 'exact' ? '' : ` <span class="location-note">· ${words.approximate}</span>`}</p>`;
+  const map = mapLink(story.place);
+  const location = `<p class="story-map-link"><a href="${escapeHtml(map.href)}" target="_blank" rel="noopener noreferrer">${mapLabels[lang][map.kind]}</a>${map.kind === 'region' ? ` <span class="location-note">· ${mapLabels[lang].approximate}</span>` : ''}</p>`;
   const sources = story.sources.length ? `<section aria-labelledby="sources-heading"><h2 id="sources-heading">${words.sources}</h2><ul>${story.sources.map(item => `<li><a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.title)}</a></li>`).join('')}</ul></section>` : '';
   const explore = story.explore?.length ? `<section class="story-explore" aria-labelledby="explore-heading"><h2 id="explore-heading">${words.explore}</h2><p>${words.exploreNote}</p><ul>${story.explore.map(item => `<li><span class="resource-kind">${resourceType[item.kind][lang]}</span><a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.labels[lang])}</a></li>`).join('')}</ul></section>` : '';
   const structured = JSON.stringify({
