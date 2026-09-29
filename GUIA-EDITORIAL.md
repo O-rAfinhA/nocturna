@@ -35,10 +35,10 @@ Estrutura recomendada: resumo de 1 a 2 frases (até 300 caracteres), texto com 4
 
 ## Localização
 
-- **Local ou endereço público** (edifícios, monumentos, museus, pontes, praças, ruínas, pontos turísticos): marque **Local ou endereço público** e preencha **Nome ou endereço público** (ex.: "Edifício Martinelli, São Paulo"). O Street View é opcional.
-- **Local indefinido ou sensível** (residências, cenas de crime, escolas atingidas, locais ligados a vítimas, pontos no mar ou incertos): deixe desmarcado. O site publica só a região (cerca de 1 km) e não mostra endereço nem Street View.
-- Cidade, região e país sempre preenchidos; coordenadas no ponto mais representativo.
+- **Padrão: local exato.** Posicione as coordenadas no lugar do episódio e, se for um lugar público com nome conhecido, preencha **Nome ou endereço público** (ex.: "Edifício Martinelli, São Paulo"). O Street View é opcional.
+- **Marque "Mostrar localização aproximada"** em crimes, locais ligados a vítimas, residências, escolas atingidas e qualquer ponto que identifique pessoas. O site publica só a região (cerca de 1 km), sem endereço nem Street View.
+- Cidade, região e país sempre preenchidos.
 
 ## Texto pronto para pedir um dossiê a uma IA
 
-> Escreva um dossiê para o Nocturna seguindo o GUIA-EDITORIAL.md: jornalismo investigativo sóbrio, fontes HTTPS verificáveis, separação entre documentado, disputado e não demonstrado; três versões (PT, EN, ES) com título, resumo de até 300 caracteres e texto em Markdown simples (## subtítulos, **negrito** com moderação, *itálico* para obras). Não use travessão (—) nem meia-risca (–): use vírgulas, parênteses, dois-pontos ou hífen. Indique se o local é público (com nome/endereço para o Google Maps) ou sensível/indefinido.
+> Escreva um dossiê para o Nocturna seguindo o GUIA-EDITORIAL.md: jornalismo investigativo sóbrio, fontes HTTPS verificáveis, separação entre documentado, disputado e não demonstrado; três versões (PT, EN, ES) com título, resumo de até 300 caracteres e texto em Markdown simples (## subtítulos, **negrito** com moderação, *itálico* para obras). Não use travessão (—) nem meia-risca (–): use vírgulas, parênteses, dois-pontos ou hífen. Informe o local exato (nome ou endereço público para o Google Maps) ou indique que a localização deve ser aproximada, em casos de crime, vítimas ou residências.

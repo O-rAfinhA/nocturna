@@ -1,5 +1,5 @@
 import { neon } from '@neondatabase/serverless';
-import { publicPlace } from '../../dist/maplink.js';
+import { publicPlace, resolvePlace } from '../../dist/maplink.js';
 
 let client;
 
@@ -16,7 +16,7 @@ function decode(row) {
 // Versão pública: local aproximado sai arredondado e sem Street View/endereço (ver dist/maplink.js).
 function decodePublic(row) {
   const story = decode(row);
-  return { ...story, place: publicPlace(story.place) };
+  return { ...story, place: publicPlace(resolvePlace(story.slug, story.place)) };
 }
 
 export async function publicStories() {
