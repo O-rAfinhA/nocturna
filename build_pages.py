@@ -198,13 +198,13 @@ def validate_story(story):
     for key in ("publishedAt", "updatedAt"):
         date.fromisoformat(story[key])
     sources = story.get("sources")
-    if not isinstance(sources, list) or len(sources) > 10:
+    if not isinstance(sources, list) or len(sources) > 40:
         raise ValueError(f"Invalid sources for {slug}")
     for source in sources:
         if not isinstance(source, dict) or not isinstance(source.get("title"), str) or not source["title"].strip() or not isinstance(source.get("url"), str) or not source["url"].startswith("https://"):
             raise ValueError(f"Invalid source for {slug}")
     explore = story.get("explore", [])
-    if not isinstance(explore, list) or len(explore) > 10:
+    if not isinstance(explore, list) or len(explore) > 30:
         raise ValueError(f"Invalid exploration links for {slug}")
     for item in explore:
         if not isinstance(item, dict) or item.get("kind") not in {"document", "image", "audio", "video", "reading"} or not isinstance(item.get("url"), str) or not item["url"].startswith("https://"):

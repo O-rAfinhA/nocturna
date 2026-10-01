@@ -55,3 +55,9 @@ test('story texts with em or en dashes are rejected with a clear message', () =>
   assert.match(storyProblem(withRange), /Texto da aba Português tem travessão/);
   assert.equal(storyProblem({ ...longStory, sources: [{ title: 'Elizabeth Báthory – Between Legend and Reality', url: 'https://example.org' }] }), null);
 });
+
+test('stories may cite many sources', () => {
+  const sources = Array.from({ length: 25 }, (_, i) => ({ title: `Fonte ${i + 1} ${'x'.repeat(250)}`, url: `https://example.org/${i}` }));
+  assert.equal(storyProblem({ ...longStory, sources }), null);
+  assert.match(storyProblem({ ...longStory, sources: Array.from({ length: 41 }, (_, i) => ({ title: 'F', url: `https://example.org/${i}` })) }), /no máximo 40 fontes/);
+});

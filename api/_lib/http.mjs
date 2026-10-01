@@ -83,13 +83,13 @@ export function storyProblem(story) {
   if (place.mapQuery !== undefined && (typeof place.mapQuery !== 'string' || place.mapQuery.length > 200 || /[\n<>]|:\/\//.test(place.mapQuery))) return 'Nome ou endereço público inválido: use até 200 caracteres, sem links.';
   if (place.streetViewUrl !== undefined && !validStreetViewUrl(place.streetViewUrl)) return 'Link do Street View inválido: cole um endereço do Google Maps que comece com https://.';
   if (!/^\d{4}-\d{2}-\d{2}$/.test(story.publishedAt || '') || !/^\d{4}-\d{2}-\d{2}$/.test(story.updatedAt || '')) return 'Datas de publicação ou atualização inválidas.';
-  if (!Array.isArray(story.sources) || story.sources.length > 10) return 'Use no máximo 10 fontes.';
+  if (!Array.isArray(story.sources) || story.sources.length > 40) return 'Use no máximo 40 fontes.';
   for (const source of story.sources) {
-    if (typeof source.title !== 'string' || !source.title.trim() || source.title.length >= 200) return 'Cada fonte precisa de um título com menos de 200 caracteres.';
+    if (typeof source.title !== 'string' || !source.title.trim() || source.title.length > 400) return 'Cada fonte precisa de um título com até 400 caracteres.';
     if (typeof source.url !== 'string' || !/^https:\/\//.test(source.url)) return `A URL da fonte “${source.title}” precisa começar com https://.`;
   }
   if (story.explore !== undefined) {
-    if (!Array.isArray(story.explore) || story.explore.length > 10) return 'Use no máximo 10 links de exploração.';
+    if (!Array.isArray(story.explore) || story.explore.length > 30) return 'Use no máximo 30 links de exploração.';
     for (const item of story.explore) {
       if (!['document', 'image', 'audio', 'video', 'reading'].includes(item.kind)) return 'Tipo de link de exploração inválido.';
       if (typeof item.url !== 'string' || !/^https:\/\//.test(item.url)) return 'Cada link de exploração precisa de uma URL que comece com https://.';
