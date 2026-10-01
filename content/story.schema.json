@@ -43,7 +43,7 @@
     "explore": {
       "type": "array",
       "description": "External material for readers to explore. It is supplementary and does not by itself verify the story.",
-      "maxItems": 10,
+      "maxItems": 30,
       "items": {
         "type": "object", "additionalProperties": false, "required": ["kind", "url", "labels"],
         "properties": {
