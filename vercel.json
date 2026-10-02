@@ -21,7 +21,10 @@
     { "source": "/", "has": [{ "type": "header", "key": "accept-language", "value": "(?i)^\\s*es.*" }], "destination": "/es/", "permanent": false },
     { "source": "/", "has": [{ "type": "header", "key": "accept-language", "value": "(?i)^\\s*pt.*" }], "destination": "/pt/", "permanent": false },
     { "source": "/", "destination": "/en/", "permanent": false },
-    { "source": "/index.html", "destination": "/", "permanent": true }
+    { "source": "/index.html", "destination": "/", "permanent": true },
+    { "source": "/story.html", "has": [{ "type": "query", "key": "lang", "value": "en" }, { "type": "query", "key": "slug", "value": "(?<slug>[a-z0-9-]+)" }], "destination": "/en/stories/:slug/", "permanent": true },
+    { "source": "/story.html", "has": [{ "type": "query", "key": "lang", "value": "es" }, { "type": "query", "key": "slug", "value": "(?<slug>[a-z0-9-]+)" }], "destination": "/es/historias/:slug/", "permanent": true },
+    { "source": "/story.html", "has": [{ "type": "query", "key": "slug", "value": "(?<slug>[a-z0-9-]+)" }], "destination": "/pt/historias/:slug/", "permanent": true }
   ],
   "rewrites": [
     { "source": "/api/admin/comments/:id", "destination": "/api/admin/comment?id=:id" },
@@ -38,7 +41,6 @@
     { "source": "/pt/locais/:slug", "destination": "/api/page?type=canonical&kind=place&lang=pt&slug=:slug" },
     { "source": "/en/places/:slug", "destination": "/api/page?type=canonical&kind=place&lang=en&slug=:slug" },
     { "source": "/es/lugares/:slug", "destination": "/api/page?type=canonical&kind=place&lang=es&slug=:slug" },
-    { "source": "/story.html", "has": [{ "type": "query", "key": "slug" }], "destination": "/api/page?type=canonical&kind=story" },
     { "source": "/sitemap.xml", "destination": "/api/page?type=sitemap" },
     { "source": "/api/geo", "destination": "/api/page?type=geo" }
   ]
