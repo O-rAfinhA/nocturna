@@ -1,5 +1,5 @@
 import { publicStories } from './_lib/store.mjs';
-import { localitySlugFor, sitemap, storyPage } from './_lib/seo.mjs';
+import { localitySlugFor, placeUrl, sitemap, storyPage, storyUrl } from './_lib/seo.mjs';
 import { PUBLIC_CACHE } from './_lib/http.mjs';
 
 export async function GET(request) {
@@ -9,6 +9,15 @@ export async function GET(request) {
   if (params.get('type') === 'geo') {
     const country = request.headers.get('x-vercel-ip-country') || '';
     return new Response(JSON.stringify({ country: /^[A-Z]{2}$/.test(country) ? country : null }), { headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'private, no-store' } });
+  }
+  // Endereços alternativos (rewrites): dossiê ou lugar sem a barra final e o antigo story.html?lang=&slug=.
+  // Redirecionam de forma permanente para o endereço canônico, evitando 404 e páginas duplicadas no Google.
+  if (params.get('type') === 'canonical') {
+    const lang = ['pt', 'en', 'es'].includes(params.get('lang')) ? params.get('lang') : 'pt';
+    const slug = params.get('slug') || '';
+    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) return new Response('Página indisponível', { status: 404, headers: { 'Content-Type': 'text/plain; charset=utf-8', 'X-Robots-Tag': 'noindex' } });
+    const location = params.get('kind') === 'place' ? placeUrl(lang, slug) : storyUrl(lang, slug);
+    return new Response(null, { status: 308, headers: { Location: location, 'Cache-Control': PUBLIC_CACHE } });
   }
   if (params.get('type') === 'sitemap') {
     try {
