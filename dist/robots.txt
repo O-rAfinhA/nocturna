@@ -1,6 +1,5 @@
 User-agent: *
 Disallow: /admin/
 Disallow: /api/
-Disallow: /story.html
 
 Sitemap: https://portalnocturna.com.br/sitemap.xml
