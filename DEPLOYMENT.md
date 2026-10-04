@@ -11,6 +11,8 @@ O projeto da Vercel está conectado ao repositório `O-rAfinhA/nocturna`: cada p
 3. Ainda com a variável definida, execute `npm run db:import-content`. Esse comando copia o catálogo local para o banco, sem enviar a URL do banco nem as histórias em alterações futuras ao GitHub.
 4. Execute `node setup-admin.mjs --vercel`. O comando grava as variáveis administrativas em `data/vercel-admin.env`; adicione os dois valores no painel da Vercel, sem subir o arquivo.
 5. No projeto Vercel, configure `DATABASE_URL`, `ADMIN_PASSWORD_SALT` e `ADMIN_PASSWORD_HASH` para Preview e Production.
+
+O site lê apenas `DATABASE_URL` do Neon; as demais variáveis `PG*`/`POSTGRES_*` são criadas pela integração. Para trocar a senha do banco, use **Rotate Neon Secrets** no painel de variáveis da Vercel, confirme que as variáveis com senha ficaram como **Secret** (ou marque **Sensitive** ao editá-las) e faça um novo deploy de produção: as Functions só passam a usar a senha nova depois dele.
 6. Faça um deploy de Preview e teste login, criação de rascunho, publicação, comentário pendente, aprovação e os três idiomas antes de associar domínio.
 
 Depois de confirmar o catálogo no Preview, remova do índice Git o arquivo local `content/stories.json` e as páginas editoriais geradas. Eles já estão em `.gitignore`, portanto continuarão preservados no computador, mas não serão enviados em commits futuros. O painel passa a gravar exclusivamente no PostgreSQL.
