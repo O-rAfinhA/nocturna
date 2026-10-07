@@ -1,6 +1,5 @@
 import { plainText, renderMarkdown } from './markdown.js';
 import { mapLabels, mapLink } from './maplink.js';
-import { mountStoryReader } from './story-reader.js';
 const params = new URLSearchParams(location.search);
 const storyPath = location.pathname.match(/^\/(pt|en|es)\/(?:historias|stories)\/([a-z0-9]+(?:-[a-z0-9]+)*)\/?$/);
 const lang = storyPath?.[1] || (['pt', 'en', 'es'].includes(params.get('lang')) ? params.get('lang') : 'pt');
@@ -59,12 +58,9 @@ function render(story) {
   main.append(link(`/${lang}/`, `← ${words.back}`));
   main.lastElementChild.className = 'back';
   main.append(element('p', `${words.classification}: ${words[story.classification]}`, 'eyebrow'));
-  const title = element('h1', copy.title); title.id = 'story-title';
-  const summary = element('p', copy.summary); summary.id = 'story-summary';
-  main.append(title, summary);
+  main.append(element('h1', copy.title), element('p', copy.summary));
   main.append(element('p', `${story.place.city}, ${story.place.region}, ${story.place.country}`));
-  const reader = element('div', undefined, 'story-reader'); reader.id = 'story-reader'; reader.dataset.lang = lang; reader.hidden = true; main.append(reader);
-  const body = element('div', undefined, 'story-body'); body.id = 'story-reading-text'; body.innerHTML = renderMarkdown(copy.body); main.append(body);
+  const body = element('div', undefined, 'story-body'); body.innerHTML = renderMarkdown(copy.body); main.append(...body.childNodes);
   const location = element('p', undefined, 'story-map-link');
   const map = mapLink(story.place);
   const mapAnchor = link(map.href, mapLabels[lang][map.kind]);
@@ -85,7 +81,6 @@ function render(story) {
   }
   const comments = element('section', undefined, 'comments'); comments.id = 'comments'; comments.dataset.story = story.slug; comments.dataset.lang = lang; main.append(comments);
   const script = document.createElement('script'); script.type = 'module'; script.src = '/comments.js'; document.body.append(script);
-  mountStoryReader();
 }
 
 pageLinks();
