@@ -29,7 +29,7 @@ function setSources(sources=[]){$('source-title').value=sources[0]?.title||'';$(
 function readSources(){const pairs=[[ $('source-title').value.trim(),$('source-url').value.trim() ],...Array.from(sourceExtras.querySelectorAll('.admin-link-row')).map(row=>[row.querySelector('.source-title').value.trim(),row.querySelector('.source-url').value.trim()])];const sources=[];for(const [title,url] of pairs){if(!title&&!url)continue;if(!title||!url)return {error:'Preencha o título e a URL de cada fonte juntos.'};sources.push({title,url})}return {sources}}
 function setExplore(items=[]){exploreList.replaceChildren();for(const item of items)exploreList.append(exploreRow(item))}
 function readExplore(){const explore=[];for(const row of exploreList.querySelectorAll('.admin-link-row')){const kind=row.querySelector('.explore-kind').value,url=row.querySelector('.explore-url').value.trim(),labels=Object.fromEntries(['pt','en','es'].map(lang=>[lang,row.querySelector('.explore-label-'+lang).value.trim()]));if(!url&&!labels.pt&&!labels.en&&!labels.es)continue;if(!url||!labels.pt||!labels.en||!labels.es)return {error:'Preencha a URL e os três títulos de cada link de exploração.'};explore.push({kind,url,labels})}return {explore}}
-function clearForm(story){showNarrationLab(story);$('form-status').textContent='';$('story-form').reset();$('story-form').hidden=false;showTab('settings');$('story-form').scrollIntoView({behavior:'smooth',block:'start'});$('admin-map').hidden=true;$('pick-location').textContent='Escolher no mapa';$('pick-location').setAttribute('aria-expanded','false');$('map-status').textContent='Selecione um ponto aproximado; ele será mostrado aos visitantes.';$('form-title').textContent=story?'Editar história':'Nova história';$('slug').readOnly=!!story;$('delete-story').hidden=!story;const today=new Date().toISOString().slice(0,10);$('published-at').value=story?.publishedAt||today;$('updated-at').value=today;setSources(story?.sources||[]);setExplore(story?.explore||[]);
+function clearForm(story){$('form-status').textContent='';$('story-form').reset();$('story-form').hidden=false;showTab('settings');$('story-form').scrollIntoView({behavior:'smooth',block:'start'});$('admin-map').hidden=true;$('pick-location').textContent='Escolher no mapa';$('pick-location').setAttribute('aria-expanded','false');$('map-status').textContent='Selecione um ponto aproximado; ele será mostrado aos visitantes.';$('form-title').textContent=story?'Editar história':'Nova história';$('slug').readOnly=!!story;$('delete-story').hidden=!story;const today=new Date().toISOString().slice(0,10);$('published-at').value=story?.publishedAt||today;$('updated-at').value=today;setSources(story?.sources||[]);setExplore(story?.explore||[]);
  if(!story)return;$('slug').value=story.slug;$('story-status').value=story.status;$('classification').value=story.classification;$('city').value=story.place.city;$('region').value=story.place.region;$('country').value=story.place.country;$('latitude').value=story.place.latitude;const known=publicPlaces[story.slug];$('place-sensitive').checked=isSensitive(story.slug,story.place);$('street-view-url').value=story.place.streetViewUrl||'';$('map-query').value=story.place.mapQuery||known?.mapQuery||'';$('longitude').value=story.place.longitude;$('event-date').value=story.eventDate||'';for(const lang of ['pt','en','es'])for(const key of ['title','summary','body'])$(lang+'-'+key).value=story.translations?.[lang]?.[key]||''}
 function makeButton(text,action){const button=document.createElement('button');button.type='button';button.textContent=text;button.addEventListener('click',action);return button}
 // Filtros da lista: texto (títulos, identificador e local), situação, classificação e link do Street View.
@@ -113,37 +113,4 @@ function removeDashes(text){return text
  .replace(/ \(([^)]*)\) ([,.;:!?])/g,' ($1)$2')
  .replace(/, ([,.;:!?])/g,'$1')
  .replace(/^(#{1,6} .*?), (e|and|y) /gm,'$1 $2 ')}
-// Laboratório editorial: gera somente amostras curtas; nada é publicado ou salvo no catálogo.
-const narrationLab=document.createElement('section');narrationLab.className='admin-narration';narrationLab.hidden=true;$('story-form').after(narrationLab);
-let narrationVoices=null,narrationSlug='';const sampleUrls=new Map();
-function showNarrationLab(story){
- for(const url of sampleUrls.values())URL.revokeObjectURL(url);sampleUrls.clear();
- narrationSlug=story?.slug||'';narrationLab.hidden=!story;narrationLab.replaceChildren();if(!story)return;
- const heading=document.createElement('h3');heading.textContent='Laboratório de narração · ElevenLabs';
- const help=document.createElement('p');help.className='admin-help';help.textContent='Teste até 450 caracteres do dossiê salvo em cada idioma. Cada geração consome créditos da ElevenLabs. A amostra só toca aqui no admin; não é publicada nem armazenada.';
- const notice=document.createElement('p');notice.className='admin-help';notice.setAttribute('role','status');notice.textContent='Carregando vozes…';
- narrationLab.append(heading,help,notice);
- for(const [lang,label] of [['pt','Português'],['en','English'],['es','Español']]){
-  const row=document.createElement('div');row.className='admin-narration-row';
-  const title=document.createElement('h4');title.textContent=label;
-  const voiceLabel=document.createElement('label');voiceLabel.textContent='Voz';const voice=document.createElement('select');voice.className='narration-voice';voiceLabel.append(voice);
-  const modelLabel=document.createElement('label');modelLabel.textContent='Modelo';const model=document.createElement('select');for(const [id,name] of [['eleven_multilingual_v2','Multilingual v2'],['eleven_flash_v2_5','Flash v2.5']]){const option=document.createElement('option');option.value=id;option.textContent=name;model.append(option)}modelLabel.append(model);
-  const audio=document.createElement('audio');audio.controls=true;audio.hidden=true;audio.preload='none';
-  const state=document.createElement('span');state.className='admin-help';state.setAttribute('role','status');
-  const generate=makeButton('Gerar amostra',async()=>{
-   if(!voice.value)return;const chosen=narrationSlug;if(!confirm(`Gerar uma amostra em ${label} com ElevenLabs? Esta ação consome créditos da sua conta.`))return;
-   generate.disabled=true;state.textContent='Gerando amostra…';
-   try{
-    const response=await fetch('/api/admin/stories?audio=sample',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','X-CSRF-Token':csrf},body:JSON.stringify({slug:chosen,lang,voiceId:voice.value,model:model.value})});
-    if(!response.ok){const data=await response.json();throw Error(data.error||'Amostra indisponível')}
-    if(!response.headers.get('Content-Type')?.includes('audio/'))throw Error('Resposta sem áudio');
-    const url=URL.createObjectURL(await response.blob());if(chosen!==narrationSlug){URL.revokeObjectURL(url);return}
-    if(sampleUrls.has(lang))URL.revokeObjectURL(sampleUrls.get(lang));sampleUrls.set(lang,url);audio.src=url;audio.hidden=false;state.textContent='Amostra pronta para ouvir.';audio.play().catch(()=>{});
-   }catch(error){state.textContent=error.message}finally{generate.disabled=false}
-  });
-  row.append(title,voiceLabel,modelLabel,generate,audio,state);narrationLab.append(row);
-  row.dataset.lang=lang;
- }
- (async()=>{try{narrationVoices||=(await api('/api/admin/stories?audio=voices')).voices;if(story.slug!==narrationSlug)return;for(const row of narrationLab.querySelectorAll('.admin-narration-row')){const select=row.querySelector('.narration-voice');for(const item of narrationVoices){const option=document.createElement('option');option.value=item.id;option.textContent=`${item.name}${item.description?` · ${item.description}`:''}`;select.append(option)}}notice.textContent=`${narrationVoices.length} vozes disponíveis. Escolha uma para testar em cada idioma.`}catch(error){notice.textContent=error.message}})();
-}
 authenticated();
