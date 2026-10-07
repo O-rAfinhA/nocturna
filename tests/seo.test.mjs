@@ -17,7 +17,7 @@ const story = {
 for (const lang of ['pt', 'en', 'es']) {
   test(`article HTML includes readable content and ${lang} search metadata`, () => {
     const html = storyPage(story, lang);
-    assert.match(html, /<h1>Título [a-z]{2} &lt;teste&gt;<\/h1>/);
+    assert.match(html, /<h1 id="story-title">Título [a-z]{2} &lt;teste&gt;<\/h1>/);
     assert.match(html, /<p>Segundo parágrafo com &lt;script&gt;\.<\/p>/);
     assert.ok(html.includes(`<link rel="canonical" href="${storyUrl(lang, story.slug)}">`));
     assert.match(html, /hreflang="pt-BR"/);
@@ -30,6 +30,11 @@ for (const lang of ['pt', 'en', 'es']) {
     assert.match(html, new RegExp(`<option value="/${lang}/(historias|stories)/historia-exemplo/" selected>${lang.toUpperCase()}</option>`));
     assert.equal((html.match(/<option /g) || []).length, 3);
     assert.ok(!html.includes('article-languages'));
+    assert.ok(html.includes('<script type="module" src="/story-reader.js"></script>'));
+    assert.ok(html.includes(`<div id="story-reader" class="story-reader" data-lang="${lang}" hidden></div>`));
+    assert.match(html, /<h1 id="story-title">/);
+    assert.match(html, /<p id="story-summary">/);
+    assert.match(html, /<div id="story-reading-text"><p>Primeiro parágrafo\.<\/p><p>Segundo parágrafo com &lt;script&gt;\.<\/p><\/div>/);
   });
 }
 

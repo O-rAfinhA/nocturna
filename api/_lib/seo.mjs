@@ -104,14 +104,15 @@ export function storyPage(story, lang, localitySlug = localitySlugFor(story)) {
 <meta property="og:url" content="${canonical}"><meta property="og:locale" content="${locale[lang]}">
 <meta name="twitter:card" content="summary"><meta name="twitter:title" content="${titleEscaped}"><meta name="twitter:description" content="${description}">
 <script type="application/ld+json">${structured}</script>
-<link rel="stylesheet" href="/styles.css"><script type="module" src="/comments.js"></script>${privacyScript}
+<link rel="stylesheet" href="/styles.css"><script type="module" src="/comments.js"></script><script type="module" src="/story-reader.js"></script>${privacyScript}
 </head><body><div class="shell">
 <header class="masthead"><a class="brand" href="/${lang}/"><span class="brand-mark" aria-hidden="true">✦</span><span>NOCTURNA</span></a>${nav}</header>
 <main class="legal"><a class="back" href="/${lang}/">← ${words.back}</a>
 <p class="eyebrow">${words.classification}: ${words[story.classification]}</p>
-<h1>${escapeHtml(copy.title)}</h1><p>${escapeHtml(copy.summary)}</p>
+<h1 id="story-title">${escapeHtml(copy.title)}</h1><p id="story-summary">${escapeHtml(copy.summary)}</p>
 <p><a href="${placeUrl(lang, localitySlug)}">${escapeHtml(story.place.city)}, ${escapeHtml(story.place.region)}, ${escapeHtml(story.place.country)} · ${words.place}</a></p>
-${paragraphs}${location}${sources}${explore}
+<div id="story-reader" class="story-reader" data-lang="${lang}" hidden></div>
+<div id="story-reading-text">${paragraphs}</div>${location}${sources}${explore}
 <section id="comments" class="comments" data-story="${escapeHtml(story.slug)}" data-lang="${lang}"></section></main>
 <footer><a class="footer-brand brand" href="/${lang}/" aria-label="Nocturna"><span class="brand-mark" aria-hidden="true">✦</span><span>NOCTURNA</span></a><span>${words.footer} <a href="/${lang}/privacidade.html">${words.privacy}</a></span></footer>
 </div></body></html>`;
