@@ -7,7 +7,7 @@ import { plainText, renderMarkdown } from '../dist/markdown.js';
 import { mapLabels, mapLink } from '../dist/maplink.js';
 
 // story-page.js é um módulo; o teste roda o corpo como script, com as funções de formatação já disponíveis.
-const script = (await readFile(new URL('../dist/story-page.js', import.meta.url), 'utf8')).replace(/^import .*\n/gm, '');
+const script = (await readFile(new URL('../dist/story-page.js', import.meta.url), 'utf8')).replace(/^import .*\r?\n/gm, '');
 
 function loadStoryPage(pathname, search = '') {
   const nodes = new Map();
