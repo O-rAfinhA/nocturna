@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { plainText, renderMarkdown } from '../../dist/markdown.js';
 import { mapLabels, mapLink } from '../../dist/maplink.js';
+import { footerLinks, sitePages, storyCard } from '../../dist/site-links.js';
 
 export const SITE_URL = 'https://portalnocturna.com.br';
 
@@ -113,7 +114,7 @@ export function storyPage(story, lang, localitySlug = localitySlugFor(story)) {
 <p><a href="${placeUrl(lang, localitySlug)}">${escapeHtml(story.place.city)}, ${escapeHtml(story.place.region)}, ${escapeHtml(story.place.country)} · ${words.place}</a></p>
 ${paragraphs}${location}${sources}${explore}
 <section id="comments" class="comments" data-story="${escapeHtml(story.slug)}" data-lang="${lang}"></section></main>
-<footer><a class="footer-brand brand" href="/${lang}/" aria-label="Nocturna"><span class="brand-mark" aria-hidden="true">✦</span><span>NOCTURNA</span></a><span>${words.footer} <a href="/${lang}/privacidade.html">${words.privacy}</a></span></footer>
+<footer><a class="footer-brand brand" href="/${lang}/" aria-label="Nocturna"><span class="brand-mark" aria-hidden="true">✦</span><span>NOCTURNA</span></a><span>${words.footer}</span>${footerLinks(lang)}</footer>
 </div></body></html>`;
 }
 
@@ -156,7 +157,44 @@ export function placePage(group, lang, stories = group.stories) {
 <script type="application/ld+json">${structured}</script><link rel="stylesheet" href="/styles.css">${privacyScript}</head>
 <body><div class="shell"><header class="masthead"><a class="brand" href="/${lang}/"><span class="brand-mark" aria-hidden="true">✦</span><span>NOCTURNA</span></a>${nav}</header>
 <main class="legal place-page"><a class="back" href="/${lang}/">← ${labels[lang].back}</a><h1>${escapeHtml(title.replace(/ — Nocturna$/, ''))}</h1><p>${escapeHtml(description)}</p>${articles}</main>
-<footer><a class="footer-brand brand" href="/${lang}/" aria-label="Nocturna"><span class="brand-mark" aria-hidden="true">✦</span><span>NOCTURNA</span></a><span>${labels[lang].footer} <a href="/${lang}/privacidade.html">${labels[lang].privacy}</a></span></footer>
+<footer><a class="footer-brand brand" href="/${lang}/" aria-label="Nocturna"><span class="brand-mark" aria-hidden="true">✦</span><span>NOCTURNA</span></a><span>${labels[lang].footer}</span>${footerLinks(lang)}</footer>
+</div></body></html>`;
+}
+
+// Lista completa dos dossiês publicados (/pt/historias/, /en/stories/, /es/historias/), agrupada por país.
+const archiveCopy = {
+  pt: { title: 'Todos os dossiês', description: 'Lista completa dos dossiês publicados no Nocturna, organizada por país, com resumo e local de cada caso.', intro: 'Cada dossiê reúne o que as fontes documentam sobre um lugar, separa o que é disputado e indica onde ler mais. Os casos estão organizados por país; dentro de cada país, os mais recentes aparecem primeiro.', count: 'dossiês publicados', places: 'Ver histórias deste lugar' },
+  en: { title: 'All dossiers', description: 'Complete list of dossiers published on Nocturna, organized by country, with a summary and location for each case.', intro: 'Each dossier gathers what the sources document about a place, separates what is disputed and points to further reading. Cases are organized by country; within each country, the most recent appear first.', count: 'published dossiers', places: 'See stories from this place' },
+  es: { title: 'Todos los dosieres', description: 'Lista completa de los dosieres publicados en Nocturna, organizada por país, con el resumen y el lugar de cada caso.', intro: 'Cada dosier reúne lo que las fuentes documentan sobre un lugar, separa lo que está en disputa e indica dónde leer más. Los casos están organizados por país; dentro de cada país, los más recientes aparecen primero.', count: 'dosieres publicados', places: 'Ver historias de este lugar' },
+};
+
+export function archivePage(stories, lang) {
+  const copy = archiveCopy[lang];
+  const canonical = `${SITE_URL}${sitePages.archive[lang]}`;
+  const title = `${copy.title} — Nocturna`;
+  const alternates = ['pt', 'en', 'es'].map(code => `<link rel="alternate" hreflang="${locale[code]}" href="${SITE_URL}${sitePages.archive[code]}">`).join('') + `<link rel="alternate" hreflang="x-default" href="${SITE_URL}${sitePages.archive.pt}">`;
+  const nav = languageMenu(lang, code => sitePages.archive[code]);
+  const localities = new Map(groupPlaces(stories).flatMap(group => group.stories.map(story => [story.slug, group.slug])));
+  const countries = new Map();
+  for (const story of stories) {
+    const country = story.place.country.trim();
+    if (!countries.has(country)) countries.set(country, []);
+    countries.get(country).push(story);
+  }
+  const sections = [...countries].sort(([a], [b]) => a.localeCompare(b, locale[lang])).map(([country, items]) => {
+    const sorted = [...items].sort((a, b) => (b.publishedAt || '').localeCompare(a.publishedAt || '') || a.slug.localeCompare(b.slug));
+    return `<section class="archive-country" aria-label="${escapeHtml(country)}"><h2>${escapeHtml(country)} <span>(${sorted.length})</span></h2>${sorted.map(story => storyCard(story, lang).replace('</article>', `<p class="story-card-place"><a href="${placeUrl(lang, localities.get(story.slug))}">${escapeHtml(story.place.city)} · ${copy.places}</a></p></article>`)).join('')}</section>`;
+  }).join('');
+  const structured = JSON.stringify({ '@context': 'https://schema.org', '@type': 'CollectionPage', name: copy.title, description: copy.description, inLanguage: locale[lang], url: canonical, mainEntity: { '@type': 'ItemList', numberOfItems: stories.length, itemListElement: stories.map((story, index) => ({ '@type': 'ListItem', position: index + 1, url: storyUrl(lang, story.slug) })) } }).replace(/</g, '\\u003c');
+  return `<!doctype html><html lang="${locale[lang]}"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="theme-color" content="#080d14"><title>${escapeHtml(title)}</title><meta name="description" content="${escapeHtml(copy.description)}">
+<link rel="canonical" href="${canonical}">${alternates}
+<meta property="og:type" content="website"><meta property="og:site_name" content="Nocturna"><meta property="og:title" content="${escapeHtml(title)}"><meta property="og:description" content="${escapeHtml(copy.description)}"><meta property="og:url" content="${canonical}"><meta name="twitter:card" content="summary">
+<script type="application/ld+json">${structured}</script><link rel="stylesheet" href="/styles.css">${privacyScript}</head>
+<body><div class="shell"><header class="masthead"><a class="brand" href="/${lang}/"><span class="brand-mark" aria-hidden="true">✦</span><span>NOCTURNA</span></a>${nav}</header>
+<main class="legal archive-page"><a class="back" href="/${lang}/">← ${labels[lang].back}</a><h1>${copy.title}</h1><p>${copy.intro}</p><p class="eyebrow">${stories.length} ${copy.count}</p>${sections}</main>
+<footer><a class="footer-brand brand" href="/${lang}/" aria-label="Nocturna"><span class="brand-mark" aria-hidden="true">✦</span><span>NOCTURNA</span></a><span>${labels[lang].footer}</span>${footerLinks(lang)}</footer>
 </div></body></html>`;
 }
 
@@ -170,6 +208,10 @@ export function sitemap(stories) {
   const urls = langs.map(lang => entry(home[lang], home));
   const privacy = Object.fromEntries(langs.map(lang => [lang, `${SITE_URL}/${lang}/privacidade.html`]));
   for (const lang of langs) urls.push(entry(privacy[lang], privacy));
+  for (const page of ['archive', 'about', 'contact']) {
+    const alternatives = Object.fromEntries(langs.map(lang => [lang, `${SITE_URL}${sitePages[page][lang]}`]));
+    for (const lang of langs) urls.push(entry(alternatives[lang], alternatives));
+  }
   for (const story of stories) {
     const alternatives = Object.fromEntries(langs.map(lang => [lang, storyUrl(lang, story.slug)]));
     for (const lang of langs) urls.push(entry(alternatives[lang], alternatives, story.updatedAt));

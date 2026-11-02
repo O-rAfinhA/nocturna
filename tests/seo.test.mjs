@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { groupPlaces, localitySlugFor, nearbyStories, placePage, placeUrl, sitemap, storyPage, storyUrl } from '../api/_lib/seo.mjs';
+import { archivePage, groupPlaces, localitySlugFor, nearbyStories, placePage, placeUrl, sitemap, storyPage, storyUrl } from '../api/_lib/seo.mjs';
+import { recentStoriesHtml, sitePages } from '../dist/site-links.js';
 
 const story = {
   slug: 'historia-exemplo', status: 'published', classification: 'documented',
@@ -37,7 +38,8 @@ for (const lang of ['pt', 'en', 'es']) {
 
 test('sitemap contains only supplied published stories and their translations', () => {
   const xml = sitemap([story]);
-  assert.equal((xml.match(/<url>/g) || []).length, 12);
+  assert.equal((xml.match(/<url>/g) || []).length, 21);
+  for (const page of ['archive', 'about', 'contact']) for (const lang of ['pt', 'en', 'es']) assert.ok(xml.includes(`https://portalnocturna.com.br${sitePages[page][lang]}`));
   assert.ok(xml.includes('/pt/privacidade.html'));
   assert.ok(xml.includes('/en/privacidade.html'));
   assert.ok(xml.includes('/es/privacidade.html'));
@@ -103,4 +105,35 @@ test('place pages also list nearby stories, closest first', () => {
   assert.ok(!html.includes('/colares/'));
   const near = [curitiba, ...Array.from({ length: 5 }, (_, i) => at(`perto-${i}`, 'Perto', -25.43 + i * 0.1, -49.27))];
   assert.equal(nearbyStories(groupPlaces(near).find(item => item.stories.includes(curitiba)), [...near, ...all.slice(1)]).length, 6);
+});
+
+test('archive page lists every published story, grouped by country, with links to story and place pages', () => {
+  const other = { ...story, slug: 'outra-historia', publishedAt: '2026-03-01', place: { city: 'Lisboa', region: 'Lisboa', country: 'Portugal' } };
+  for (const lang of ['pt', 'en', 'es']) {
+    const html = archivePage([story, other], lang);
+    assert.ok(html.includes(`<link rel="canonical" href="https://portalnocturna.com.br${sitePages.archive[lang]}">`));
+    assert.ok(html.includes(storyUrl(lang, story.slug).replace('https://portalnocturna.com.br', '')));
+    assert.ok(html.includes(placeUrl(lang, 'lisboa-lisboa-portugal')));
+    assert.ok(html.indexOf('>Brasil') < html.indexOf('>Portugal'));
+    assert.match(html, /"@type":"CollectionPage"/);
+    assert.ok(!html.includes('<teste>'));
+  }
+});
+
+test('story, place and archive pages link to the institutional pages in the footer', () => {
+  const group = groupPlaces([story])[0];
+  for (const lang of ['pt', 'en', 'es']) {
+    for (const html of [storyPage(story, lang), placePage(group, lang), archivePage([story], lang)]) {
+      for (const page of ['archive', 'about', 'contact', 'privacy']) assert.ok(html.includes(`href="${sitePages[page][lang]}"`), `${lang} ${page}`);
+    }
+  }
+});
+
+test('recent stories on the home page keep the given order and limit, with escaped text', () => {
+  const many = Array.from({ length: 15 }, (_, index) => ({ ...story, slug: `historia-${index}` }));
+  const html = recentStoriesHtml(many, 'en');
+  assert.equal((html.match(/<article /g) || []).length, 12);
+  assert.ok(html.indexOf('/en/stories/historia-0/') < html.indexOf('/en/stories/historia-1/'));
+  assert.ok(html.includes('Título en &lt;teste&gt;'));
+  assert.ok(html.includes('Documented · Cidade, Brasil'));
 });
