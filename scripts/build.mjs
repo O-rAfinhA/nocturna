@@ -1,7 +1,7 @@
 import { spawnSync } from 'node:child_process';
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { RECENT_LIMIT, recentStoriesHtml, sitePages } from '../dist/site-links.js';
+import { RECENT_LIMIT, recentStoriesHtml } from '../dist/site-links.js';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const command = process.platform === 'win32' ? 'py' : 'python3';
@@ -40,14 +40,4 @@ for (const lang of ['pt', 'en', 'es']) {
   await writeFile(file, page.replace('<!--RECENT_STORIES-->', stories ? recentStoriesHtml(stories, lang) : ''));
 }
 
-// Localmente, a lista completa também é estática (na Vercel ela vem da função api/place.mjs).
-if (staticCatalog && stories) {
-  const { archivePage } = await import('../api/_lib/seo.mjs');
-  for (const lang of ['pt', 'en', 'es']) {
-    const folder = new URL(`../dist${sitePages.archive[lang]}`, import.meta.url);
-    await mkdir(folder, { recursive: true });
-    const html = archivePage(stories, lang).replace('<meta name="robots" content="index,follow,max-image-preview:large">', '<meta name="robots" content="noindex,follow">');
-    await writeFile(new URL('index.html', folder), html);
-  }
-}
 console.log(`Página inicial: ${stories ? Math.min(stories.length, RECENT_LIMIT) : 0} dossiês recentes no HTML`);

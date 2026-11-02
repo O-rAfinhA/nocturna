@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { archivePage, groupPlaces, localitySlugFor, nearbyStories, placePage, placeUrl, sitemap, storyPage, storyUrl } from '../api/_lib/seo.mjs';
+import { ARCHIVE_PAGE_SIZE, archivePage, archivePath, groupPlaces, localitySlugFor, nearbyStories, placePage, placeUrl, sitemap, storyPage, storyUrl } from '../api/_lib/seo.mjs';
 import { recentStoriesHtml, sitePages } from '../dist/site-links.js';
 
 const story = {
@@ -136,4 +136,32 @@ test('recent stories on the home page keep the given order and limit, with escap
   assert.ok(html.indexOf('/en/stories/historia-0/') < html.indexOf('/en/stories/historia-1/'));
   assert.ok(html.includes('Título en &lt;teste&gt;'));
   assert.ok(html.includes('Documented · Cidade, Brasil'));
+});
+
+test('archive is paginated with self-canonical pages, prev/next links and 404 beyond the last page', () => {
+  const many = Array.from({ length: ARCHIVE_PAGE_SIZE * 2 + 5 }, (_, index) => ({ ...story, slug: `caso-${String(index).padStart(2, '0')}`, publishedAt: `2026-01-${String((index % 28) + 1).padStart(2, '0')}` }));
+  const cards = html => (html.match(/<article class="story-card">/g) || []).length;
+  const first = archivePage(many, 'pt');
+  assert.equal(cards(first), ARCHIVE_PAGE_SIZE);
+  assert.ok(first.includes('<link rel="canonical" href="https://portalnocturna.com.br/pt/historias/">'));
+  assert.ok(first.includes('href="/pt/historias/?p=2" rel="next"'));
+  assert.ok(!first.includes('rel="prev"'));
+  const second = archivePage(many, 'en', 2);
+  assert.ok(second.includes('<link rel="canonical" href="https://portalnocturna.com.br/en/stories/?p=2">'));
+  assert.ok(second.includes('hreflang="es" href="https://portalnocturna.com.br/es/historias/?p=2"'));
+  assert.ok(second.includes('href="/en/stories/" rel="prev"'));
+  assert.ok(second.includes('<span aria-current="page">2</span>'));
+  assert.ok(second.includes('(continued)'));
+  assert.match(second, /<title>All dossiers, page 2 of 3/);
+  const last = archivePage(many, 'es', 3);
+  assert.equal(cards(last), 5);
+  assert.ok(!last.includes('rel="next"'));
+  assert.equal(archivePage(many, 'pt', 4), null);
+  assert.equal(archivePage(many, 'pt', 0), null);
+  const all = new Set([1, 2, 3].flatMap(page => [...archivePage(many, 'pt', page).matchAll(/href="\/pt\/historias\/(caso-\d+)\/"/g)].map(match => match[1])));
+  assert.equal(all.size, many.length);
+  assert.equal(archivePath('pt', 1), '/pt/historias/');
+  const xml = sitemap(many);
+  assert.ok(xml.includes('https://portalnocturna.com.br/en/stories/?p=3'));
+  assert.ok(!xml.includes('?p=4'));
 });

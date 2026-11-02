@@ -163,29 +163,67 @@ export function placePage(group, lang, stories = group.stories) {
 
 // Lista completa dos dossiês publicados (/pt/historias/, /en/stories/, /es/historias/), agrupada por país.
 const archiveCopy = {
-  pt: { title: 'Todos os dossiês', description: 'Lista completa dos dossiês publicados no Nocturna, organizada por país, com resumo e local de cada caso.', intro: 'Cada dossiê reúne o que as fontes documentam sobre um lugar, separa o que é disputado e indica onde ler mais. Os casos estão organizados por país; dentro de cada país, os mais recentes aparecem primeiro.', count: 'dossiês publicados', places: 'Ver histórias deste lugar' },
-  en: { title: 'All dossiers', description: 'Complete list of dossiers published on Nocturna, organized by country, with a summary and location for each case.', intro: 'Each dossier gathers what the sources document about a place, separates what is disputed and points to further reading. Cases are organized by country; within each country, the most recent appear first.', count: 'published dossiers', places: 'See stories from this place' },
-  es: { title: 'Todos los dosieres', description: 'Lista completa de los dosieres publicados en Nocturna, organizada por país, con el resumen y el lugar de cada caso.', intro: 'Cada dosier reúne lo que las fuentes documentan sobre un lugar, separa lo que está en disputa e indica dónde leer más. Los casos están organizados por país; dentro de cada país, los más recientes aparecen primero.', count: 'dosieres publicados', places: 'Ver historias de este lugar' },
+  pt: { title: 'Todos os dossiês', description: 'Lista completa dos dossiês publicados no Nocturna, organizada por país, com resumo e local de cada caso.', intro: 'Cada dossiê reúne o que as fontes documentam sobre um lugar, separa o que é disputado e indica onde ler mais. Os casos estão organizados por país; dentro de cada país, os mais recentes aparecem primeiro.', count: 'dossiês publicados', places: 'Ver histórias deste lugar', page: 'Página', of: 'de', previous: 'Anterior', next: 'Próxima', pagination: 'Páginas da lista', continued: 'continuação' },
+  en: { title: 'All dossiers', description: 'Complete list of dossiers published on Nocturna, organized by country, with a summary and location for each case.', intro: 'Each dossier gathers what the sources document about a place, separates what is disputed and points to further reading. Cases are organized by country; within each country, the most recent appear first.', count: 'published dossiers', places: 'See stories from this place', page: 'Page', of: 'of', previous: 'Previous', next: 'Next', pagination: 'List pages', continued: 'continued' },
+  es: { title: 'Todos los dosieres', description: 'Lista completa de los dosieres publicados en Nocturna, organizada por país, con el resumen y el lugar de cada caso.', intro: 'Cada dosier reúne lo que las fuentes documentan sobre un lugar, separa lo que está en disputa e indica dónde leer más. Los casos están organizados por país; dentro de cada país, los más recientes aparecen primero.', count: 'dosieres publicados', places: 'Ver historias de este lugar', page: 'Página', of: 'de', previous: 'Anterior', next: 'Siguiente', pagination: 'Páginas de la lista', continued: 'continuación' },
 };
 
-export function archivePage(stories, lang) {
+export const ARCHIVE_PAGE_SIZE = 20;
+
+// Página 1 em /pt/historias/; as demais em /pt/historias/?p=2 (cada página é canônica de si mesma).
+export function archivePath(lang, page = 1) {
+  return page > 1 ? `${sitePages.archive[lang]}?p=${page}` : sitePages.archive[lang];
+}
+
+export function archivePageCount(stories) {
+  return Math.max(1, Math.ceil(stories.length / ARCHIVE_PAGE_SIZE));
+}
+
+// Ordem da lista: país (alfabética) e, dentro do país, mais recentes primeiro.
+function archiveOrder(stories, lang) {
+  return [...stories].sort((a, b) => a.place.country.trim().localeCompare(b.place.country.trim(), locale[lang])
+    || (b.publishedAt || '').localeCompare(a.publishedAt || '') || a.slug.localeCompare(b.slug));
+}
+
+function paginationNav(lang, page, pages) {
+  if (pages < 2) return '';
   const copy = archiveCopy[lang];
-  const canonical = `${SITE_URL}${sitePages.archive[lang]}`;
-  const title = `${copy.title} — Nocturna`;
-  const alternates = ['pt', 'en', 'es'].map(code => `<link rel="alternate" hreflang="${locale[code]}" href="${SITE_URL}${sitePages.archive[code]}">`).join('') + `<link rel="alternate" hreflang="x-default" href="${SITE_URL}${sitePages.archive.pt}">`;
-  const nav = languageMenu(lang, code => sitePages.archive[code]);
+  const link = (number, text, rel = '') => `<a href="${archivePath(lang, number)}"${rel ? ` rel="${rel}"` : ''}>${text}</a>`;
+  const numbers = Array.from({ length: pages }, (_, index) => index + 1).map(number => number === page
+    ? `<span aria-current="page">${number}</span>`
+    : link(number, number, '')).join('');
+  return `<nav class="pagination" aria-label="${copy.pagination}">${page > 1 ? link(page - 1, `← ${copy.previous}`, 'prev') : ''}${numbers}${page < pages ? link(page + 1, `${copy.next} →`, 'next') : ''}</nav>`;
+}
+
+// Devolve null quando a página não existe.
+export function archivePage(stories, lang, page = 1) {
+  const pages = archivePageCount(stories);
+  if (!Number.isInteger(page) || page < 1 || page > pages) return null;
+  const copy = archiveCopy[lang];
+  const canonical = `${SITE_URL}${archivePath(lang, page)}`;
+  const heading = page > 1 ? `${copy.title}, ${copy.page.toLowerCase()} ${page} ${copy.of} ${pages}` : copy.title;
+  const title = `${heading} — Nocturna`;
+  const alternates = ['pt', 'en', 'es'].map(code => `<link rel="alternate" hreflang="${locale[code]}" href="${SITE_URL}${archivePath(code, page)}">`).join('') + `<link rel="alternate" hreflang="x-default" href="${SITE_URL}${archivePath('pt', page)}">`;
+  const nav = languageMenu(lang, code => archivePath(code, page));
   const localities = new Map(groupPlaces(stories).flatMap(group => group.stories.map(story => [story.slug, group.slug])));
+  const ordered = archiveOrder(stories, lang);
+  const totals = new Map();
+  for (const story of ordered) totals.set(story.place.country.trim(), (totals.get(story.place.country.trim()) || 0) + 1);
+  const first = (page - 1) * ARCHIVE_PAGE_SIZE;
   const countries = new Map();
-  for (const story of stories) {
+  for (const story of ordered.slice(first, first + ARCHIVE_PAGE_SIZE)) {
     const country = story.place.country.trim();
     if (!countries.has(country)) countries.set(country, []);
     countries.get(country).push(story);
   }
-  const sections = [...countries].sort(([a], [b]) => a.localeCompare(b, locale[lang])).map(([country, items]) => {
-    const sorted = [...items].sort((a, b) => (b.publishedAt || '').localeCompare(a.publishedAt || '') || a.slug.localeCompare(b.slug));
-    return `<section class="archive-country" aria-label="${escapeHtml(country)}"><h2>${escapeHtml(country)} <span>(${sorted.length})</span></h2>${sorted.map(story => storyCard(story, lang).replace('</article>', `<p class="story-card-place"><a href="${placeUrl(lang, localities.get(story.slug))}">${escapeHtml(story.place.city)} · ${copy.places}</a></p></article>`)).join('')}</section>`;
+  const sections = [...countries].map(([country, items]) => {
+    const continued = ordered.slice(0, first).some(story => story.place.country.trim() === country) ? ` <span>(${copy.continued})</span>` : '';
+    return `<section class="archive-country" aria-label="${escapeHtml(country)}"><h2>${escapeHtml(country)} <span>(${totals.get(country)})</span>${continued}</h2>${items.map(story => storyCard(story, lang, 'h3').replace('</article>', `<p class="story-card-place"><a href="${placeUrl(lang, localities.get(story.slug))}">${escapeHtml(story.place.city)} · ${copy.places}</a></p></article>`)).join('')}</section>`;
   }).join('');
-  const structured = JSON.stringify({ '@context': 'https://schema.org', '@type': 'CollectionPage', name: copy.title, description: copy.description, inLanguage: locale[lang], url: canonical, mainEntity: { '@type': 'ItemList', numberOfItems: stories.length, itemListElement: stories.map((story, index) => ({ '@type': 'ListItem', position: index + 1, url: storyUrl(lang, story.slug) })) } }).replace(/</g, '\\u003c');
+  const pageItems = ordered.slice(first, first + ARCHIVE_PAGE_SIZE);
+  const structured = JSON.stringify({ '@context': 'https://schema.org', '@type': 'CollectionPage', name: heading, description: copy.description, inLanguage: locale[lang], url: canonical, mainEntity: { '@type': 'ItemList', numberOfItems: stories.length, itemListElement: pageItems.map((story, index) => ({ '@type': 'ListItem', position: first + index + 1, url: storyUrl(lang, story.slug) })) } }).replace(/</g, '\\u003c');
+  const status = pages > 1 ? ` · ${copy.page} ${page} ${copy.of} ${pages}` : '';
+  const intro = page === 1 ? `<p>${copy.intro}</p>` : '';
   return `<!doctype html><html lang="${locale[lang]}"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="index,follow,max-image-preview:large">
 <meta name="theme-color" content="#080d14"><title>${escapeHtml(title)}</title><meta name="description" content="${escapeHtml(copy.description)}">
@@ -193,7 +231,7 @@ export function archivePage(stories, lang) {
 <meta property="og:type" content="website"><meta property="og:site_name" content="Nocturna"><meta property="og:title" content="${escapeHtml(title)}"><meta property="og:description" content="${escapeHtml(copy.description)}"><meta property="og:url" content="${canonical}"><meta name="twitter:card" content="summary">
 <script type="application/ld+json">${structured}</script><link rel="stylesheet" href="/styles.css">${privacyScript}</head>
 <body><div class="shell"><header class="masthead"><a class="brand" href="/${lang}/"><span class="brand-mark" aria-hidden="true">✦</span><span>NOCTURNA</span></a>${nav}</header>
-<main class="legal archive-page"><a class="back" href="/${lang}/">← ${labels[lang].back}</a><h1>${copy.title}</h1><p>${copy.intro}</p><p class="eyebrow">${stories.length} ${copy.count}</p>${sections}</main>
+<main class="legal archive-page"><a class="back" href="/${lang}/">← ${labels[lang].back}</a><h1>${escapeHtml(heading)}</h1>${intro}<p class="eyebrow">${stories.length} ${copy.count}${status}</p>${sections}${paginationNav(lang, page, pages)}</main>
 <footer><a class="footer-brand brand" href="/${lang}/" aria-label="Nocturna"><span class="brand-mark" aria-hidden="true">✦</span><span>NOCTURNA</span></a><span>${labels[lang].footer}</span>${footerLinks(lang)}</footer>
 </div></body></html>`;
 }
@@ -208,6 +246,10 @@ export function sitemap(stories) {
   const urls = langs.map(lang => entry(home[lang], home));
   const privacy = Object.fromEntries(langs.map(lang => [lang, `${SITE_URL}/${lang}/privacidade.html`]));
   for (const lang of langs) urls.push(entry(privacy[lang], privacy));
+  for (let number = 2; number <= archivePageCount(stories); number++) {
+    const alternatives = Object.fromEntries(langs.map(lang => [lang, `${SITE_URL}${archivePath(lang, number)}`]));
+    for (const lang of langs) urls.push(entry(alternatives[lang], alternatives));
+  }
   for (const page of ['archive', 'about', 'contact']) {
     const alternatives = Object.fromEntries(langs.map(lang => [lang, `${SITE_URL}${sitePages[page][lang]}`]));
     for (const lang of langs) urls.push(entry(alternatives[lang], alternatives));
