@@ -36,6 +36,16 @@ HOME_TEXT = {
         "Escolha um ponto do globo ou procure uma cidade para descobrir histórias próximas.": "Pick a point on the globe or search for a city to discover nearby stories.",
         "Busque uma cidade ou código postal": "Search for a city or postal code",
         "Busca de locais:": "Place search:",
+        "Dossiês recentes": "Recent dossiers",
+        "Ver todos os dossiês": "See all dossiers",
+        "Sobre o Nocturna": "About Nocturna",
+        "O Nocturna é um atlas de histórias incomuns ligadas a lugares reais: crimes e casos não resolvidos, fenômenos sem explicação aceita, desaparecimentos, lendas e lugares marcados pela história. Cada dossiê está associado a um ponto do mapa, para que você descubra o que aconteceu perto de onde vive ou de onde pretende ir.": "Nocturna is an atlas of unusual stories tied to real places: crimes and unsolved cases, phenomena without an accepted explanation, disappearances, legends and places marked by history. Each dossier is pinned to a point on the map, so you can discover what happened near where you live or where you plan to go.",
+        "Os dossiês são escritos a partir de fontes públicas e verificáveis, como decisões judiciais, documentos oficiais, arquivos de imprensa e estudos acadêmicos, listadas ao final de cada texto. Separamos o que está documentado do que é disputado ou não foi demonstrado, e cada história recebe uma classificação: documentado, relato não verificado ou ficção.": "Dossiers are written from public, verifiable sources, such as court rulings, official documents, press archives and academic studies, listed at the end of each text. We separate what is documented from what is disputed or has not been shown, and every story carries a classification: documented, unverified account or fiction.",
+        "Saiba como os dossiês são feitos": "Learn how the dossiers are made",
+        "Páginas do site": "Site pages",
+        ">Todos os dossiês<": ">All dossiers<",
+        ">Sobre<": ">About<",
+        ">Contato<": ">Contact<",
         "Buscar cidade": "Search for a city",
         "Explorar": "Explore",
         "Minha localização": "My location",
@@ -63,6 +73,16 @@ HOME_TEXT = {
         "Escolha um ponto do globo ou procure uma cidade para descobrir histórias próximas.": "Elige un punto del globo o busca una ciudad para descubrir historias cercanas.",
         "Busque uma cidade ou código postal": "Busca una ciudad o código postal",
         "Busca de locais:": "Búsqueda de lugares:",
+        "Dossiês recentes": "Dosieres recientes",
+        "Ver todos os dossiês": "Ver todos los dosieres",
+        "Sobre o Nocturna": "Acerca de Nocturna",
+        "O Nocturna é um atlas de histórias incomuns ligadas a lugares reais: crimes e casos não resolvidos, fenômenos sem explicação aceita, desaparecimentos, lendas e lugares marcados pela história. Cada dossiê está associado a um ponto do mapa, para que você descubra o que aconteceu perto de onde vive ou de onde pretende ir.": "Nocturna es un atlas de historias insólitas ligadas a lugares reales: crímenes y casos sin resolver, fenómenos sin explicación aceptada, desapariciones, leyendas y lugares marcados por la historia. Cada dosier está asociado a un punto del mapa, para que descubras qué ocurrió cerca de donde vives o de adonde piensas ir.",
+        "Os dossiês são escritos a partir de fontes públicas e verificáveis, como decisões judiciais, documentos oficiais, arquivos de imprensa e estudos acadêmicos, listadas ao final de cada texto. Separamos o que está documentado do que é disputado ou não foi demonstrado, e cada história recebe uma classificação: documentado, relato não verificado ou ficção.": "Los dosieres se escriben a partir de fuentes públicas y verificables, como sentencias judiciales, documentos oficiales, archivos de prensa y estudios académicos, citadas al final de cada texto. Separamos lo que está documentado de lo que está en disputa o no se ha demostrado, y cada historia lleva una clasificación: documentado, relato no verificado o ficción.",
+        "Saiba como os dossiês são feitos": "Descubre cómo se hacen los dosieres",
+        "Páginas do site": "Páginas del sitio",
+        ">Todos os dossiês<": ">Todos los dosieres<",
+        ">Sobre<": ">Acerca de<",
+        ">Contato<": ">Contacto<",
         "Buscar cidade": "Buscar ciudad",
         "Minha localização": "Mi ubicación",
         "ATLAS INTERATIVO": "ATLAS INTERACTIVO",
@@ -119,12 +139,180 @@ LOCAL_PRIVACY_ANALYTICS = {
     "es": "Esta versión local no incluye medición de visitas ni anuncios. Google Analytics y Google AdSense no están activos.",
 }
 
+# Páginas institucionais e rodapé com links (mesmos caminhos e rótulos de dist/site-links.js).
+SITE_PAGES = {
+    "archive": {"pt": "/pt/historias/", "en": "/en/stories/", "es": "/es/historias/"},
+    "about": {"pt": "/pt/sobre.html", "en": "/en/about.html", "es": "/es/acerca.html"},
+    "contact": {"pt": "/pt/contato.html", "en": "/en/contact.html", "es": "/es/contacto.html"},
+    "privacy": {"pt": "/pt/privacidade.html", "en": "/en/privacidade.html", "es": "/es/privacidade.html"},
+}
+SITE_LABELS = {
+    "pt": {"archive": "Todos os dossiês", "about": "Sobre", "contact": "Contato", "privacy": "Privacidade", "footerNav": "Páginas do site"},
+    "en": {"archive": "All dossiers", "about": "About", "contact": "Contact", "privacy": "Privacy", "footerNav": "Site pages"},
+    "es": {"archive": "Todos los dosieres", "about": "Acerca de", "contact": "Contacto", "privacy": "Privacidad", "footerNav": "Páginas del sitio"},
+}
+CONTACT_EMAIL = "aibusinessbr@gmail.com"
+
+
+def site_footer_links(lang):
+    labels = SITE_LABELS[lang]
+    links = "".join(f'<a href="{SITE_PAGES[page][lang]}">{labels[page]}</a>' for page in ("archive", "about", "contact", "privacy"))
+    return f'<nav class="footer-links" aria-label="{labels["footerNav"]}">{links}</nav>'
+
+
+# Cada seção: (subtítulo, [parágrafos]) ou (subtítulo, {"list": [itens]}). {email} vira o link de contato.
+INFO_PAGES = {
+    "about": {
+        "pt": {
+            "title": "Sobre o Nocturna", "back": "Voltar ao atlas",
+            "description": "O que é o Nocturna, como os dossiês são pesquisados e classificados, e como pedir correções.",
+            "lead": "O Nocturna é um atlas interativo de histórias incomuns ligadas a lugares reais. Em vez de uma lista de casos, o ponto de partida é o mapa: você escolhe uma cidade ou um ponto do globo e descobre o que aconteceu ali e nos arredores.",
+            "sections": [
+                ("O que você encontra aqui", ["Dossiês sobre crimes e casos não resolvidos, desaparecimentos, fenômenos sem explicação aceita, acidentes e desastres, lendas e lugares marcados pela história. Cada dossiê tem versões em português, inglês e espanhol, com resumo, texto completo, localização no mapa, lista de fontes e sugestões de leitura para continuar a investigação."]),
+                ("Como os dossiês são feitos", ["Partimos de fontes públicas e verificáveis: decisões e processos judiciais, relatórios oficiais, arquivos de jornais e revistas, livros e estudos acadêmicos. Toda afirmação factual deve poder ser conferida nas fontes listadas ao final do texto.", "Quando as versões de um caso divergem, apresentamos as divergências e indicamos o que está documentado, o que é disputado e o que não foi demonstrado. Não inventamos fontes, datas, números nem citações."]),
+                ("Classificação das histórias", {"list": [
+                    "Documentado: os fatos centrais estão registrados em fontes confiáveis, como documentos oficiais, decisões judiciais ou imprensa de referência.",
+                    "Relato não verificado: a história circula em relatos, tradição oral ou testemunhos, mas os fatos centrais não puderam ser confirmados. O dossiê explica de onde vem o relato e o que se sabe sobre ele.",
+                    "Ficção: obra ou lenda declaradamente ficcional, apresentada como tal.",
+                ]}),
+                ("Respeito às vítimas e localização", ["Muitos casos envolvem pessoas reais. Escrevemos com sobriedade, sem sensacionalismo e sem expor dados que não sejam necessários para entender o caso. Em crimes, locais ligados a vítimas e residências, o mapa mostra apenas a região aproximada (cerca de 1 km), sem endereço nem Street View. Lugares públicos, como monumentos, edifícios conhecidos e sítios naturais, aparecem no ponto exato."]),
+                ("Correções", ["Se você encontrar um erro, uma fonte quebrada ou uma informação desatualizada, escreva para {email}. Analisamos cada pedido e corrigimos o texto quando necessário. Familiares e pessoas citadas também podem pedir a revisão de trechos que as envolvam."]),
+                ("Comentários", ["Leitores podem comentar os dossiês sem criar conta. Todo comentário passa por moderação antes de aparecer; não publicamos ataques pessoais, dados pessoais de terceiros nem conteúdo ofensivo."]),
+                ("Quem faz o Nocturna", ["O Nocturna é um projeto independente mantido por Rafael Correia. Contato: {email}."]),
+            ],
+        },
+        "en": {
+            "title": "About Nocturna", "back": "Back to the atlas",
+            "description": "What Nocturna is, how dossiers are researched and classified, and how to request corrections.",
+            "lead": "Nocturna is an interactive atlas of unusual stories tied to real places. Instead of a list of cases, the starting point is the map: you choose a city or a point on the globe and discover what happened there and nearby.",
+            "sections": [
+                ("What you will find here", ["Dossiers on crimes and unsolved cases, disappearances, phenomena without an accepted explanation, accidents and disasters, legends and places marked by history. Each dossier has Portuguese, English and Spanish versions, with a summary, the full text, a map location, a list of sources and suggested reading to continue the investigation."]),
+                ("How the dossiers are made", ["We start from public, verifiable sources: court rulings and case files, official reports, newspaper and magazine archives, books and academic studies. Every factual claim should be checkable in the sources listed at the end of the text.", "When accounts of a case diverge, we present the differences and indicate what is documented, what is disputed and what has not been shown. We do not invent sources, dates, figures or quotations."]),
+                ("How stories are classified", {"list": [
+                    "Documented: the central facts are recorded in reliable sources, such as official documents, court rulings or reputable press.",
+                    "Unverified account: the story circulates through accounts, oral tradition or testimony, but the central facts could not be confirmed. The dossier explains where the account comes from and what is known about it.",
+                    "Fiction: an openly fictional work or legend, presented as such.",
+                ]}),
+                ("Respect for victims and location", ["Many cases involve real people. We write soberly, without sensationalism and without exposing details that are not needed to understand the case. For crimes, places linked to victims and private homes, the map shows only the approximate area (about 1 km), with no address or Street View. Public places, such as monuments, well-known buildings and natural sites, appear at the exact point."]),
+                ("Corrections", ["If you find an error, a broken source or outdated information, write to {email}. We review every request and correct the text when needed. Relatives and people mentioned can also ask us to review passages that concern them."]),
+                ("Comments", ["Readers can comment on dossiers without an account. Every comment is moderated before it appears; we do not publish personal attacks, other people's personal data or offensive content."]),
+                ("Who runs Nocturna", ["Nocturna is an independent project run by Rafael Correia. Contact: {email}."]),
+            ],
+        },
+        "es": {
+            "title": "Acerca de Nocturna", "back": "Volver al atlas",
+            "description": "Qué es Nocturna, cómo se investigan y clasifican los dosieres y cómo solicitar correcciones.",
+            "lead": "Nocturna es un atlas interactivo de historias insólitas ligadas a lugares reales. En lugar de una lista de casos, el punto de partida es el mapa: eliges una ciudad o un punto del globo y descubres qué ocurrió allí y en los alrededores.",
+            "sections": [
+                ("Qué encontrarás aquí", ["Dosieres sobre crímenes y casos sin resolver, desapariciones, fenómenos sin explicación aceptada, accidentes y desastres, leyendas y lugares marcados por la historia. Cada dosier tiene versiones en portugués, inglés y español, con resumen, texto completo, ubicación en el mapa, lista de fuentes y lecturas sugeridas para seguir investigando."]),
+                ("Cómo se hacen los dosieres", ["Partimos de fuentes públicas y verificables: sentencias y expedientes judiciales, informes oficiales, archivos de periódicos y revistas, libros y estudios académicos. Toda afirmación factual debe poder comprobarse en las fuentes citadas al final del texto.", "Cuando las versiones de un caso difieren, presentamos las diferencias e indicamos qué está documentado, qué está en disputa y qué no se ha demostrado. No inventamos fuentes, fechas, cifras ni citas."]),
+                ("Clasificación de las historias", {"list": [
+                    "Documentado: los hechos centrales constan en fuentes fiables, como documentos oficiales, sentencias judiciales o prensa de referencia.",
+                    "Relato no verificado: la historia circula en relatos, tradición oral o testimonios, pero los hechos centrales no pudieron confirmarse. El dosier explica de dónde viene el relato y qué se sabe de él.",
+                    "Ficción: obra o leyenda declaradamente ficticia, presentada como tal.",
+                ]}),
+                ("Respeto a las víctimas y ubicación", ["Muchos casos involucran a personas reales. Escribimos con sobriedad, sin sensacionalismo y sin exponer datos que no sean necesarios para entender el caso. En crímenes, lugares vinculados a víctimas y viviendas, el mapa muestra solo la zona aproximada (alrededor de 1 km), sin dirección ni Street View. Los lugares públicos, como monumentos, edificios conocidos y parajes naturales, aparecen en el punto exacto."]),
+                ("Correcciones", ["Si encuentras un error, una fuente rota o información desactualizada, escribe a {email}. Revisamos cada solicitud y corregimos el texto cuando es necesario. Los familiares y las personas mencionadas también pueden pedir la revisión de los pasajes que les conciernen."]),
+                ("Comentarios", ["Los lectores pueden comentar los dosieres sin crear una cuenta. Todo comentario pasa por moderación antes de aparecer; no publicamos ataques personales, datos personales de terceros ni contenido ofensivo."]),
+                ("Quién hace Nocturna", ["Nocturna es un proyecto independiente a cargo de Rafael Correia. Contacto: {email}."]),
+            ],
+        },
+    },
+    "contact": {
+        "pt": {
+            "title": "Contato", "back": "Voltar ao atlas",
+            "description": "Como falar com o Nocturna: correções, fontes, sugestões de histórias e pedidos sobre comentários e privacidade.",
+            "lead": "O Nocturna é mantido por Rafael Correia. Para falar com o projeto, escreva para {email}.",
+            "sections": [
+                ("Sobre o que escrever", {"list": [
+                    "Correções de fatos, datas ou nomes em um dossiê.",
+                    "Fontes adicionais ou documentos que ajudem a esclarecer um caso.",
+                    "Sugestões de histórias e lugares para novos dossiês.",
+                    "Pedidos de correção ou remoção de um comentário.",
+                    "Dúvidas sobre privacidade e tratamento de dados.",
+                ]}),
+                ("Ao escrever", ["Para correções, informe o endereço da página do dossiê e, se possível, a fonte que sustenta a correção. Não envie dados pessoais sensíveis por e-mail."]),
+            ],
+        },
+        "en": {
+            "title": "Contact", "back": "Back to the atlas",
+            "description": "How to reach Nocturna: corrections, sources, story suggestions and requests about comments and privacy.",
+            "lead": "Nocturna is run by Rafael Correia. To reach the project, write to {email}.",
+            "sections": [
+                ("What to write about", {"list": [
+                    "Corrections of facts, dates or names in a dossier.",
+                    "Additional sources or documents that help clarify a case.",
+                    "Suggestions of stories and places for new dossiers.",
+                    "Requests to correct or remove a comment.",
+                    "Questions about privacy and how data is handled.",
+                ]}),
+                ("When you write", ["For corrections, include the address of the dossier page and, if possible, the source that supports the correction. Do not send sensitive personal data by email."]),
+            ],
+        },
+        "es": {
+            "title": "Contacto", "back": "Volver al atlas",
+            "description": "Cómo contactar con Nocturna: correcciones, fuentes, sugerencias de historias y solicitudes sobre comentarios y privacidad.",
+            "lead": "Nocturna está a cargo de Rafael Correia. Para contactar con el proyecto, escribe a {email}.",
+            "sections": [
+                ("Sobre qué escribir", {"list": [
+                    "Correcciones de hechos, fechas o nombres en un dosier.",
+                    "Fuentes adicionales o documentos que ayuden a aclarar un caso.",
+                    "Sugerencias de historias y lugares para nuevos dosieres.",
+                    "Solicitudes de corrección o eliminación de un comentario.",
+                    "Dudas sobre privacidad y tratamiento de datos.",
+                ]}),
+                ("Al escribir", ["Para correcciones, indica la dirección de la página del dosier y, si es posible, la fuente que respalda la corrección. No envíes datos personales sensibles por correo electrónico."]),
+            ],
+        },
+    },
+}
+
+
+def render_info_page(kind, lang):
+    copy = INFO_PAGES[kind][lang]
+    locale = {"pt": "pt-BR", "en": "en", "es": "es"}[lang]
+    email = f'<a href="mailto:{CONTACT_EMAIL}">{CONTACT_EMAIL}</a>'
+    text = lambda value: escape(value).replace("{email}", email)
+    body = [f'<p class="lead">{text(copy["lead"])}</p>']
+    for heading, content in copy["sections"]:
+        body.append(f"<h2>{escape(heading)}</h2>")
+        if isinstance(content, dict):
+            body.append("<ul>" + "".join(f"<li>{text(item)}</li>" for item in content["list"]) + "</ul>")
+        else:
+            body.extend(f"<p>{text(paragraph)}</p>" for paragraph in content)
+    if kind == "about":
+        archive = {"pt": "Ver todos os dossiês", "en": "See all dossiers", "es": "Ver todos los dosieres"}[lang]
+        body.append(f'<p><a href="{SITE_PAGES["archive"][lang]}">{archive}</a></p>')
+    meta = '<meta name="robots" content="noindex,follow">'
+    if not STATIC_CATALOG:
+        canonical = SITE_URL + SITE_PAGES[kind][lang]
+        alternates = "".join(f'<link rel="alternate" hreflang="{code_locale}" href="{SITE_URL}{SITE_PAGES[kind][code]}">' for code, code_locale in (("pt", "pt-BR"), ("en", "en"), ("es", "es")))
+        alternates += f'<link rel="alternate" hreflang="x-default" href="{SITE_URL}{SITE_PAGES[kind]["pt"]}">'
+        structured = json.dumps({"@context": "https://schema.org", "@type": "AboutPage" if kind == "about" else "ContactPage", "name": copy["title"], "description": copy["description"], "inLanguage": locale, "url": canonical,
+                                 "publisher": {"@type": "Organization", "name": "Nocturna", "url": SITE_URL, "email": CONTACT_EMAIL}}, ensure_ascii=False).replace("<", "\\u003c")
+        meta = (f'<meta name="robots" content="index,follow"><link rel="canonical" href="{canonical}">{alternates}'
+                f'<meta property="og:type" content="website"><meta property="og:site_name" content="Nocturna"><meta property="og:title" content="{escape(copy["title"], quote=True)} — Nocturna">'
+                f'<meta property="og:description" content="{escape(copy["description"], quote=True)}"><meta property="og:url" content="{canonical}">'
+                f'<script type="application/ld+json">{structured}</script>')
+    script = PRIVACY_SCRIPT if not STATIC_CATALOG else '<script defer src="/privacy.js"></script>'
+    masthead = {"pt": "ATLAS DO INCOMUM", "en": "ATLAS OF THE UNUSUAL", "es": "ATLAS DE LO INSÓLITO"}[lang]
+    language = {"pt": "Idioma", "en": "Language", "es": "Idioma"}[lang]
+    options = "".join(f'<option value="{SITE_PAGES[kind][code]}"' + (" selected" if code == lang else "") + f">{code.upper()}</option>" for code in ("pt", "en", "es"))
+    footer_note = {"pt": "Sem cadastro. Localização opcional.", "en": "No account. Location is optional.", "es": "Sin cuenta. Ubicación opcional."}[lang]
+    html = f'''<!doctype html>
+<html lang="{locale}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">{meta}<meta name="theme-color" content="#080d14"><title>{escape(copy["title"])} — Nocturna</title><meta name="description" content="{escape(copy["description"], quote=True)}"><link rel="stylesheet" href="/styles.css">{script}</head>
+<body><div class="shell"><header class="masthead"><a class="brand" href="/{lang}/"><span class="brand-mark" aria-hidden="true">✦</span><span>NOCTURNA</span></a><div class="header-right"><span class="masthead-label">{masthead}</span><label class="language"><span class="sr-only">{language}</span><select aria-label="{language}" onchange="location.href=this.value">{options}</select></label></div></header><main class="legal"><a class="back" href="/{lang}/">← {escape(copy["back"])}</a><h1>{escape(copy["title"])}</h1>{"".join(body)}</main><footer><a class="footer-brand brand" href="/{lang}/" aria-label="Nocturna"><span class="brand-mark" aria-hidden="true">✦</span><span>NOCTURNA</span></a><span>{footer_note}</span>{site_footer_links(lang)}</footer></div></body></html>'''
+    (ROOT / SITE_PAGES[kind][lang].lstrip("/")).write_text(html, encoding="utf-8")
+
+
 for lang in ("pt", "en", "es"):
     folder = ROOT / lang
     folder.mkdir(exist_ok=True)
     page = HOME.replace('href="./styles.css"', 'href="../styles.css"').replace('src="./app.js"', 'src="../app.js"')
     page = page.replace('src="./privacy.js"', 'src="../privacy.js"' + (' data-analytics="vercel"' if not STATIC_CATALOG else ''))
     page = page.replace('href="./"', f'href="/{lang}/"').replace('href="./pt/privacidade.html"', f'href="/{lang}/privacidade.html"')
+    for kind in ("archive", "about", "contact"):
+        page = page.replace(f'href="{SITE_PAGES[kind]["pt"]}"', f'href="{SITE_PAGES[kind][lang]}"')
     page = page.replace('lang="pt-BR"', f'lang="{dict(pt="pt-BR", en="en", es="es")[lang]}"')
     for source, target in HOME_TEXT[lang].items():
         assert source in page, (lang, source)
@@ -164,8 +352,10 @@ for lang in ("pt", "en", "es"):
     privacy_script = PRIVACY_SCRIPT if not STATIC_CATALOG else '<script defer src="/privacy.js"></script>'
     legal = f'''<!doctype html>
 <html lang="{locale}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">{privacy_meta}<meta name="theme-color" content="#080d14"><title>{escape(copy['title'])} — Nocturna</title><link rel="stylesheet" href="../styles.css">{privacy_script}</head>
-<body><div class="shell"><header class="masthead"><a class="brand" href="/{lang}/"><span class="brand-mark" aria-hidden="true">✦</span><span>NOCTURNA</span></a><label class="language"><span class="sr-only">{escape(copy['title'])}</span><select id="legal-language" aria-label="{dict(pt='Idioma',en='Language',es='Idioma')[lang]}"><option value="pt" {'selected' if lang=='pt' else ''}>PT</option><option value="en" {'selected' if lang=='en' else ''}>EN</option><option value="es" {'selected' if lang=='es' else ''}>ES</option></select></label></header><main class="legal"><a class="back" href="/{lang}/">← {escape(copy['back'])}</a><h1>{escape(copy['title'])}</h1><p class="draft">{escape(copy['status'])}</p><p>{escape(copy['intro'])}</p><h2>{escape(copy['h1'])}</h2><p>{escape(copy['p1'])}</p><h2>{escape(copy['h2'])}</h2><p>{escape(copy['p2'])}</p><h2>{escape(copy['h3'])}</h2><p>{escape(copy['p3'])}</p><h2>{escape(copy['h4'])}</h2><p>{escape(copy['p4'])}</p><h2>{escape(copy['h5'])}</h2><p>{escape(copy['p5'])}</p><p id="privacy-choice"></p><h2>{escape(copy['h6'])}</h2><p>{escape(copy['p6'])} {contact_link}.</p></main><footer><a class="footer-brand brand" href="/{lang}/" aria-label="Nocturna"><span class="brand-mark" aria-hidden="true">✦</span><span>NOCTURNA</span></a></footer></div><script>document.getElementById('legal-language').addEventListener('change',function(){{location.href='/'+this.value+'/privacidade.html'}})</script></body></html>'''
+<body><div class="shell"><header class="masthead"><a class="brand" href="/{lang}/"><span class="brand-mark" aria-hidden="true">✦</span><span>NOCTURNA</span></a><label class="language"><span class="sr-only">{escape(copy['title'])}</span><select id="legal-language" aria-label="{dict(pt='Idioma',en='Language',es='Idioma')[lang]}"><option value="pt" {'selected' if lang=='pt' else ''}>PT</option><option value="en" {'selected' if lang=='en' else ''}>EN</option><option value="es" {'selected' if lang=='es' else ''}>ES</option></select></label></header><main class="legal"><a class="back" href="/{lang}/">← {escape(copy['back'])}</a><h1>{escape(copy['title'])}</h1><p class="draft">{escape(copy['status'])}</p><p>{escape(copy['intro'])}</p><h2>{escape(copy['h1'])}</h2><p>{escape(copy['p1'])}</p><h2>{escape(copy['h2'])}</h2><p>{escape(copy['p2'])}</p><h2>{escape(copy['h3'])}</h2><p>{escape(copy['p3'])}</p><h2>{escape(copy['h4'])}</h2><p>{escape(copy['p4'])}</p><h2>{escape(copy['h5'])}</h2><p>{escape(copy['p5'])}</p><p id="privacy-choice"></p><h2>{escape(copy['h6'])}</h2><p>{escape(copy['p6'])} {contact_link}.</p></main><footer><a class="footer-brand brand" href="/{lang}/" aria-label="Nocturna"><span class="brand-mark" aria-hidden="true">✦</span><span>NOCTURNA</span></a>{site_footer_links(lang)}</footer></div><script>document.getElementById('legal-language').addEventListener('change',function(){{location.href='/'+this.value+'/privacidade.html'}})</script></body></html>'''
     (folder / "privacidade.html").write_text(legal, encoding="utf-8")
+    render_info_page("about", lang)
+    render_info_page("contact", lang)
 
 def validate_story(story):
     slug = story.get("slug", "")
@@ -256,9 +446,9 @@ def reading_footer(lang):
         "en": ("No account. Location is optional.", "Privacy"),
         "es": ("Sin cuenta. Ubicación opcional.", "Privacidad"),
     }
-    privacy_note, privacy = labels[lang]
+    privacy_note, _ = labels[lang]
     brand = f'<a class="footer-brand brand" href="/{lang}/" aria-label="Nocturna"><span class="brand-mark" aria-hidden="true">✦</span><span>NOCTURNA</span></a>'
-    return f'<footer>{brand}<span>{privacy_note} <a href="/{lang}/privacidade.html">{privacy}</a></span></footer>'
+    return f'<footer>{brand}<span>{privacy_note}</span>{site_footer_links(lang)}</footer>'
 
 
 def render_inline(text):

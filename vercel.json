@@ -22,6 +22,9 @@
     { "source": "/", "has": [{ "type": "header", "key": "accept-language", "value": "(?i)^\\s*pt.*" }], "destination": "/pt/", "permanent": false },
     { "source": "/", "destination": "/en/", "permanent": false },
     { "source": "/index.html", "destination": "/", "permanent": true },
+    { "source": "/pt/historias", "destination": "/pt/historias/", "permanent": true },
+    { "source": "/en/stories", "destination": "/en/stories/", "permanent": true },
+    { "source": "/es/historias", "destination": "/es/historias/", "permanent": true },
     { "source": "/story.html", "has": [{ "type": "query", "key": "lang", "value": "en" }, { "type": "query", "key": "slug", "value": "(?<slug>[a-z0-9-]+)" }], "destination": "/en/stories/:slug/", "permanent": true },
     { "source": "/story.html", "has": [{ "type": "query", "key": "lang", "value": "es" }, { "type": "query", "key": "slug", "value": "(?<slug>[a-z0-9-]+)" }], "destination": "/es/historias/:slug/", "permanent": true },
     { "source": "/story.html", "has": [{ "type": "query", "key": "slug", "value": "(?<slug>[a-z0-9-]+)" }], "destination": "/pt/historias/:slug/", "permanent": true }
@@ -29,6 +32,9 @@
   "rewrites": [
     { "source": "/api/admin/comments/:id", "destination": "/api/admin/comment?id=:id" },
     { "source": "/api/stories/:slug", "destination": "/api/story?slug=:slug" },
+    { "source": "/pt/historias/", "destination": "/api/place?type=archive&lang=pt" },
+    { "source": "/en/stories/", "destination": "/api/place?type=archive&lang=en" },
+    { "source": "/es/historias/", "destination": "/api/place?type=archive&lang=es" },
     { "source": "/pt/historias/:slug/", "destination": "/api/page?lang=pt&slug=:slug" },
     { "source": "/en/stories/:slug/", "destination": "/api/page?lang=en&slug=:slug" },
     { "source": "/es/historias/:slug/", "destination": "/api/page?lang=es&slug=:slug" },
